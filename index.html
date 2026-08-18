@@ -271,7 +271,6 @@
                 </div>
             </div>
 
-            <!-- PHẦN HTML BỊ LỖI LẦN TRƯỚC ĐÃ ĐƯỢC SỬA Ở ĐÂY -->
             <div class="flex-1 overflow-auto">
                 <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
@@ -445,6 +444,25 @@
         };
         // ===========================================
 
+        // === 🚀 KHU VỰC NHẬP DỮ LIỆU CÂU HỎI CỦA BẠN VÀO ĐÂY 🚀 ===
+        // Hệ thống sẽ ưu tiên dùng dữ liệu này cho mọi thiết bị (điện thoại, máy tính)
+        // Cách điền: Copy mẫu bên dưới và thay nội dung. 
+        // correctAnswerIndex: 0 là A, 1 là B, 2 là C, 3 là D.
+        const MY_REAL_QUESTIONS = [
+            {
+                content: "Một khách hàng có doanh thu thuần 12 tỷ đồng/năm, chi phí tiền mặt 8,4 tỷ đồng và nghĩa vụ trả nợ gốc trong năm 1,8 tỷ đồng. DSCR là bao nhiêu?",
+                options: ["2,33 lần", "2,67 lần", "1,67 lần", "2,00 lần"],
+                correctAnswerIndex: 3 // Đáp án D
+            },
+            {
+                content: "Câu hỏi thật số 2: Vốn lưu động ròng được tính bằng công thức nào?",
+                options: ["Tài sản ngắn hạn - Nợ ngắn hạn", "Tài sản dài hạn - Nợ dài hạn", "Tổng tài sản - Tổng nợ", "Vốn chủ sở hữu - Tài sản cố định"],
+                correctAnswerIndex: 0 // Đáp án A
+            }
+            // Thêm phẩy (,) và copy block ngoặc nhọn {} trên để thêm câu 3, 4, 5... đến 200
+        ];
+        // ==========================================================
+
         let db = null, auth = null;
         let appId = 'trac-nghiem-app-v1';
         
@@ -481,7 +499,7 @@
                 formLogin: document.getElementById('adminForm'),
                 btnExit: document.getElementById('btnExitAdmin'),
                 btnRefresh: document.getElementById('btnRefreshAdmin'),
-                tableBody: document.getElementById('adminTableBody'), // Khắc phục lỗi null ở đây!
+                tableBody: document.getElementById('adminTableBody'),
                 totalSpan: document.getElementById('adminTotalSubmissions')
             }
         };
@@ -523,19 +541,27 @@
                     if (docSnap.exists() && docSnap.data().questions && docSnap.data().questions.length > 0) {
                         questionsData = docSnap.data().questions;
                     } else {
-                        questionsData = generateMockData();
+                        throw new Error("Không có dữ liệu Cloud");
                     }
                 } else {
-                    // Lấy từ LocalStorage nếu có (Khi admin up excel ở chế độ offline)
+                    throw new Error("Không có kết nối Cloud");
+                }
+            } catch(e) {
+                // ƯU TIÊN 1: Lấy dữ liệu thật bạn đã dán vào biến MY_REAL_QUESTIONS ở trên cùng
+                if (MY_REAL_QUESTIONS && MY_REAL_QUESTIONS.length > 1) {
+                    // Cấp ID tự động cho dữ liệu của bạn
+                    questionsData = MY_REAL_QUESTIONS.map((q, index) => ({...q, id: index + 1}));
+                } 
+                // ƯU TIÊN 2: Lấy dữ liệu LocalStorage (nếu Admin vừa upload xong trên máy đó)
+                else {
                     const localQ = localStorage.getItem('thidaisu_questions');
                     if(localQ) {
                         questionsData = JSON.parse(localQ);
                     } else {
+                        // ƯU TIÊN 3: Bất đắc dĩ mới dùng Data giả lập
                         questionsData = generateMockData();
                     }
                 }
-            } catch(e) {
-                questionsData = generateMockData();
             }
             
             TOTAL_QUESTIONS = questionsData.length;
@@ -696,8 +722,16 @@
         }
 
         async function loadAdminData() {
-            if (!UI.admin.tableBody) return; // Bảo vệ hàm nếu HTML lỗi
-            UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>';
+            // Lấy trực tiếp phần tử mỗi khi gọi hàm để tránh lỗi null do cache
+            const tbody = document.getElementById('adminTableBody');
+            
+            if (!tbody) {
+                alert("Đang tải giao diện cũ. Vui lòng nhấn Ctrl + F5 để làm mới trang web!");
+                console.error("LỖI: Không tìm thấy adminTableBody. Cấu trúc HTML bị thiếu hoặc trình duyệt đang lưu cache.");
+                return;
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>';
             
             try {
                 let results = [];
@@ -713,10 +747,10 @@
 
                 results.sort((a, b) => b.timestamp - a.timestamp);
                 UI.admin.totalSpan.textContent = results.length;
-                UI.admin.tableBody.innerHTML = '';
+                tbody.innerHTML = '';
 
                 if(results.length === 0) {
-                     UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">Chưa có bài nộp nào.</td></tr>';
+                     tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">Chưa có bài nộp nào.</td></tr>';
                      return;
                 }
 
@@ -738,11 +772,11 @@
                         <td class="p-4 border-b text-sm text-center font-medium">${res.correctCount}/${res.totalQuestions || TOTAL_QUESTIONS}</td>
                         <td class="p-4 border-b text-sm text-center font-bold text-brand">${res.score.toFixed(1)}</td>
                     `;
-                    UI.admin.tableBody.appendChild(tr);
+                    tbody.appendChild(tr);
                 });
 
             } catch (error) {
-                UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Lỗi không thể tải dữ liệu (Offline). Tuy nhiên, kết quả Google Form vẫn hoạt động.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Lỗi không thể tải dữ liệu (Offline). Tuy nhiên, kết quả Google Form vẫn hoạt động.</td></tr>';
             }
         }
 
