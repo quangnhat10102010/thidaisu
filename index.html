@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hệ Thống Thi Trắc Nghiệm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#B0202E', 
+                            hover: '#8C1924',
+                            light: '#F8E8E9'
+                        },
+                        gray: {
+                            bg: '#F3F4F6',
+                            button: '#E5E7EB',
+                            buttonHover: '#D1D5DB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8F9FA;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .question-grid-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .question-grid-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .question-grid-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .custom-radio input[type="radio"] {
+            display: none;
+        }
+        
+        .custom-radio .radio-mark {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            margin-right: 12px;
+            flex-shrink: 0;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        
+        .custom-radio input[type="radio"]:checked + .radio-mark::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4F46E5;
+        }
+
+        .custom-radio input[type="radio"]:checked + .radio-mark {
+            border-color: #4F46E5;
+        }
+
+        .option-label {
+            transition: all 0.2s;
+        }
+        @media (hover: hover) {
+            .option-label:hover {
+                background-color: #F9FAFB;
+            }
+        }
+        
+        .option-label.selected {
+            border-color: #4F46E5;
+            background-color: #EEF2FF;
+        }
+
+        .grid-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            color: #374151;
+            margin: auto;
+        }
+        
+        @media (hover: hover) {
+            .grid-btn:hover {
+                background-color: #F3F4F6;
+            }
+        }
+
+        .grid-btn.current {
+            border: 2px solid #B0202E;
+            font-weight: bold;
+        }
+        .grid-btn.answered {
+            background-color: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+        }
+        .grid-btn.marked {
+            background-color: #F59E0B;
+            color: white;
+            border-color: #F59E0B;
+        }
+        .grid-btn.answered.marked {
+             background: linear-gradient(135deg, #3B82F6 50%, #F59E0B 50%);
+             color: white;
+             border-color: #374151;
+        }
+
+        /* Firebase Loading Overlay */
+        #firebaseLoading {
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #B0202E;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="h-[100dvh] w-screen overflow-hidden flex flex-col font-sans bg-[#F8F9FA]">
+
+    <!-- Overlay Loading DB -->
+    <div id="firebaseLoading">
+        <div class="spinner mb-3"></div>
+        <p class="text-gray-600 font-medium">Đang kết nối dữ liệu...</p>
+    </div>
+
+    <div id="loginScreen" class="flex-1 flex items-center justify-center p-4 transition-all duration-300">
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md mx-auto relative overflow-hidden">
+            
+            <!-- Khu vực đăng nhập Thí sinh -->
+            <div id="studentLoginSection" class="transition-all duration-300 transform translate-x-0 w-full">
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">HỆ THỐNG THI TRẮC NGHIỆM</h1>
+                    <p class="text-gray-500 text-sm">Vui lòng điền thông tin để bắt đầu</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Họ và Tên</label>
+                        <input type="text" id="fullName" required class="w-full px-4 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition" placeholder="Nhập họ và tên...">
+                    </div>
+                    <div>
+                        <label for="empId" class="block text-sm font-medium text-gray-700 mb-1">Mã CN/Phòng ban</label>
+                        <input type="text" id="empId" required class="w-full px-4 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition" placeholder="Nhập mã...">
+                    </div>
+                    
+                    <div class="pt-4 border-t border-gray-100 mt-6">
+                        <div class="flex justify-between text-sm text-gray-600 mb-4">
+                            <span>Số lượng: <strong>200 câu</strong></span>
+                            <span>Thời gian: <strong>60 phút</strong></span>
+                        </div>
+                        <button type="submit" id="btnStartExam" disabled class="w-full bg-brand hover:bg-brand-hover disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center">
+                            BẮT ĐẦU THI
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-5 text-center">
+                    <button id="btnShowAdminLogin" class="text-sm text-gray-500 hover:text-brand transition underline-offset-2 hover:underline focus:outline-none">Bạn là Quản trị viên?</button>
+                </div>
+            </div>
+
+            <!-- Khu vực đăng nhập Admin -->
+            <div id="adminLoginSection" class="hidden transition-all duration-300 transform translate-x-full absolute inset-0 p-6 sm:p-8 bg-white z-10 flex flex-col justify-center">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-12 h-12 bg-gray-100 text-gray-800 rounded-full mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7z"></path></svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">QUẢN TRỊ VIÊN</h1>
+                    <p class="text-gray-500 text-sm">Đăng nhập để xem kết quả thi</p>
+                </div>
+                
+                <form id="adminForm" class="space-y-4">
+                    <div>
+                        <label for="adminUsername" class="block text-sm font-medium text-gray-700 mb-1">Tài khoản</label>
+                        <input type="text" id="adminUsername" required class="w-full px-4 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-gray-800 outline-none transition" placeholder="Tên đăng nhập...">
+                    </div>
+                    <div>
+                        <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                        <input type="password" id="adminPassword" required class="w-full px-4 py-2 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-gray-800 outline-none transition" placeholder="Mật khẩu...">
+                    </div>
+                    
+                    <div class="pt-4 mt-2">
+                        <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center">
+                            ĐĂNG NHẬP
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-5 text-center">
+                    <button id="btnShowStudentLogin" class="text-sm text-gray-500 hover:text-gray-800 transition underline-offset-2 hover:underline focus:outline-none">&larr; Quay lại trang Thí sinh</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="adminScreen" class="hidden flex-1 overflow-hidden flex flex-col p-4 sm:p-8 bg-gray-50">
+        <div class="max-w-6xl mx-auto w-full flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-800 text-white">
+                <h2 class="text-xl font-bold">Khu Vực Quản Trị - Kết Quả Thi</h2>
+                <button id="btnExitAdmin" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition">Đóng Admin</button>
+            </div>
+            
+            <div class="p-4 bg-white border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 w-full sm:w-auto">
+                    <h3 class="font-bold text-blue-800 mb-1">Cập nhật Bộ Câu Hỏi (Excel)</h3>
+                    <p class="text-[11px] sm:text-xs text-blue-600 mb-2">Định dạng 6 cột: Câu hỏi | Đáp án A | Đáp án B | C | D | Đáp án đúng (A/B/C/D)</p>
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
+                    <div class="flex items-center gap-2">
+                        <button id="btnUploadExcel" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1 shadow-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Tải file Excel lên
+                        </button>
+                        <span id="uploadStatus" class="text-xs font-medium text-blue-800"></span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-end gap-2 w-full sm:w-auto">
+                    <p class="text-sm text-gray-600">Tổng số bài nộp: <span id="adminTotalSubmissions" class="font-bold text-gray-900">0</span></p>
+                    <button id="btnRefreshAdmin" class="px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm hover:bg-gray-50 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Làm mới kết quả
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-auto">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+
+    <div id="examScreen" class="hidden flex-1 w-full max-w-7xl mx-auto p-0 sm:p-4 flex flex-col md:flex-row gap-0 sm:gap-4 transition-all duration-300 relative min-h-0">
+        
+        <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity"></div>
+
+        <div class="flex-1 bg-white sm:rounded-xl shadow-sm sm:border border-gray-200 flex flex-col h-full overflow-hidden min-h-0 z-10 w-full">
+            <div class="p-3 sm:p-6 pb-2 sm:pb-3 border-b border-gray-100 flex justify-between items-center bg-white shadow-sm sm:shadow-none z-10 shrink-0">
+                <h2 class="text-base sm:text-xl font-bold text-gray-800" id="questionTitle">CÂU 1 / 200</h2>
+                
+                <div class="md:hidden flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-brand-light px-2.5 py-1.5 rounded-lg border border-red-100">
+                        <svg class="w-4 h-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold text-brand font-mono text-sm" id="mobileTimerDisplay">60:00</span>
+                    </div>
+                    <button id="btnOpenSidebar" class="p-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 sm:p-6 flex-1 overflow-y-auto">
+                <p class="text-gray-800 text-[15px] sm:text-base leading-relaxed mb-5" id="questionContent">Đang tải câu hỏi...</p>
+                <div class="space-y-2.5 sm:space-y-3" id="optionsContainer"></div>
+            </div>
+
+            <div class="p-3 sm:p-5 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row gap-2 sm:gap-3 shrink-0">
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-1 sm:gap-3">
+                     <button id="btnPrev" class="bg-gray-button hover:bg-gray-buttonHover text-gray-800 font-semibold py-2.5 px-2 sm:px-4 rounded-lg transition text-sm sm:text-base w-full">
+                        &larr; <span class="hidden sm:inline">Câu</span> trước
+                    </button>
+                    <button id="btnNext" class="bg-brand hover:bg-brand-hover text-white font-semibold py-2.5 px-2 sm:px-4 rounded-lg transition text-sm sm:text-base shadow-sm w-full">
+                        <span class="hidden sm:inline">Câu</span> sau &rarr;
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-1 sm:gap-3">
+                     <button id="btnMark" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-semibold py-2.5 px-2 sm:px-4 rounded-lg transition text-sm sm:text-base w-full whitespace-nowrap overflow-hidden text-ellipsis">
+                        Đánh dấu
+                    </button>
+                    <button id="btnSubmit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 px-2 sm:px-4 rounded-lg transition text-sm sm:text-base shadow-sm w-full">
+                        NỘP BÀI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="rightSidebar" class="fixed inset-y-0 right-0 z-50 w-[85%] max-w-[320px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:w-[300px] lg:w-[350px] md:shadow-sm md:rounded-xl md:border border-gray-200 flex flex-col h-full shrink-0">
+            <div class="flex justify-between items-center p-3 sm:p-4 border-b border-gray-100 md:hidden bg-gray-50 shrink-0">
+                <h3 class="font-bold text-gray-800">Danh sách câu hỏi</h3>
+                <button id="btnCloseSidebar" class="p-1.5 text-gray-500 hover:bg-gray-200 rounded-lg transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="hidden md:block p-5 text-center border-b border-gray-100 shrink-0">
+                <div class="text-4xl font-extrabold text-gray-900 tracking-wider font-mono" id="timerDisplay">60:00</div>
+            </div>
+            
+            <div class="px-4 py-2.5 border-b border-gray-100 bg-gray-50 flex justify-between items-center text-sm shrink-0">
+                <span class="font-medium text-gray-700 truncate max-w-[60%]" id="displayUserName">Thí sinh</span>
+                <span class="text-gray-500" id="answeredCountInfo">Đã làm: 0/200</span>
+            </div>
+
+            <div class="p-3 sm:p-4 pb-2 shrink-0">
+                <h3 class="font-bold text-gray-800 hidden md:block mb-2">Danh sách 200 câu</h3>
+                <div class="flex flex-wrap gap-2 text-[11px] sm:text-xs text-gray-600 justify-center">
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-blue-500 rounded-sm inline-block"></span> Đã làm</div>
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-yellow-500 rounded-sm inline-block"></span> Đánh dấu</div>
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-white border border-red-700 rounded-sm inline-block"></span> Đang xem</div>
+                </div>
+            </div>
+
+            <div class="p-3 sm:p-4 pt-1 flex-1 overflow-y-auto question-grid-container">
+                <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-6 lg:grid-cols-8 gap-1.5 sm:gap-2" id="questionGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultScreen" class="hidden flex-1 w-full flex items-center justify-center p-4">
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md mx-auto text-center">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Đã nộp bài thành công!</h2>
+            <p class="text-gray-600 mb-6 text-sm sm:text-base" id="resultUserInfo">Thí sinh: Nguyễn Văn A</p>
+            
+            <div class="bg-gray-50 rounded-lg p-4 sm:p-6 mb-6">
+                <div class="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4 mb-4">
+                    <div class="text-center p-2 border-r border-gray-200">
+                        <div class="text-xs sm:text-sm text-gray-500 mb-1">Số câu đúng</div>
+                        <div class="text-xl sm:text-2xl font-bold text-blue-600" id="correctCountDisplay">0 / 200</div>
+                    </div>
+                    <div class="text-center p-2">
+                        <div class="text-xs sm:text-sm text-gray-500 mb-1">Điểm số</div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-brand" id="scoreDisplay">0.0</div>
+                        <div class="text-[10px] sm:text-xs text-gray-400 mt-1">/ 10 điểm</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                     <div class="text-xs sm:text-sm text-gray-500 mb-1">Thời gian hoàn thành</div>
+                     <div class="text-lg font-semibold text-gray-800" id="timeTakenDisplay">0 phút 0 giây</div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-3 justify-center">
+                <p class="text-xs text-gray-500 italic mb-2">Kết quả của bạn đã được lưu lên hệ thống.</p>
+                <button id="btnExportResult" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Tải File Chi Tiết (CSV)
+                </button>
+                <button onclick="location.reload()" class="bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2.5 px-6 rounded-lg transition">
+                    Về màn hình chính
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl p-5 sm:p-6 max-w-sm w-full shadow-2xl transform transition-all">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
+            <p class="text-gray-600 text-sm mb-6 leading-relaxed" id="confirmMsg">Bạn chưa hoàn thành tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài?</p>
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5">
+                <button id="btnCancelSubmit" class="w-full sm:w-auto px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition">Xem lại</button>
+                <button id="btnConfirmSubmit" class="w-full sm:w-auto px-5 py-2.5 bg-brand text-white rounded-lg hover:bg-brand-hover font-medium shadow-sm transition flex justify-center items-center gap-2">
+                    <span id="submitSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    Nộp bài ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // === CẤU HÌNH LƯU KẾT QUẢ QUA GOOGLE FORM ===
+        // Để sử dụng tính năng này, hãy làm theo hướng dẫn trong cửa sổ chat
+        const GOOGLE_FORM_CONFIG = {
+            enabled: false, // Đổi thành true để bật gửi về Google Form
+            formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfcdscLJC-VRjqMdDE9Vacrk_8pMjeR6hE2wf5mQoGZawrh_g/formResponse", 
+            entries: {
+                userName: "entry.1068873649", // ID ô Họ và tên
+                empId: "entry.551471322",    // ID ô Mã CN/Phòng ban
+                score: "entry.395024258",    // ID ô Điểm số
+                correctCount: "entry.57043820", // ID ô Số câu đúng
+                timeTaken: "entry.324803402" // ID ô Thời gian làm bài
+            }
+        };
+        // ===========================================
+
+        // --- CẤU HÌNH FIREBASE ---
+        let db = null, auth = null;
+        let appId = 'trac-nghiem-app-v1'; // Default
+        
+        try {
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'trac-nghiem-app-v1';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+            
+            if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            }
+        } catch (e) {
+            console.error("Lỗi khởi tạo Firebase:", e);
+        }
+
+        // --- CẤU HÌNH BÀI THI ---
+        let TOTAL_QUESTIONS = 200;
+        const EXAM_TIME_MINUTES = 60;
+        let questionsData = []; 
+        let isSaving = false;
+        
+        // --- TRẠNG THÁI ---
+        const gameState = {
+            userId: null,
+            userInfo: { name: '', id: '' },
+            currentQuestionIndex: 0,
+            answers: [],
+            marked: [],
+            timeRemaining: EXAM_TIME_MINUTES * 60,
+            timerInterval: null,
+            isFinished: false
+        };
+
+        const UI = {
+            screens: {
+                login: document.getElementById('loginScreen'),
+                exam: document.getElementById('examScreen'),
+                result: document.getElementById('resultScreen'),
+                admin: document.getElementById('adminScreen')
+            },
+            btnStartExam: document.getElementById('btnStartExam'),
+            loadingOverlay: document.getElementById('firebaseLoading'),
+            // Admin
+            admin: {
+                sectionStudent: document.getElementById('studentLoginSection'),
+                sectionAdmin: document.getElementById('adminLoginSection'),
+                btnShowAdmin: document.getElementById('btnShowAdminLogin'),
+                btnShowStudent: document.getElementById('btnShowStudentLogin'),
+                formLogin: document.getElementById('adminForm'),
+                btnExit: document.getElementById('btnExitAdmin'),
+                btnRefresh: document.getElementById('btnRefreshAdmin'),
+                tableBody: document.getElementById('adminTableBody'),
+                totalSpan: document.getElementById('adminTotalSubmissions')
+            }
+        };
+
+        // --- KHỞI TẠO DỮ LIỆU & XÁC THỰC ---
+        async function initApp() {
+            setupEventListeners();
+            
+            // Xử lý xác thực ẩn danh để lưu Firestore
+            try {
+                if (!auth) throw new Error("Firebase chưa được cấu hình");
+                
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        gameState.userId = user.uid;
+                        await fetchQuestionsFromDB();
+                    }
+                });
+            } catch (error) {
+                console.warn("Đang chạy chế độ Local (Offline) do lỗi kết nối:", error);
+                gameState.userId = "local_user_" + Date.now();
+                await fetchQuestionsFromDB();
+            }
+        }
+
+        async function fetchQuestionsFromDB() {
+            try {
+                if (db) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'questionBank');
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists() && docSnap.data().questions && docSnap.data().questions.length > 0) {
+                        questionsData = docSnap.data().questions;
+                    } else {
+                        questionsData = generateMockData();
+                    }
+                } else {
+                    questionsData = generateMockData();
+                }
+            } catch(e) {
+                console.warn("Dùng bộ câu hỏi mẫu do lỗi mạng:", e);
+                questionsData = generateMockData();
+            }
+            
+            TOTAL_QUESTIONS = questionsData.length;
+            gameState.answers = new Array(TOTAL_QUESTIONS).fill(null);
+            gameState.marked = new Array(TOTAL_QUESTIONS).fill(false);
+            
+            // Cập nhật giao diện số lượng ở Login Form
+            const totalInfoEl = document.querySelector('#loginForm .flex.justify-between.text-sm.text-gray-600.mb-4 span:first-child strong');
+            if(totalInfoEl) totalInfoEl.textContent = `${TOTAL_QUESTIONS} câu`;
+            
+            UI.btnStartExam.disabled = false;
+            UI.loadingOverlay.style.display = 'none';
+        }
+
+        function setupEventListeners() {
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            document.getElementById('btnPrev').addEventListener('click', () => changeQuestion(-1));
+            document.getElementById('btnNext').addEventListener('click', () => changeQuestion(1));
+            document.getElementById('btnMark').addEventListener('click', toggleMarkCurrentQuestion);
+            document.getElementById('btnSubmit').addEventListener('click', requestSubmit);
+            
+            document.getElementById('btnCancelSubmit').addEventListener('click', closeConfirmModal);
+            document.getElementById('btnConfirmSubmit').addEventListener('click', finishExam);
+            document.getElementById('btnExportResult').addEventListener('click', exportResultToCSV);
+
+            document.getElementById('btnOpenSidebar').addEventListener('click', openSidebar);
+            document.getElementById('btnCloseSidebar').addEventListener('click', closeSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+            // Admin Events
+            UI.admin.btnShowAdmin.addEventListener('click', showAdminLogin);
+            UI.admin.btnShowStudent.addEventListener('click', showStudentLogin);
+            UI.admin.formLogin.addEventListener('submit', handleAdminLogin);
+            
+            UI.admin.btnExit.addEventListener('click', () => {
+                UI.screens.admin.classList.add('hidden');
+                UI.screens.login.classList.remove('hidden');
+                showStudentLogin(); // Trả lại view đăng nhập thí sinh
+            });
+            UI.admin.btnRefresh.addEventListener('click', loadAdminData);
+
+            // Upload Excel Events
+            document.getElementById('btnUploadExcel').addEventListener('click', () => {
+                document.getElementById('excelFileInput').click();
+            });
+
+            document.getElementById('excelFileInput').addEventListener('change', handleExcelUpload);
+        }
+
+        async function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('uploadStatus');
+            statusEl.textContent = "Đang xử lý...";
+            statusEl.className = "text-xs font-medium text-blue-600";
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet, {header: 1}); 
+
+                    let newQuestions = [];
+                    // Bỏ qua dòng tiêu đề đầu tiên, duyệt từ dòng 1
+                    for(let i = 1; i < json.length; i++) {
+                        const row = json[i];
+                        // Lọc bỏ dòng trống
+                        if(!row || row.length < 2) continue; 
+                        
+                        let content = row[0] ? row[0].toString().trim() : "";
+                        if (!content) continue;
+                        
+                        let options = [
+                            row[1] ? row[1].toString().trim() : "",
+                            row[2] ? row[2].toString().trim() : "",
+                            row[3] ? row[3].toString().trim() : "",
+                            row[4] ? row[4].toString().trim() : ""
+                        ];
+                        
+                        let ansStr = row[5] ? row[5].toString().trim().toUpperCase() : "A";
+                        let correctIndex = 0;
+                        if(ansStr === 'B') correctIndex = 1;
+                        if(ansStr === 'C') correctIndex = 2;
+                        if(ansStr === 'D') correctIndex = 3;
+
+                        newQuestions.push({
+                        id: i,
+                        content: content,
+                        options: options,
+                        correctAnswerIndex: correctIndex
+                    });
+                }
+
+                if(newQuestions.length > 0) {
+                    statusEl.textContent = "Đang lưu lên máy chủ...";
+                    if (db) {
+                        try {
+                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'questionBank');
+                            await setDoc(docRef, {
+                                questions: newQuestions,
+                                updatedAt: Date.now()
+                            });
+                        } catch (err) {
+                            console.warn("Không thể lưu lên DB:", err);
+                        }
+                    }
+                    
+                    statusEl.textContent = `Thành công! Đã tải ${newQuestions.length} câu.`;
+                    statusEl.className = "text-xs font-bold text-green-600";
+                        
+                        // Cập nhật biến global và giao diện ngay lập tức
+                        questionsData = newQuestions;
+                        TOTAL_QUESTIONS = questionsData.length;
+                        gameState.answers = new Array(TOTAL_QUESTIONS).fill(null);
+                        gameState.marked = new Array(TOTAL_QUESTIONS).fill(false);
+                        
+                        const totalInfoEl = document.querySelector('#loginForm .flex.justify-between.text-sm.text-gray-600.mb-4 span:first-child strong');
+                        if(totalInfoEl) totalInfoEl.textContent = `${TOTAL_QUESTIONS} câu`;
+                        
+                    } else {
+                        statusEl.textContent = "Lỗi: File rỗng hoặc sai định dạng.";
+                        statusEl.className = "text-xs font-bold text-red-600";
+                    }
+                } catch(error) {
+                    console.error("Lỗi đọc Excel:", error);
+                    statusEl.textContent = "Lỗi xử lý file Excel.";
+                    statusEl.className = "text-xs font-bold text-red-600";
+                }
+                e.target.value = ''; // Reset input
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- ADMIN LOGIC ---
+        function showAdminLogin() {
+            // Ẩn form thí sinh, trượt ra ngoài
+            UI.admin.sectionStudent.classList.add('opacity-0', '-translate-x-full');
+            setTimeout(() => {
+                UI.admin.sectionStudent.classList.add('hidden');
+                UI.admin.sectionAdmin.classList.remove('hidden');
+                // Ép trình duyệt render lại (reflow) để animation chạy
+                void UI.admin.sectionAdmin.offsetWidth;
+                UI.admin.sectionAdmin.classList.remove('translate-x-full');
+                UI.admin.sectionAdmin.classList.add('translate-x-0');
+            }, 300);
+        }
+
+        function showStudentLogin() {
+            // Ẩn form admin, trượt vào trong
+            UI.admin.sectionAdmin.classList.remove('translate-x-0');
+            UI.admin.sectionAdmin.classList.add('translate-x-full');
+            setTimeout(() => {
+                UI.admin.sectionAdmin.classList.add('hidden');
+                UI.admin.sectionStudent.classList.remove('hidden');
+                // Ép trình duyệt render lại (reflow)
+                void UI.admin.sectionStudent.offsetWidth;
+                UI.admin.sectionStudent.classList.remove('-translate-x-full', 'opacity-0');
+            }, 300);
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('adminUsername').value.trim();
+            const pass = document.getElementById('adminPassword').value.trim();
+            
+            // Xác thực admin (dùng tài khoản fix sẵn theo yêu cầu)
+            if(user === "admin" && pass === "admin123") {
+                UI.screens.login.classList.add('hidden');
+                UI.screens.admin.classList.remove('hidden');
+                document.body.classList.remove('h-[100dvh]'); // Cho phép cuộn trang Admin
+                
+                // Clear input để bảo mật
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+                
+                await loadAdminData();
+            } else {
+                alert("Tài khoản hoặc mật khẩu không chính xác!");
+            }
+        }
+
+        async function loadAdminData() {
+            UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>';
+            
+            try {
+                if(!db) throw new Error("Chế độ Offline không có Database");
+                
+                // Lưu ý: Theo rule, lưu ở public data để admin có thể thấy chung 1 bảng
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
+                const q = query(resultsRef); // Tránh complex query theo rule
+                const querySnapshot = await getDocs(q);
+                
+                let results = [];
+                querySnapshot.forEach((doc) => {
+                    results.push(doc.data());
+                });
+
+                // Sort ở client side
+                results.sort((a, b) => b.timestamp - a.timestamp);
+
+                UI.admin.totalSpan.textContent = results.length;
+                UI.admin.tableBody.innerHTML = '';
+
+                if(results.length === 0) {
+                     UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">Chưa có dữ liệu nộp bài nào.</td></tr>';
+                     return;
+                }
+
+                results.forEach(res => {
+                    const date = new Date(res.timestamp);
+                    const dateStr = date.toLocaleString('vi-VN', { hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric' });
+                    
+                    const timeTaken = res.timeTakenSeconds || 0;
+                    const min = Math.floor(timeTaken / 60);
+                    const sec = timeTaken % 60;
+                    const timeTakenStr = `${min} phút ${sec} giây`;
+                    
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 transition';
+                    tr.innerHTML = `
+                        <td class="p-4 border-b text-sm text-gray-600">${dateStr}</td>
+                        <td class="p-4 border-b text-sm font-medium text-gray-900">${res.userName}</td>
+                        <td class="p-4 border-b text-sm text-gray-600">${res.empId}</td>
+                        <td class="p-4 border-b text-sm text-center text-gray-700">${timeTakenStr}</td>
+                        <td class="p-4 border-b text-sm text-center font-medium">${res.correctCount}/${TOTAL_QUESTIONS}</td>
+                        <td class="p-4 border-b text-sm text-center font-bold text-brand">${res.score.toFixed(1)}</td>
+                    `;
+                    UI.admin.tableBody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Lỗi lấy dữ liệu Admin:", error);
+                UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Hệ thống đang ngoại tuyến (Offline) hoặc có lỗi kết nối. Không tải được dữ liệu.</td></tr>';
+            }
+        }
+
+        // --- CÁC HÀM TIỆN ÍCH UI ---
+        function openSidebar() {
+            document.getElementById('rightSidebar').classList.remove('translate-x-full');
+            document.getElementById('sidebarOverlay').classList.remove('hidden');
+        }
+        function closeSidebar() {
+            document.getElementById('rightSidebar').classList.add('translate-x-full');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+        }
+
+        // --- LOGIC BÀI THI ---
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('fullName').value.trim();
+            const empId = document.getElementById('empId').value.trim();
+
+            if (name && empId) {
+                if(!gameState.userId) gameState.userId = "local_user_" + Date.now();
+                
+                gameState.userInfo = { name, id: empId };
+                document.getElementById('displayUserName').textContent = name;
+                
+                UI.screens.login.classList.add('hidden');
+                UI.screens.exam.classList.remove('hidden');
+                
+                startExam();
+            }
+        }
+
+        function startExam() {
+            renderQuestionGrid();
+            loadQuestion(0);
+            startTimer();
+            updateAnsweredCount();
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'grid-btn';
+                btn.textContent = i + 1;
+                btn.id = `grid-btn-${i}`;
+                btn.onclick = () => loadQuestion(i);
+                grid.appendChild(btn);
+            }
+        }
+
+        function loadQuestion(index) {
+            if (index < 0 || index >= TOTAL_QUESTIONS) return;
+            
+            gameState.currentQuestionIndex = index;
+            const q = questionsData[index];
+            
+            document.getElementById('questionTitle').textContent = `CÂU ${index + 1} / ${TOTAL_QUESTIONS}`;
+            document.getElementById('questionContent').textContent = q.content;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            q.options.forEach((optText, optIndex) => {
+                const isSelected = gameState.answers[index] === optIndex;
+                
+                const label = document.createElement('label');
+                label.className = `option-label flex items-start p-3 border rounded-lg cursor-pointer ${isSelected ? 'selected' : 'border-gray-200'}`;
+                
+                const radioInput = document.createElement('div');
+                radioInput.className = 'custom-radio mt-0.5';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `question_${index}`;
+                input.value = optIndex;
+                input.checked = isSelected;
+                input.onchange = () => selectOption(index, optIndex, label);
+
+                const mark = document.createElement('span');
+                mark.className = 'radio-mark';
+                
+                radioInput.appendChild(input);
+                radioInput.appendChild(mark);
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'flex-1 text-gray-700 leading-snug text-sm sm:text-base';
+                textDiv.innerHTML = `<span class="font-bold mr-1">${letters[optIndex]}.</span> ${optText}`;
+                
+                label.appendChild(radioInput);
+                label.appendChild(textDiv);
+                
+                optionsContainer.appendChild(label);
+            });
+
+            updateGridButtonsUI();
+            
+            // Disable nút Prev/Next
+            document.getElementById('btnPrev').disabled = index === 0;
+            document.getElementById('btnPrev').style.opacity = index === 0 ? '0.5' : '1';
+            document.getElementById('btnNext').disabled = index === TOTAL_QUESTIONS - 1;
+            document.getElementById('btnNext').style.opacity = index === TOTAL_QUESTIONS - 1 ? '0.5' : '1';
+            
+            if (window.innerWidth < 768) closeSidebar();
+        }
+
+        function changeQuestion(step) {
+            const newIndex = gameState.currentQuestionIndex + step;
+            if (newIndex >= 0 && newIndex < TOTAL_QUESTIONS) loadQuestion(newIndex);
+        }
+
+        function selectOption(qIndex, optIndex, selectedLabelElement) {
+            gameState.answers[qIndex] = optIndex;
+            
+            const allLabels = document.getElementById('optionsContainer').querySelectorAll('.option-label');
+            allLabels.forEach(lbl => {
+                lbl.classList.remove('selected', 'border-[#4F46E5]', 'bg-[#EEF2FF]');
+                lbl.classList.add('border-gray-200');
+            });
+            
+            selectedLabelElement.classList.remove('border-gray-200');
+            selectedLabelElement.classList.add('selected');
+            
+            updateGridButtonsUI();
+            updateAnsweredCount();
+        }
+
+        function toggleMarkCurrentQuestion() {
+            const currentIndex = gameState.currentQuestionIndex;
+            gameState.marked[currentIndex] = !gameState.marked[currentIndex];
+            updateGridButtonsUI();
+        }
+
+        function updateGridButtonsUI() {
+            const currentIndex = gameState.currentQuestionIndex;
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const btn = document.getElementById(`grid-btn-${i}`);
+                if(!btn) continue;
+
+                btn.className = 'grid-btn';
+                if (i === currentIndex) btn.classList.add('current');
+                
+                const isAnswered = gameState.answers[i] !== null;
+                const isMarked = gameState.marked[i];
+
+                if (isAnswered && isMarked) btn.classList.add('answered', 'marked');
+                else if (isAnswered) btn.classList.add('answered');
+                else if (isMarked) btn.classList.add('marked');
+            }
+        }
+
+        function updateAnsweredCount() {
+            const answered = gameState.answers.filter(ans => ans !== null).length;
+            document.getElementById('answeredCountInfo').textContent = `Đã làm: ${answered}/${TOTAL_QUESTIONS}`;
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimerDisplay();
+                
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    autoSubmit();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(gameState.timeRemaining / 60).toString().padStart(2, '0');
+            const s = (gameState.timeRemaining % 60).toString().padStart(2, '0');
+            const timeStr = `${m}:${s}`;
+            
+            const timer = document.getElementById('timerDisplay');
+            const mobileTimer = document.getElementById('mobileTimerDisplay');
+            
+            timer.textContent = timeStr;
+            mobileTimer.textContent = timeStr;
+            
+            if (gameState.timeRemaining < 300) { // Dưới 5 phút
+                timer.classList.add('text-red-600'); timer.classList.remove('text-gray-900');
+                mobileTimer.classList.add('text-red-600'); mobileTimer.classList.remove('text-brand');
+            }
+        }
+
+        function requestSubmit() {
+            const answered = gameState.answers.filter(ans => ans !== null).length;
+            const unanswered = TOTAL_QUESTIONS - answered;
+            
+            if (unanswered > 0) {
+                document.getElementById('confirmMsg').innerHTML = `Bạn còn <strong>${unanswered}</strong> câu chưa trả lời. Bạn có chắc chắn muốn nộp bài lúc này?`;
+            } else {
+                document.getElementById('confirmMsg').textContent = `Bạn đã trả lời đủ ${TOTAL_QUESTIONS} câu. Xác nhận nộp bài?`;
+            }
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            if(isSaving) return; // Không cho đóng khi đang lưu
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function autoSubmit() {
+            // Hiển thị modal không cho tắt và nộp
+            document.getElementById('confirmMsg').textContent = "Đã hết thời gian làm bài. Hệ thống đang tự động nộp bài...";
+            document.getElementById('btnCancelSubmit').classList.add('hidden');
+            document.getElementById('confirmModal').classList.remove('hidden');
+            finishExam();
+        }
+
+        async function finishExam() {
+            if(gameState.isFinished || isSaving) return;
+            
+            isSaving = true;
+            clearInterval(gameState.timerInterval);
+            
+            const btnSubmit = document.getElementById('btnConfirmSubmit');
+            const spinner = document.getElementById('submitSpinner');
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-80');
+            spinner.classList.remove('hidden');
+            
+            // 1. Tính điểm
+            let correctCount = 0;
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                if (gameState.answers[i] === questionsData[i].correctAnswerIndex) {
+                    correctCount++;
+                }
+            }
+            const score = (correctCount / TOTAL_QUESTIONS) * 10;
+            const timeTaken = (EXAM_TIME_MINUTES * 60) - gameState.timeRemaining;
+            const minTaken = Math.floor(timeTaken / 60);
+            const secTaken = timeTaken % 60;
+
+            // 1.5 Gửi dữ liệu về Google Form (Nếu đã bật cấu hình)
+            if (GOOGLE_FORM_CONFIG.enabled) {
+                try {
+                    const formData = new FormData();
+                    formData.append(GOOGLE_FORM_CONFIG.entries.userName, gameState.userInfo.name);
+                    formData.append(GOOGLE_FORM_CONFIG.entries.empId, gameState.userInfo.id);
+                    formData.append(GOOGLE_FORM_CONFIG.entries.score, score.toFixed(1));
+                    formData.append(GOOGLE_FORM_CONFIG.entries.correctCount, `${correctCount} / ${TOTAL_QUESTIONS}`);
+                    formData.append(GOOGLE_FORM_CONFIG.entries.timeTaken, `${minTaken} phút ${secTaken} giây`);
+
+                    fetch(GOOGLE_FORM_CONFIG.formUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    }).catch(e => console.error("Lỗi mạng khi gửi Form", e));
+                } catch(e) {
+                    console.error("Lỗi cấu hình gửi Google Form", e);
+                }
+            }
+
+            // 2. Lưu lên Firestore
+        try {
+            if(db && gameState.userId) {
+                // Lưu vào Collection public/data/exam_results để Admin có thể query 
+                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
+                
+                await addDoc(resultsRef, {
+                    userId: gameState.userId,
+                    userName: gameState.userInfo.name,
+                    empId: gameState.userInfo.id,
+                    score: score,
+                    correctCount: correctCount,
+                    totalQuestions: TOTAL_QUESTIONS,
+                    timeTakenSeconds: timeTaken,
+                    timestamp: Date.now() 
+                });
+
+                // Lưu chi tiết bài làm vào private để user export (tuỳ chọn)
+                const privateRef = collection(db, 'artifacts', appId, 'users', gameState.userId, 'exam_details');
+                await addDoc(privateRef, {
+                    answers: gameState.answers,
+                    timestamp: Date.now()
+                });
+            }
+        } catch (error) {
+            console.error("Lỗi lưu kết quả:", error);
+            alert("Bạn đang ở chế độ Offline. Bạn vẫn có thể tải file kết quả (CSV) về máy.");
+        }
+
+        // 3. Cập nhật UI
+            isSaving = false;
+            gameState.isFinished = true;
+            document.getElementById('confirmModal').classList.add('hidden');
+            
+            document.getElementById('resultUserInfo').textContent = `Thí sinh: ${gameState.userInfo.name} - Mã: ${gameState.userInfo.id}`;
+            document.getElementById('correctCountDisplay').textContent = `${correctCount} / ${TOTAL_QUESTIONS}`;
+            document.getElementById('scoreDisplay').textContent = score.toFixed(1);
+            document.getElementById('timeTakenDisplay').textContent = `${minTaken} phút ${secTaken} giây`;
+            
+            UI.screens.exam.classList.add('hidden');
+            UI.screens.result.classList.remove('hidden');
+            document.body.classList.remove('bg-[#F8F9FA]');
+            document.body.classList.add('bg-gray-100');
+        }
+
+        // --- EXPORT CSV ---
+        function exportResultToCSV() {
+            if(!gameState.isFinished) return;
+
+            const timeTakenInSeconds = (EXAM_TIME_MINUTES * 60) - gameState.timeRemaining;
+            const minutesTaken = Math.floor(timeTakenInSeconds / 60);
+            const secondsTaken = timeTakenInSeconds % 60;
+            
+            let correctCount = 0;
+            const letters = ['A', 'B', 'C', 'D'];
+            let detailRows = [];
+
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const userAnsIdx = gameState.answers[i];
+                const correctAnsIdx = questionsData[i].correctAnswerIndex;
+                const isCorrect = userAnsIdx === correctAnsIdx;
+                
+                if (isCorrect) correctCount++;
+
+                const userAnsLetter = userAnsIdx !== null ? letters[userAnsIdx] : 'Chưa chọn';
+                const correctAnsLetter = letters[correctAnsIdx];
+                const statusStr = isCorrect ? 'Đúng' : (userAnsIdx === null ? 'Bỏ qua' : 'Sai');
+
+                detailRows.push(`${i + 1},${userAnsLetter},${correctAnsLetter},${statusStr}`);
+            }
+
+            const score = ((correctCount / TOTAL_QUESTIONS) * 10).toFixed(2);
+            const dateStr = new Date().toLocaleString('vi-VN');
+
+            let csvContent = "\uFEFF"; 
+            csvContent += "THÔNG TIN KẾT QUẢ THI TRẮC NGHIỆM\n\n";
+            csvContent += `Họ và tên:,${gameState.userInfo.name}\n`;
+            csvContent += `Mã CN/Phòng ban:,${gameState.userInfo.id}\n`;
+            csvContent += `Thời gian nộp bài:,${dateStr}\n`;
+            csvContent += `Thời gian làm bài:,${minutesTaken} phút ${secondsTaken} giây\n`;
+            csvContent += `Số câu đúng:,${correctCount} / ${TOTAL_QUESTIONS}\n`;
+            csvContent += `Điểm số:,${score} / 10\n\n`;
+            csvContent += "CHI TIẾT BÀI LÀM\n";
+            csvContent += "Câu số,Đáp án đã chọn,Đáp án đúng,Kết quả\n";
+            csvContent += detailRows.join("\n");
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            
+            const safeName = gameState.userInfo.name.replace(/[^a-zA-Z0-9]/g, '_');
+            link.setAttribute("download", `Ket_Qua_${safeName}_${gameState.userInfo.id}.csv`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- MOCK DATA GENERATOR ---
+        function generateMockData() {
+            const data = [];
+            data.push({
+                id: 1,
+                content: "Một khách hàng có doanh thu thuần 12 tỷ đồng/năm, chi phí tiền mặt 8,4 tỷ đồng và nghĩa vụ trả nợ gốc trong năm 1,8 tỷ đồng. Nếu dòng tiền dùng để trả nợ được xác định bằng doanh thu thuần trừ chi phí tiền mặt, DSCR theo công thức dòng tiền trả nợ chia nghĩa vụ trả nợ là bao nhiêu?",
+                options: ["2,33 lần", "2,67 lần", "1,67 lần", "2,00 lần"],
+                correctAnswerIndex: 3 
+            });
+
+            for (let i = 2; i <= TOTAL_QUESTIONS; i++) {
+                data.push({
+                    id: i,
+                    content: `Câu hỏi mẫu số ${i} về nghiệp vụ ngân hàng. Khách hàng vay vốn cần điều kiện gì?`,
+                    options: [`Đáp án A câu ${i}`, `Đáp án B câu ${i}`, `Đáp án C câu ${i}`, `Đáp án D câu ${i}`],
+                    correctAnswerIndex: Math.floor(Math.random() * 4)
+                });
+            }
+            return data;
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
