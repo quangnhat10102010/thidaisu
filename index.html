@@ -140,7 +140,6 @@
              border-color: #374151;
         }
 
-        /* Firebase Loading Overlay */
         #firebaseLoading {
             position: fixed;
             inset: 0;
@@ -168,9 +167,10 @@
     <!-- Overlay Loading DB -->
     <div id="firebaseLoading">
         <div class="spinner mb-3"></div>
-        <p class="text-gray-600 font-medium">Đang kết nối dữ liệu...</p>
+        <p class="text-gray-600 font-medium" id="loadingText">Đang tải cấu hình...</p>
     </div>
 
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="loginScreen" class="flex-1 flex items-center justify-center p-4 transition-all duration-300">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md mx-auto relative overflow-hidden">
             
@@ -193,16 +193,16 @@
                     
                     <div class="pt-4 border-t border-gray-100 mt-6">
                         <div class="flex justify-between text-sm text-gray-600 mb-4">
-                            <span>Số lượng: <strong>200 câu</strong></span>
+                            <span>Số lượng: <strong id="questionCountDisplay">200 câu</strong></span>
                             <span>Thời gian: <strong>60 phút</strong></span>
                         </div>
-                        <button type="submit" id="btnStartExam" disabled class="w-full bg-brand hover:bg-brand-hover disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center">
+                        <button type="submit" id="btnStartExam" class="w-full bg-brand hover:bg-brand-hover disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg transition shadow-md flex justify-center items-center">
                             BẮT ĐẦU THI
                         </button>
                     </div>
                 </form>
                 <div class="mt-5 text-center">
-                    <button id="btnShowAdminLogin" class="text-sm text-gray-500 hover:text-brand transition underline-offset-2 hover:underline focus:outline-none">Bạn là Quản trị viên?</button>
+                    <button id="btnShowAdminLogin" type="button" class="text-sm text-gray-500 hover:text-brand transition underline-offset-2 hover:underline focus:outline-none">Bạn là Quản trị viên?</button>
                 </div>
             </div>
 
@@ -233,13 +233,14 @@
                     </div>
                 </form>
                 <div class="mt-5 text-center">
-                    <button id="btnShowStudentLogin" class="text-sm text-gray-500 hover:text-gray-800 transition underline-offset-2 hover:underline focus:outline-none">&larr; Quay lại trang Thí sinh</button>
+                    <button id="btnShowStudentLogin" type="button" class="text-sm text-gray-500 hover:text-gray-800 transition underline-offset-2 hover:underline focus:outline-none">&larr; Quay lại trang Thí sinh</button>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- MÀN HÌNH ADMIN QUẢN TRỊ -->
     <div id="adminScreen" class="hidden flex-1 overflow-hidden flex flex-col p-4 sm:p-8 bg-gray-50">
         <div class="max-w-6xl mx-auto w-full flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-800 text-white">
@@ -250,7 +251,7 @@
             <div class="p-4 bg-white border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 w-full sm:w-auto">
                     <h3 class="font-bold text-blue-800 mb-1">Cập nhật Bộ Câu Hỏi (Excel)</h3>
-                    <p class="text-[11px] sm:text-xs text-blue-600 mb-2">Định dạng 6 cột: Câu hỏi | Đáp án A | Đáp án B | C | D | Đáp án đúng (A/B/C/D)</p>
+                    <p class="text-[11px] sm:text-xs text-blue-600 mb-2">Định dạng 6 cột: Câu hỏi | A | B | C | D | Đáp án (A/B/C/D)</p>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls" class="hidden">
                     <div class="flex items-center gap-2">
                         <button id="btnUploadExcel" class="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 flex items-center gap-1 shadow-sm transition">
@@ -270,9 +271,29 @@
                 </div>
             </div>
 
+            <!-- PHẦN HTML BỊ LỖI LẦN TRƯỚC ĐÃ ĐƯỢC SỬA Ở ĐÂY -->
             <div class="flex-1 overflow-auto">
                 <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                            <th class="p-4 border-b font-semibold">Thời gian nộp</th>
+                            <th class="p-4 border-b font-semibold">Họ và Tên</th>
+                            <th class="p-4 border-b font-semibold">Mã NV</th>
+                            <th class="p-4 border-b font-semibold text-center">Thời gian làm</th>
+                            <th class="p-4 border-b font-semibold text-center">Số câu đúng</th>
+                            <th class="p-4 border-b font-semibold text-center">Điểm số</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <!-- Data will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- KẾT THÚC MÀN HÌNH ADMIN -->
 
+    <!-- MÀN HÌNH THI -->
     <div id="examScreen" class="hidden flex-1 w-full max-w-7xl mx-auto p-0 sm:p-4 flex flex-col md:flex-row gap-0 sm:gap-4 transition-all duration-300 relative min-h-0">
         
         <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity"></div>
@@ -335,7 +356,7 @@
             </div>
 
             <div class="p-3 sm:p-4 pb-2 shrink-0">
-                <h3 class="font-bold text-gray-800 hidden md:block mb-2">Danh sách 200 câu</h3>
+                <h3 class="font-bold text-gray-800 hidden md:block mb-2">Danh sách câu hỏi</h3>
                 <div class="flex flex-wrap gap-2 text-[11px] sm:text-xs text-gray-600 justify-center">
                     <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-blue-500 rounded-sm inline-block"></span> Đã làm</div>
                     <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-yellow-500 rounded-sm inline-block"></span> Đánh dấu</div>
@@ -349,6 +370,7 @@
         </div>
     </div>
 
+    <!-- MÀN HÌNH NHẬN KẾT QUẢ -->
     <div id="resultScreen" class="hidden flex-1 w-full flex items-center justify-center p-4">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md mx-auto text-center">
             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
@@ -388,6 +410,7 @@
         </div>
     </div>
 
+    <!-- MODAL XÁC NHẬN NỘP BÀI -->
     <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white rounded-xl p-5 sm:p-6 max-w-sm w-full shadow-2xl transform transition-all">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Xác nhận nộp bài</h3>
@@ -402,50 +425,34 @@
         </div>
     </div>
 
+    <!-- MÃ JAVASCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // === CẤU HÌNH LƯU KẾT QUẢ QUA GOOGLE FORM ===
-        // Để sử dụng tính năng này, hãy làm theo hướng dẫn trong cửa sổ chat
         const GOOGLE_FORM_CONFIG = {
-            enabled: false, // Đổi thành true để bật gửi về Google Form
+            enabled: true, // Gửi thẳng kết quả thi về Form
             formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfcdscLJC-VRjqMdDE9Vacrk_8pMjeR6hE2wf5mQoGZawrh_g/formResponse", 
             entries: {
-                userName: "entry.1068873649", // ID ô Họ và tên
-                empId: "entry.551471322",    // ID ô Mã CN/Phòng ban
-                score: "entry.395024258",    // ID ô Điểm số
-                correctCount: "entry.57043820", // ID ô Số câu đúng
-                timeTaken: "entry.324803402" // ID ô Thời gian làm bài
+                userName: "entry.1068873649", // Họ tên
+                empId: "entry.551471322",    // Mã NV
+                score: "entry.395024258",    // Điểm
+                correctCount: "entry.57043820", // Số câu đúng
+                timeTaken: "entry.324803402" // Thời gian làm bài
             }
         };
         // ===========================================
 
-        // --- CẤU HÌNH FIREBASE ---
         let db = null, auth = null;
-        let appId = 'trac-nghiem-app-v1'; // Default
+        let appId = 'trac-nghiem-app-v1';
         
-        try {
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'trac-nghiem-app-v1';
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-            
-            if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-            }
-        } catch (e) {
-            console.error("Lỗi khởi tạo Firebase:", e);
-        }
-
-        // --- CẤU HÌNH BÀI THI ---
         let TOTAL_QUESTIONS = 200;
         const EXAM_TIME_MINUTES = 60;
         let questionsData = []; 
         let isSaving = false;
         
-        // --- TRẠNG THÁI ---
         const gameState = {
             userId: null,
             userInfo: { name: '', id: '' },
@@ -466,7 +473,6 @@
             },
             btnStartExam: document.getElementById('btnStartExam'),
             loadingOverlay: document.getElementById('firebaseLoading'),
-            // Admin
             admin: {
                 sectionStudent: document.getElementById('studentLoginSection'),
                 sectionAdmin: document.getElementById('adminLoginSection'),
@@ -475,38 +481,38 @@
                 formLogin: document.getElementById('adminForm'),
                 btnExit: document.getElementById('btnExitAdmin'),
                 btnRefresh: document.getElementById('btnRefreshAdmin'),
-                tableBody: document.getElementById('adminTableBody'),
+                tableBody: document.getElementById('adminTableBody'), // Khắc phục lỗi null ở đây!
                 totalSpan: document.getElementById('adminTotalSubmissions')
             }
         };
 
-        // --- KHỞI TẠO DỮ LIỆU & XÁC THỰC ---
-         async function initApp() {
+        async function initApp() {
             setupEventListeners();
-            console.log("Chạy chế độ độc lập (Không dùng Firebase)");
-			gameState.userId = "local_user_" + Date.now();
-			await fetchQuestionsFromDB();
-            // Xử lý xác thực ẩn danh để lưu Firestore
-            <!-- try { -->
-                <!-- if (!auth) throw new Error("Firebase chưa được cấu hình"); -->
+            
+            // Xử lý xác thực (Sẽ rơi vào catch và chạy offline trên Github Pages)
+            try {
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'trac-nghiem-app-v1';
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
                 
-                <!-- if (typeof __initial_auth_token !== 'undefined') { -->
-                    <!-- await signInWithCustomToken(auth, __initial_auth_token); -->
-                <!-- } else { -->
-                    <!-- await signInAnonymously(auth); -->
-                <!-- } -->
-                
-                <!-- onAuthStateChanged(auth, async (user) => { -->
-                    <!-- if (user) { -->
-                        <!-- gameState.userId = user.uid; -->
-                        <!-- await fetchQuestionsFromDB(); -->
-                    <!-- } -->
-                <!-- }); -->
-            <!-- } catch (error) { -->
-                <!-- console.warn("Đang chạy chế độ Local (Offline) do lỗi kết nối:", error); -->
-                <!-- gameState.userId = "local_user_" + Date.now(); -->
-                <!-- await fetchQuestionsFromDB(); -->
-            <!-- } -->
+                if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    await signInAnonymously(auth);
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            gameState.userId = user.uid;
+                            await fetchQuestionsFromDB();
+                        }
+                    });
+                } else {
+                    throw new Error("Không có Firebase Config - Chạy Local");
+                }
+            } catch (error) {
+                console.log("Đang chạy ở chế độ Local/Github Pages độc lập");
+                gameState.userId = "local_user_" + Date.now();
+                await fetchQuestionsFromDB();
+            }
         }
 
         async function fetchQuestionsFromDB() {
@@ -520,10 +526,15 @@
                         questionsData = generateMockData();
                     }
                 } else {
-                    questionsData = generateMockData();
+                    // Lấy từ LocalStorage nếu có (Khi admin up excel ở chế độ offline)
+                    const localQ = localStorage.getItem('thidaisu_questions');
+                    if(localQ) {
+                        questionsData = JSON.parse(localQ);
+                    } else {
+                        questionsData = generateMockData();
+                    }
                 }
             } catch(e) {
-                console.warn("Dùng bộ câu hỏi mẫu do lỗi mạng:", e);
                 questionsData = generateMockData();
             }
             
@@ -531,47 +542,39 @@
             gameState.answers = new Array(TOTAL_QUESTIONS).fill(null);
             gameState.marked = new Array(TOTAL_QUESTIONS).fill(false);
             
-            // Cập nhật giao diện số lượng ở Login Form
-            const totalInfoEl = document.querySelector('#loginForm .flex.justify-between.text-sm.text-gray-600.mb-4 span:first-child strong');
+            const totalInfoEl = document.getElementById('questionCountDisplay');
             if(totalInfoEl) totalInfoEl.textContent = `${TOTAL_QUESTIONS} câu`;
             
-            UI.btnStartExam.disabled = false;
             UI.loadingOverlay.style.display = 'none';
         }
 
         function setupEventListeners() {
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            
             document.getElementById('btnPrev').addEventListener('click', () => changeQuestion(-1));
             document.getElementById('btnNext').addEventListener('click', () => changeQuestion(1));
             document.getElementById('btnMark').addEventListener('click', toggleMarkCurrentQuestion);
             document.getElementById('btnSubmit').addEventListener('click', requestSubmit);
-            
             document.getElementById('btnCancelSubmit').addEventListener('click', closeConfirmModal);
             document.getElementById('btnConfirmSubmit').addEventListener('click', finishExam);
             document.getElementById('btnExportResult').addEventListener('click', exportResultToCSV);
-
             document.getElementById('btnOpenSidebar').addEventListener('click', openSidebar);
             document.getElementById('btnCloseSidebar').addEventListener('click', closeSidebar);
             document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
-
+            
             // Admin Events
             UI.admin.btnShowAdmin.addEventListener('click', showAdminLogin);
             UI.admin.btnShowStudent.addEventListener('click', showStudentLogin);
             UI.admin.formLogin.addEventListener('submit', handleAdminLogin);
-            
             UI.admin.btnExit.addEventListener('click', () => {
                 UI.screens.admin.classList.add('hidden');
                 UI.screens.login.classList.remove('hidden');
-                showStudentLogin(); // Trả lại view đăng nhập thí sinh
+                showStudentLogin();
             });
             UI.admin.btnRefresh.addEventListener('click', loadAdminData);
 
-            // Upload Excel Events
             document.getElementById('btnUploadExcel').addEventListener('click', () => {
                 document.getElementById('excelFileInput').click();
             });
-
             document.getElementById('excelFileInput').addEventListener('change', handleExcelUpload);
         }
 
@@ -593,10 +596,8 @@
                     const json = XLSX.utils.sheet_to_json(worksheet, {header: 1}); 
 
                     let newQuestions = [];
-                    // Bỏ qua dòng tiêu đề đầu tiên, duyệt từ dòng 1
                     for(let i = 1; i < json.length; i++) {
                         const row = json[i];
-                        // Lọc bỏ dòng trống
                         if(!row || row.length < 2) continue; 
                         
                         let content = row[0] ? row[0].toString().trim() : "";
@@ -616,61 +617,50 @@
                         if(ansStr === 'D') correctIndex = 3;
 
                         newQuestions.push({
-                        id: i,
-                        content: content,
-                        options: options,
-                        correctAnswerIndex: correctIndex
-                    });
-                }
-
-                if(newQuestions.length > 0) {
-                    statusEl.textContent = "Đang lưu lên máy chủ...";
-                    if (db) {
-                        try {
-                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'questionBank');
-                            await setDoc(docRef, {
-                                questions: newQuestions,
-                                updatedAt: Date.now()
-                            });
-                        } catch (err) {
-                            console.warn("Không thể lưu lên DB:", err);
-                        }
+                            id: i, content: content, options: options, correctAnswerIndex: correctIndex
+                        });
                     }
-                    
-                    statusEl.textContent = `Thành công! Đã tải ${newQuestions.length} câu.`;
-                    statusEl.className = "text-xs font-bold text-green-600";
+
+                    if(newQuestions.length > 0) {
+                        statusEl.textContent = "Đang lưu...";
                         
-                        // Cập nhật biến global và giao diện ngay lập tức
+                        // Cập nhật lên Firebase (Nếu có)
+                        if (db) {
+                            try {
+                                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'questionBank');
+                                await setDoc(docRef, { questions: newQuestions, updatedAt: Date.now() });
+                            } catch (err) {}
+                        }
+                        // Lưu Local để chạy Offline
+                        localStorage.setItem('thidaisu_questions', JSON.stringify(newQuestions));
+                        
+                        statusEl.textContent = `Thành công! Tải ${newQuestions.length} câu.`;
+                        statusEl.className = "text-xs font-bold text-green-600";
+                        
                         questionsData = newQuestions;
                         TOTAL_QUESTIONS = questionsData.length;
                         gameState.answers = new Array(TOTAL_QUESTIONS).fill(null);
                         gameState.marked = new Array(TOTAL_QUESTIONS).fill(false);
-                        
-                        const totalInfoEl = document.querySelector('#loginForm .flex.justify-between.text-sm.text-gray-600.mb-4 span:first-child strong');
+                        const totalInfoEl = document.getElementById('questionCountDisplay');
                         if(totalInfoEl) totalInfoEl.textContent = `${TOTAL_QUESTIONS} câu`;
-                        
                     } else {
-                        statusEl.textContent = "Lỗi: File rỗng hoặc sai định dạng.";
+                        statusEl.textContent = "Lỗi: File rỗng.";
                         statusEl.className = "text-xs font-bold text-red-600";
                     }
                 } catch(error) {
-                    console.error("Lỗi đọc Excel:", error);
-                    statusEl.textContent = "Lỗi xử lý file Excel.";
+                    statusEl.textContent = "Lỗi đọc file Excel.";
                     statusEl.className = "text-xs font-bold text-red-600";
                 }
-                e.target.value = ''; // Reset input
+                e.target.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // --- ADMIN LOGIC ---
         function showAdminLogin() {
-            // Ẩn form thí sinh, trượt ra ngoài
             UI.admin.sectionStudent.classList.add('opacity-0', '-translate-x-full');
             setTimeout(() => {
                 UI.admin.sectionStudent.classList.add('hidden');
                 UI.admin.sectionAdmin.classList.remove('hidden');
-                // Ép trình duyệt render lại (reflow) để animation chạy
                 void UI.admin.sectionAdmin.offsetWidth;
                 UI.admin.sectionAdmin.classList.remove('translate-x-full');
                 UI.admin.sectionAdmin.classList.add('translate-x-0');
@@ -678,13 +668,11 @@
         }
 
         function showStudentLogin() {
-            // Ẩn form admin, trượt vào trong
             UI.admin.sectionAdmin.classList.remove('translate-x-0');
             UI.admin.sectionAdmin.classList.add('translate-x-full');
             setTimeout(() => {
                 UI.admin.sectionAdmin.classList.add('hidden');
                 UI.admin.sectionStudent.classList.remove('hidden');
-                // Ép trình duyệt render lại (reflow)
                 void UI.admin.sectionStudent.offsetWidth;
                 UI.admin.sectionStudent.classList.remove('-translate-x-full', 'opacity-0');
             }, 300);
@@ -695,53 +683,46 @@
             const user = document.getElementById('adminUsername').value.trim();
             const pass = document.getElementById('adminPassword').value.trim();
             
-            // Xác thực admin (dùng tài khoản fix sẵn theo yêu cầu)
             if(user === "admin" && pass === "admin123") {
                 UI.screens.login.classList.add('hidden');
                 UI.screens.admin.classList.remove('hidden');
-                document.body.classList.remove('h-[100dvh]'); // Cho phép cuộn trang Admin
-                
-                // Clear input để bảo mật
+                document.body.classList.remove('h-[100dvh]'); 
                 document.getElementById('adminUsername').value = '';
                 document.getElementById('adminPassword').value = '';
-                
                 await loadAdminData();
             } else {
-                alert("Tài khoản hoặc mật khẩu không chính xác!");
+                alert("Tài khoản/Mật khẩu sai!");
             }
         }
 
         async function loadAdminData() {
+            if (!UI.admin.tableBody) return; // Bảo vệ hàm nếu HTML lỗi
             UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>';
             
             try {
-                if(!db) throw new Error("Chế độ Offline không có Database");
-                
-                // Lưu ý: Theo rule, lưu ở public data để admin có thể thấy chung 1 bảng
-                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
-                const q = query(resultsRef); // Tránh complex query theo rule
-                const querySnapshot = await getDocs(q);
-                
                 let results = [];
-                querySnapshot.forEach((doc) => {
-                    results.push(doc.data());
-                });
+                if(db) {
+                    const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
+                    const q = query(resultsRef);
+                    const querySnapshot = await getDocs(q);
+                    querySnapshot.forEach((doc) => results.push(doc.data()));
+                } else {
+                    const localRes = localStorage.getItem('thidaisu_results');
+                    if (localRes) results = JSON.parse(localRes);
+                }
 
-                // Sort ở client side
                 results.sort((a, b) => b.timestamp - a.timestamp);
-
                 UI.admin.totalSpan.textContent = results.length;
                 UI.admin.tableBody.innerHTML = '';
 
                 if(results.length === 0) {
-                     UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">Chưa có dữ liệu nộp bài nào.</td></tr>';
+                     UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">Chưa có bài nộp nào.</td></tr>';
                      return;
                 }
 
                 results.forEach(res => {
                     const date = new Date(res.timestamp);
                     const dateStr = date.toLocaleString('vi-VN', { hour: '2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric' });
-                    
                     const timeTaken = res.timeTakenSeconds || 0;
                     const min = Math.floor(timeTaken / 60);
                     const sec = timeTaken % 60;
@@ -754,19 +735,17 @@
                         <td class="p-4 border-b text-sm font-medium text-gray-900">${res.userName}</td>
                         <td class="p-4 border-b text-sm text-gray-600">${res.empId}</td>
                         <td class="p-4 border-b text-sm text-center text-gray-700">${timeTakenStr}</td>
-                        <td class="p-4 border-b text-sm text-center font-medium">${res.correctCount}/${TOTAL_QUESTIONS}</td>
+                        <td class="p-4 border-b text-sm text-center font-medium">${res.correctCount}/${res.totalQuestions || TOTAL_QUESTIONS}</td>
                         <td class="p-4 border-b text-sm text-center font-bold text-brand">${res.score.toFixed(1)}</td>
                     `;
                     UI.admin.tableBody.appendChild(tr);
                 });
 
             } catch (error) {
-                console.error("Lỗi lấy dữ liệu Admin:", error);
-                UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Hệ thống đang ngoại tuyến (Offline) hoặc có lỗi kết nối. Không tải được dữ liệu.</td></tr>';
+                UI.admin.tableBody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">Lỗi không thể tải dữ liệu (Offline). Tuy nhiên, kết quả Google Form vẫn hoạt động.</td></tr>';
             }
         }
 
-        // --- CÁC HÀM TIỆN ÍCH UI ---
         function openSidebar() {
             document.getElementById('rightSidebar').classList.remove('translate-x-full');
             document.getElementById('sidebarOverlay').classList.remove('hidden');
@@ -776,22 +755,16 @@
             document.getElementById('sidebarOverlay').classList.add('hidden');
         }
 
-        // --- LOGIC BÀI THI ---
         function handleLogin(e) {
             e.preventDefault();
-            
             const name = document.getElementById('fullName').value.trim();
             const empId = document.getElementById('empId').value.trim();
-
             if (name && empId) {
                 if(!gameState.userId) gameState.userId = "local_user_" + Date.now();
-                
                 gameState.userInfo = { name, id: empId };
                 document.getElementById('displayUserName').textContent = name;
-                
                 UI.screens.login.classList.add('hidden');
                 UI.screens.exam.classList.remove('hidden');
-                
                 startExam();
             }
         }
@@ -818,7 +791,6 @@
 
         function loadQuestion(index) {
             if (index < 0 || index >= TOTAL_QUESTIONS) return;
-            
             gameState.currentQuestionIndex = index;
             const q = questionsData[index];
             
@@ -831,7 +803,6 @@
             
             q.options.forEach((optText, optIndex) => {
                 const isSelected = gameState.answers[index] === optIndex;
-                
                 const label = document.createElement('label');
                 label.className = `option-label flex items-start p-3 border rounded-lg cursor-pointer ${isSelected ? 'selected' : 'border-gray-200'}`;
                 
@@ -857,18 +828,15 @@
                 
                 label.appendChild(radioInput);
                 label.appendChild(textDiv);
-                
                 optionsContainer.appendChild(label);
             });
 
             updateGridButtonsUI();
             
-            // Disable nút Prev/Next
             document.getElementById('btnPrev').disabled = index === 0;
             document.getElementById('btnPrev').style.opacity = index === 0 ? '0.5' : '1';
             document.getElementById('btnNext').disabled = index === TOTAL_QUESTIONS - 1;
             document.getElementById('btnNext').style.opacity = index === TOTAL_QUESTIONS - 1 ? '0.5' : '1';
-            
             if (window.innerWidth < 768) closeSidebar();
         }
 
@@ -879,16 +847,13 @@
 
         function selectOption(qIndex, optIndex, selectedLabelElement) {
             gameState.answers[qIndex] = optIndex;
-            
             const allLabels = document.getElementById('optionsContainer').querySelectorAll('.option-label');
             allLabels.forEach(lbl => {
                 lbl.classList.remove('selected', 'border-[#4F46E5]', 'bg-[#EEF2FF]');
                 lbl.classList.add('border-gray-200');
             });
-            
             selectedLabelElement.classList.remove('border-gray-200');
             selectedLabelElement.classList.add('selected');
-            
             updateGridButtonsUI();
             updateAnsweredCount();
         }
@@ -904,13 +869,11 @@
             for (let i = 0; i < TOTAL_QUESTIONS; i++) {
                 const btn = document.getElementById(`grid-btn-${i}`);
                 if(!btn) continue;
-
                 btn.className = 'grid-btn';
                 if (i === currentIndex) btn.classList.add('current');
                 
                 const isAnswered = gameState.answers[i] !== null;
                 const isMarked = gameState.marked[i];
-
                 if (isAnswered && isMarked) btn.classList.add('answered', 'marked');
                 else if (isAnswered) btn.classList.add('answered');
                 else if (isMarked) btn.classList.add('marked');
@@ -927,7 +890,6 @@
             gameState.timerInterval = setInterval(() => {
                 gameState.timeRemaining--;
                 updateTimerDisplay();
-                
                 if (gameState.timeRemaining <= 0) {
                     clearInterval(gameState.timerInterval);
                     autoSubmit();
@@ -939,14 +901,11 @@
             const m = Math.floor(gameState.timeRemaining / 60).toString().padStart(2, '0');
             const s = (gameState.timeRemaining % 60).toString().padStart(2, '0');
             const timeStr = `${m}:${s}`;
-            
             const timer = document.getElementById('timerDisplay');
             const mobileTimer = document.getElementById('mobileTimerDisplay');
-            
             timer.textContent = timeStr;
             mobileTimer.textContent = timeStr;
-            
-            if (gameState.timeRemaining < 300) { // Dưới 5 phút
+            if (gameState.timeRemaining < 300) { 
                 timer.classList.add('text-red-600'); timer.classList.remove('text-gray-900');
                 mobileTimer.classList.add('text-red-600'); mobileTimer.classList.remove('text-brand');
             }
@@ -955,9 +914,8 @@
         function requestSubmit() {
             const answered = gameState.answers.filter(ans => ans !== null).length;
             const unanswered = TOTAL_QUESTIONS - answered;
-            
             if (unanswered > 0) {
-                document.getElementById('confirmMsg').innerHTML = `Bạn còn <strong>${unanswered}</strong> câu chưa trả lời. Bạn có chắc chắn muốn nộp bài lúc này?`;
+                document.getElementById('confirmMsg').innerHTML = `Bạn còn <strong>${unanswered}</strong> câu chưa trả lời. Bạn có chắc chắn muốn nộp bài?`;
             } else {
                 document.getElementById('confirmMsg').textContent = `Bạn đã trả lời đủ ${TOTAL_QUESTIONS} câu. Xác nhận nộp bài?`;
             }
@@ -965,12 +923,11 @@
         }
 
         function closeConfirmModal() {
-            if(isSaving) return; // Không cho đóng khi đang lưu
+            if(isSaving) return;
             document.getElementById('confirmModal').classList.add('hidden');
         }
 
         function autoSubmit() {
-            // Hiển thị modal không cho tắt và nộp
             document.getElementById('confirmMsg').textContent = "Đã hết thời gian làm bài. Hệ thống đang tự động nộp bài...";
             document.getElementById('btnCancelSubmit').classList.add('hidden');
             document.getElementById('confirmModal').classList.remove('hidden');
@@ -979,7 +936,6 @@
 
         async function finishExam() {
             if(gameState.isFinished || isSaving) return;
-            
             isSaving = true;
             clearInterval(gameState.timerInterval);
             
@@ -989,7 +945,6 @@
             btnSubmit.classList.add('opacity-80');
             spinner.classList.remove('hidden');
             
-            // 1. Tính điểm
             let correctCount = 0;
             for (let i = 0; i < TOTAL_QUESTIONS; i++) {
                 if (gameState.answers[i] === questionsData[i].correctAnswerIndex) {
@@ -1001,7 +956,7 @@
             const minTaken = Math.floor(timeTaken / 60);
             const secTaken = timeTaken % 60;
 
-            // 1.5 Gửi dữ liệu về Google Form (Nếu đã bật cấu hình)
+            // Gửi dữ liệu về Google Form
             if (GOOGLE_FORM_CONFIG.enabled) {
                 try {
                     const formData = new FormData();
@@ -1015,19 +970,13 @@
                         method: 'POST',
                         mode: 'no-cors',
                         body: formData
-                    }).catch(e => console.error("Lỗi mạng khi gửi Form", e));
-                } catch(e) {
-                    console.error("Lỗi cấu hình gửi Google Form", e);
-                }
+                    }).catch(e => console.log("Form request sent."));
+                } catch(e) { console.error("Form send error"); }
             }
 
-            // 2. Lưu lên Firestore
-        try {
-            if(db && gameState.userId) {
-                // Lưu vào Collection public/data/exam_results để Admin có thể query 
-                const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
-                
-                await addDoc(resultsRef, {
+            // Lưu Local Storage (để backup)
+            try {
+                const resObj = {
                     userId: gameState.userId,
                     userName: gameState.userInfo.name,
                     empId: gameState.userInfo.id,
@@ -1036,21 +985,18 @@
                     totalQuestions: TOTAL_QUESTIONS,
                     timeTakenSeconds: timeTaken,
                     timestamp: Date.now() 
-                });
+                };
+                let allLocalRes = JSON.parse(localStorage.getItem('thidaisu_results') || '[]');
+                allLocalRes.push(resObj);
+                localStorage.setItem('thidaisu_results', JSON.stringify(allLocalRes));
 
-                // Lưu chi tiết bài làm vào private để user export (tuỳ chọn)
-                const privateRef = collection(db, 'artifacts', appId, 'users', gameState.userId, 'exam_details');
-                await addDoc(privateRef, {
-                    answers: gameState.answers,
-                    timestamp: Date.now()
-                });
-            }
-        } catch (error) {
-            console.error("Lỗi lưu kết quả:", error);
-            alert("Bạn đang ở chế độ Offline. Bạn vẫn có thể tải file kết quả (CSV) về máy.");
-        }
+                // Lưu lên Firebase nếu có
+                if(db) {
+                    const resultsRef = collection(db, 'artifacts', appId, 'public', 'data', 'exam_results');
+                    await addDoc(resultsRef, resObj);
+                }
+            } catch (error) {}
 
-        // 3. Cập nhật UI
             isSaving = false;
             gameState.isFinished = true;
             document.getElementById('confirmModal').classList.add('hidden');
@@ -1066,10 +1012,8 @@
             document.body.classList.add('bg-gray-100');
         }
 
-        // --- EXPORT CSV ---
         function exportResultToCSV() {
             if(!gameState.isFinished) return;
-
             const timeTakenInSeconds = (EXAM_TIME_MINUTES * 60) - gameState.timeRemaining;
             const minutesTaken = Math.floor(timeTakenInSeconds / 60);
             const secondsTaken = timeTakenInSeconds % 60;
@@ -1082,13 +1026,11 @@
                 const userAnsIdx = gameState.answers[i];
                 const correctAnsIdx = questionsData[i].correctAnswerIndex;
                 const isCorrect = userAnsIdx === correctAnsIdx;
-                
                 if (isCorrect) correctCount++;
 
                 const userAnsLetter = userAnsIdx !== null ? letters[userAnsIdx] : 'Chưa chọn';
                 const correctAnsLetter = letters[correctAnsIdx];
                 const statusStr = isCorrect ? 'Đúng' : (userAnsIdx === null ? 'Bỏ qua' : 'Sai');
-
                 detailRows.push(`${i + 1},${userAnsLetter},${correctAnsLetter},${statusStr}`);
             }
 
@@ -1098,43 +1040,38 @@
             let csvContent = "\uFEFF"; 
             csvContent += "THÔNG TIN KẾT QUẢ THI TRẮC NGHIỆM\n\n";
             csvContent += `Họ và tên:,${gameState.userInfo.name}\n`;
-            csvContent += `Mã CN/Phòng ban:,${gameState.userInfo.id}\n`;
-            csvContent += `Thời gian nộp bài:,${dateStr}\n`;
-            csvContent += `Thời gian làm bài:,${minutesTaken} phút ${secondsTaken} giây\n`;
+            csvContent += `Mã NV:,${gameState.userInfo.id}\n`;
+            csvContent += `Nộp bài:,${dateStr}\n`;
+            csvContent += `Thời gian làm:,${minutesTaken} phút ${secondsTaken} giây\n`;
             csvContent += `Số câu đúng:,${correctCount} / ${TOTAL_QUESTIONS}\n`;
             csvContent += `Điểm số:,${score} / 10\n\n`;
             csvContent += "CHI TIẾT BÀI LÀM\n";
-            csvContent += "Câu số,Đáp án đã chọn,Đáp án đúng,Kết quả\n";
+            csvContent += "Câu số,Đã chọn,Đáp án,Kết quả\n";
             csvContent += detailRows.join("\n");
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            
-            const safeName = gameState.userInfo.name.replace(/[^a-zA-Z0-9]/g, '_');
-            link.setAttribute("download", `Ket_Qua_${safeName}_${gameState.userInfo.id}.csv`);
-            
+            link.setAttribute("download", `KetQua_${gameState.userInfo.name}_${gameState.userInfo.id}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // --- MOCK DATA GENERATOR ---
         function generateMockData() {
             const data = [];
             data.push({
                 id: 1,
-                content: "Một khách hàng có doanh thu thuần 12 tỷ đồng/năm, chi phí tiền mặt 8,4 tỷ đồng và nghĩa vụ trả nợ gốc trong năm 1,8 tỷ đồng. Nếu dòng tiền dùng để trả nợ được xác định bằng doanh thu thuần trừ chi phí tiền mặt, DSCR theo công thức dòng tiền trả nợ chia nghĩa vụ trả nợ là bao nhiêu?",
+                content: "Một khách hàng có doanh thu thuần 12 tỷ đồng/năm, chi phí tiền mặt 8,4 tỷ đồng và nghĩa vụ trả nợ gốc trong năm 1,8 tỷ đồng. DSCR là bao nhiêu?",
                 options: ["2,33 lần", "2,67 lần", "1,67 lần", "2,00 lần"],
                 correctAnswerIndex: 3 
             });
-
-            for (let i = 2; i <= TOTAL_QUESTIONS; i++) {
+            for (let i = 2; i <= 200; i++) {
                 data.push({
                     id: i,
-                    content: `Câu hỏi mẫu số ${i} về nghiệp vụ ngân hàng. Khách hàng vay vốn cần điều kiện gì?`,
-                    options: [`Đáp án A câu ${i}`, `Đáp án B câu ${i}`, `Đáp án C câu ${i}`, `Đáp án D câu ${i}`],
+                    content: `Câu hỏi mẫu số ${i} về nghiệp vụ. Hãy tải file Excel của bạn lên ở phần Quản trị viên (Admin) để có câu hỏi thật.`,
+                    options: [`Đáp án A`, `Đáp án B`, `Đáp án C`, `Đáp án D`],
                     correctAnswerIndex: Math.floor(Math.random() * 4)
                 });
             }
