@@ -481,30 +481,32 @@
         };
 
         // --- KHỞI TẠO DỮ LIỆU & XÁC THỰC ---
-        async function initApp() {
+         async function initApp() {
             setupEventListeners();
-            
+            console.log("Chạy chế độ độc lập (Không dùng Firebase)");
+			gameState.userId = "local_user_" + Date.now();
+			await fetchQuestionsFromDB();
             // Xử lý xác thực ẩn danh để lưu Firestore
-            try {
-                if (!auth) throw new Error("Firebase chưa được cấu hình");
+            <!-- try { -->
+                <!-- if (!auth) throw new Error("Firebase chưa được cấu hình"); -->
                 
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                <!-- if (typeof __initial_auth_token !== 'undefined') { -->
+                    <!-- await signInWithCustomToken(auth, __initial_auth_token); -->
+                <!-- } else { -->
+                    <!-- await signInAnonymously(auth); -->
+                <!-- } -->
                 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        gameState.userId = user.uid;
-                        await fetchQuestionsFromDB();
-                    }
-                });
-            } catch (error) {
-                console.warn("Đang chạy chế độ Local (Offline) do lỗi kết nối:", error);
-                gameState.userId = "local_user_" + Date.now();
-                await fetchQuestionsFromDB();
-            }
+                <!-- onAuthStateChanged(auth, async (user) => { -->
+                    <!-- if (user) { -->
+                        <!-- gameState.userId = user.uid; -->
+                        <!-- await fetchQuestionsFromDB(); -->
+                    <!-- } -->
+                <!-- }); -->
+            <!-- } catch (error) { -->
+                <!-- console.warn("Đang chạy chế độ Local (Offline) do lỗi kết nối:", error); -->
+                <!-- gameState.userId = "local_user_" + Date.now(); -->
+                <!-- await fetchQuestionsFromDB(); -->
+            <!-- } -->
         }
 
         async function fetchQuestionsFromDB() {
