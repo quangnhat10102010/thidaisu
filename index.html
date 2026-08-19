@@ -248,6 +248,11 @@
                 <button id="btnExitAdmin" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition">Đóng Admin</button>
             </div>
             
+            <div class="p-4 bg-yellow-50 border-b border-yellow-200 text-sm text-yellow-800 leading-relaxed">
+                <strong class="text-yellow-900">🔔 LƯU Ý QUAN TRỌNG:</strong> Bảng bên dưới chỉ hiển thị kết quả của những người đã thi trên <b>chính chiếc máy tính/điện thoại này</b> (lưu bằng Local Storage).<br>
+                👉 Để xem kết quả thi của <b>TẤT CẢ MỌI NGƯỜI từ các thiết bị khác nhau</b>, vui lòng mở file <b>Google Sheet (Excel)</b> trên Google Drive của bạn!
+            </div>
+            
             <div class="p-4 bg-white border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 w-full sm:w-auto">
                     <h3 class="font-bold text-blue-800 mb-1">Cập nhật Bộ Câu Hỏi (Excel)</h3>
@@ -431,20 +436,21 @@
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // === CẤU HÌNH LƯU KẾT QUẢ QUA GOOGLE FORM ===
+        // Để sử dụng tính năng này, hãy làm theo hướng dẫn trong cửa sổ chat
         const GOOGLE_FORM_CONFIG = {
-            enabled: true, // Gửi thẳng kết quả thi về Form
+            enabled: false, // Đổi thành true để bật gửi về Google Form
             formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSfcdscLJC-VRjqMdDE9Vacrk_8pMjeR6hE2wf5mQoGZawrh_g/formResponse", 
             entries: {
-                userName: "entry.1068873649", // Họ tên
-                empId: "entry.551471322",    // Mã NV
-                score: "entry.395024258",    // Điểm
-                correctCount: "entry.57043820", // Số câu đúng
-                timeTaken: "entry.324803402" // Thời gian làm bài
+                userName: "entry.1068873649", // ID ô Họ và tên
+                empId: "entry.551471322",    // ID ô Mã CN/Phòng ban
+                score: "entry.395024258",    // ID ô Điểm số
+                correctCount: "entry.57043820", // ID ô Số câu đúng
+                timeTaken: "entry.324803402" // ID ô Thời gian làm bài
             }
         };
         // ===========================================
 
-        // === 🚀 TỰ ĐỘNG PHÂN TÍCH 200 CÂU HỎI TỪ VĂN BẢN 🚀 ===
+        // === 🚀 TỰ ĐỘNG PHÂN TÍCH BỘ 200 CÂU HỎI MỚI (NÂNG CAO ĐỀ 09) 🚀 ===
         const RAW_TEXT = `Câu 1. Theo Quy trình 1579, khi một YCHT có tính chất phức tạp được chuyển tiếp đến đơn vị phối hợp xử lý, thời hạn xử lý tối đa của đơn vị tại Phiếu chuyển tiếp (PCT) và thời gian gia hạn tối đa (nếu không thể xử lý đúng hạn) được quy định như thế nào?
 A. Thời hạn hẹn KH tối đa không quá 05 ngày làm việc; đơn vị được gia hạn tối đa không quá 02 ngày làm việc.
 B. Thời hạn hẹn KH tối đa không quá 07 ngày làm việc; đơn vị được gia hạn tối đa không quá 03 ngày làm việc.
@@ -518,10 +524,10 @@ C. Cúi chào góc 15 - 30 độ, bàn tay phải/hai tay đặt lên ngực bê
 D. Cúi chào góc 30 - 45 độ, hai tay chắp trước bụng; thực hiện 5S sau khi kết thúc phiên giao dịch ngày.
 Đáp án đúng: C
 Câu 13. Khi tiếp nhận và xử lý khiếu nại, phàn nàn trực tiếp từ khách hàng theo Văn bản 238, thứ tự các bước trong quy trình tâm lý/kỹ năng ứng xử tiêu chuẩn mà cán bộ phải tuân thủ là gì?
-A. Lắng nghe $\rightarrow$ Giải thích quy định $\rightarrow$ Xin lỗi $\rightarrow$ Đưa ra giải pháp $\rightarrow$ Cảm ơn.
-B. Lắng nghe tích cực $\rightarrow$ Đồng cảm và Xin lỗi $\rightarrow$ Lập biên bản $\rightarrow$ Chuyển cấp trên giải quyết.
-C. Lắng nghe $\rightarrow$ Xác nhận thông tin $\rightarrow$ Lập luận bảo vệ ngân hàng $\rightarrow$ Đưa ra giải pháp.
-D. Lắng nghe tích cực $\rightarrow$ Đồng cảm & Xin lỗi chân thành $\rightarrow$ Thu thập, xác nhận thông tin $\rightarrow$ Đưa ra giải pháp/Thời hạn xử lý $\rightarrow$ Cảm ơn & Theo dõi.
+A. Lắng nghe -> Giải thích quy định -> Xin lỗi -> Đưa ra giải pháp -> Cảm ơn.
+B. Lắng nghe tích cực -> Đồng cảm và Xin lỗi -> Lập biên bản -> Chuyển cấp trên giải quyết.
+C. Lắng nghe -> Xác nhận thông tin -> Lập luận bảo vệ ngân hàng -> Đưa ra giải pháp.
+D. Lắng nghe tích cực -> Đồng cảm & Xin lỗi chân thành -> Thu thập, xác nhận thông tin -> Đưa ra giải pháp/Thời hạn xử lý -> Cảm ơn & Theo dõi.
 Đáp án đúng: D
 Câu 14. Theo Văn bản 238, đối với các trường hợp Yêu cầu hỗ trợ/khiếu nại của khách hàng vượt quá thẩm quyền giải quyết của Giao dịch viên tại quầy, thời gian tối đa để chuyển giao thông tin/hồ sơ cho bộ phận chuyên môn hoặc Cấp quản lý trực tiếp được quy định là bao lâu?
 A. Ngay lập tức hoặc chậm nhất trong vòng 30 phút kể từ khi tiếp nhận.
@@ -805,8 +811,7 @@ B. Quy chế số 3089/NHNo-TTh ngày 23/02/2024 và Quy chế số 168/QC-HĐTV
 C. Quy chế số 1200/ĐL-HĐTV-PC ngày 10/10/2024 và Quy chế số 60/QC-HĐTV-TTh ngày 25/01/2024. 
 D. Quy chế số 105/NQ-HĐTV ngày 30/6/2025 và Quy chế số 168/QC-HĐTV-TTh ngày 14/4/2022. 
 Đáp án đúng: A
-Câu 61. Căn cứ Phụ lục phân công nhiệm vụ đính kèm Kế hoạch 11644/NHNo-TTh, mỗi Chi nhánh loại I có trách nhiệm xây dựng từ 03–05 mô hình điển hình về khách hàng vay vốn tín dụng xanh/năm
-. Thời hạn báo cáo định kỳ và địa chỉ nhận báo cáo các mô hình này được quy định như thế nào?
+Câu 61. Căn cứ Phụ lục phân công nhiệm vụ đính kèm Kế hoạch 11644/NHNo-TTh, mỗi Chi nhánh loại I có trách nhiệm xây dựng từ 03–05 mô hình điển hình về khách hàng vay vốn tín dụng xanh/năm. Thời hạn báo cáo định kỳ và địa chỉ nhận báo cáo các mô hình này được quy định như thế nào?
 A. Báo cáo trước ngày 15 hằng tháng về Văn phòng Đại diện khu vực. 
 B. Báo cáo trước ngày 25 tháng cuối của mỗi quý về Ban Truyền thông. 
 C. Báo cáo trước ngày 30/6 và 31/12 hằng năm về Ban Khách hàng Doanh nghiệp. 
@@ -861,10 +866,10 @@ C. esgagribank@gmail.com
 D. ban_truyenthong_esg@agribank.com.vn
 Đáp án đúng: C
 Câu 70. Theo Phụ lục phân công nhiệm vụ, đối với công tác Nâng cao năng lực đội ngũ truyền thông ESG, các khóa đào tạo chuyên sâu về ESG dành cho đội ngũ cán bộ quản lý, lãnh đạo do Trường Đào tạo cán bộ chủ trì được quy định mức đo lường tối thiểu là bao nhiêu?
-A. Tối thiểu $\ge 01$ lớp cấp lãnh đạo. 
-B. Tối thiểu $\ge 03$ lớp cấp lãnh đạo. 
-C. Tối thiểu $\ge 50\%$ số lượng lãnh đạo Chi nhánh loại I tham gia. 
-D. Tối thiểu $\ge 80\%$ số lượng cán bộ quy hoạch lãnh đạo tham gia. 
+A. Tối thiểu 01 lớp cấp lãnh đạo. 
+B. Tối thiểu 03 lớp cấp lãnh đạo. 
+C. Tối thiểu 50% số lượng lãnh đạo Chi nhánh loại I tham gia. 
+D. Tối thiểu 80% số lượng cán bộ quy hoạch lãnh đạo tham gia. 
 Đáp án đúng: A
 Câu 71: Theo Quy định 2239/QĐ-NHNO-TTT, trường hợp giao thẻ cho khách hàng qua đường bưu điện, sau bao nhiêu ngày làm việc kể từ thời điểm hẹn giao thẻ mà không có phản hồi hoặc tra soát từ phía chủ thẻ về việc chưa nhận được thẻ, mặc nhiên được coi là chủ thẻ đã nhận được thẻ?
 A. 03 ngày làm việc.
@@ -926,283 +931,241 @@ B. Phòng Nghiên cứu và Phát triển.
 C. Phòng Vận hành nghiệp vụ thẻ.
 D. Phòng Trung tâm Chăm sóc khách hàng.
 Đáp án đúng: C
-Câu 81 (Trường hợp tính toán nâng cao - Kết hợp nhiều chỉ số đo lường):
-Một Chi nhánh Agribank triển khai chiến dịch khảo sát tổng thể và ghi nhận kết quả thu về từ $100$ khách hàng tham gia như sau: 
-$50$ khách hàng đánh giá $5$ điểm (Rất hài lòng); 
-$25$ khách hàng đánh giá $4$ điểm (Hài lòng); 
-$15$ khách hàng đánh giá $3$ điểm (Bình thường); 
-$10$ khách hàng đánh giá $2$ điểm (Không hài lòng); 
-Không có khách hàng nào đánh giá $1$ điểm. 
-Dựa trên phương pháp đánh giá tại Phụ lục A của Văn bản 17745/NHNo-CSKH, đánh giá kết quả của hai chỉ số CSAT và NPS là: 
-A. CSAT đạt mức "Tốt" ($75\%$) và NPS đạt mức "Tốt" ($65$). 
-B. CSAT đạt mức "Tuyệt vời" ($75\%$) và NPS đạt mức "NPS tạm ổn" ($65$). 
-C. CSAT đạt mức "Tốt" ($75\%$) và NPS đạt mức "NPS tốt" ($65\%$). 
-D. CSAT đạt mức "Tốt" ($75\%$) và NPS đạt mức "NPS tạm ổn" ($65$). 
+Câu 81. Một Chi nhánh Agribank triển khai chiến dịch khảo sát tổng thể và ghi nhận kết quả thu về từ 100 khách hàng tham gia như sau: 50 khách hàng đánh giá 5 điểm (Rất hài lòng); 25 khách hàng đánh giá 4 điểm (Hài lòng); 15 khách hàng đánh giá 3 điểm (Bình thường); 10 khách hàng đánh giá 2 điểm (Không hài lòng); Không có khách hàng nào đánh giá 1 điểm. Dựa trên phương pháp đánh giá tại Phụ lục A của Văn bản 17745/NHNo-CSKH, đánh giá kết quả của hai chỉ số CSAT và NPS là: 
+A. CSAT đạt mức "Tốt" (75%) và NPS đạt mức "Tốt" (65). 
+B. CSAT đạt mức "Tuyệt vời" (75%) và NPS đạt mức "NPS tạm ổn" (65). 
+C. CSAT đạt mức "Tốt" (75%) và NPS đạt mức "NPS tốt" (65%). 
+D. CSAT đạt mức "Tốt" (75%) và NPS đạt mức "NPS tạm ổn" (65). 
 Đáp án đúng: A
-Câu 82 (Chi tiết nghiệp vụ quy trình & Trách nhiệm thời gian):
-Theo quy định về tổ chức thực hiện tại Văn bản 17745/NHNo-CSKH, nhận định nào sau đây là CHÍNH XÁC đối với trách nhiệm của các đơn vị tại Trụ sở chính và Đơn vị sự nghiệp? 
+Câu 82. Theo quy định về tổ chức thực hiện tại Văn bản 17745/NHNo-CSKH, nhận định nào sau đây là CHÍNH XÁC đối với trách nhiệm của các đơn vị tại Trụ sở chính và Đơn vị sự nghiệp? 
 A. Đối với các sản phẩm/dịch vụ mới, tối đa 06 tháng kể từ thời điểm chính thức triển khai, đơn vị đầu mối phải thực hiện khảo sát, đo lường sự hài lòng của khách hàng. 
 B. Tối đa 12 tháng kể từ thời điểm chính thức triển khai sản phẩm/dịch vụ mới, đơn vị đầu mối thực hiện khảo sát, đo lường sự hài lòng để cải tiến, hoàn thiện sản phẩm/dịch vụ. 
 C. Ban Truyền thông là đơn vị đầu mối xây dựng Phần mềm khảo sát để quản lý, triển khai và tổng hợp kết quả các chương trình khảo sát. 
 D. Thời hạn báo cáo kết quả khảo sát của các Ban, Trung tâm tại Trụ sở chính gửi Tổng Giám đốc là trong vòng 15 ngày kể từ thời điểm hoàn thành chiến dịch. 
 Đáp án đúng: B
-Câu 83 (Quy tắc tính toán đặc thù chỉ số CES & Phân tích trường hợp):
-Khách hàng A tham gia khảo sát một dịch vụ Ngân hàng điện tử với bộ câu hỏi gồm 03 câu hỏi CES (thang điểm 1 - 5). Khách hàng A đánh giá lần lượt các câu là: $3$ điểm, $4$ điểm và $5$ điểm. Khách hàng B chỉ trả lời 01 câu hỏi CES và đánh giá $4$ điểm. Khi hệ thống tổng hợp chỉ số CES cho riêng 2 lượt tương tác của 2 khách hàng này, kết quả chỉ số CES trung bình chung sẽ là bao nhiêu và xếp loại như thế nào? 
-A. CES = $4,0$ điểm $\rightarrow$ Xếp loại "CES tạm ổn". 
-B. CES = $4,0$ điểm $\rightarrow$ Xếp loại "CES tốt". 
-C. CES = $3,0$ điểm $\rightarrow$ Xếp loại "CES tạm ổn". 
-D. CES = $4,5$ điểm $\rightarrow$ Xếp loại "CES tốt". 
+Câu 83. Khách hàng A tham gia khảo sát một dịch vụ Ngân hàng điện tử với bộ câu hỏi gồm 03 câu hỏi CES (thang điểm 1 - 5). Khách hàng A đánh giá lần lượt các câu là: 3 điểm, 4 điểm và 5 điểm. Khách hàng B chỉ trả lời 01 câu hỏi CES và đánh giá 4 điểm. Khi hệ thống tổng hợp chỉ số CES cho riêng 2 lượt tương tác của 2 khách hàng này, kết quả chỉ số CES trung bình chung sẽ là bao nhiêu và xếp loại như thế nào? 
+A. CES = 4,0 điểm -> Xếp loại "CES tạm ổn". 
+B. CES = 4,0 điểm -> Xếp loại "CES tốt". 
+C. CES = 3,0 điểm -> Xếp loại "CES tạm ổn". 
+D. CES = 4,5 điểm -> Xếp loại "CES tốt". 
 Đáp án đúng: B
-Câu 84 (Lộ trình công nghệ & Kênh triển khai theo Giai đoạn):
-Về phương thức triển khai hệ thống quản lý và tổng hợp kết quả khảo sát quy định tại Phần C Phụ lục Văn bản 17745/NHNo-CSKH, phát biểu nào sau đây mô tả ĐÚNG đặc điểm của Giai đoạn 1? 
+Câu 84. Về phương thức triển khai hệ thống quản lý và tổng hợp kết quả khảo sát quy định tại Phần C Phụ lục Văn bản 17745/NHNo-CSKH, phát biểu nào sau đây mô tả ĐÚNG đặc điểm của Giai đoạn 1? 
 A. Triển khai trực tiếp qua tất cả các kênh (Ngân hàng điện tử, Mạng xã hội, SMS, tại quầy) áp dụng đồng thời cho cả Trụ sở chính và toàn bộ các Chi nhánh loại I. 
 B. Xây dựng trang thông tin khảo sát dưới dạng website; gửi đường dẫn (Url link) đến khách hàng qua các kênh triển khai phù hợp; phạm vi triển khai áp dụng tại các đơn vị Trụ sở chính. 
 C. Trung tâm CSKH phối hợp với Trung tâm CNTT triển khai tích hợp trực tiếp tính năng đánh giá vào ứng dụng Agribank Plus cho tất cả Chi nhánh thực hiện. 
 D. Khảo sát trực tiếp bằng phiếu giấy tại quầy giao dịch do Chi nhánh tự tổng hợp và gửi báo cáo về Trụ sở chính định kỳ hàng tháng. 
 Đáp án đúng: B
-Câu 85 (Phân định nội dung báo cáo & Phân tích dữ liệu Định tính/Định lượng):
-Trường hợp một chiến dịch khảo sát thu thập ý kiến của khách hàng qua câu hỏi: "Làm thế nào để Agribank có thể phục vụ Quý khách tốt hơn?", theo hướng dẫn tại Phần D Văn bản 17745/NHNo-CSKH, dữ liệu này thuộc loại nào và được xử lý/báo cáo theo cơ chế nào? 
+Câu 85. Trường hợp một chiến dịch khảo sát thu thập ý kiến của khách hàng qua câu hỏi: "Làm thế nào để Agribank có thể phục vụ Quý khách tốt hơn?", theo hướng dẫn tại Phần D Văn bản 17745/NHNo-CSKH, dữ liệu này thuộc loại nào và được xử lý/báo cáo theo cơ chế nào? 
 A. Dữ liệu định lượng (CSAT); được xử lý bằng cách tính phần trăm tỷ lệ hài lòng và vẽ biểu đồ xu hướng. 
 B. Dữ liệu định lượng (CES); được xử lý bằng cách tính điểm bình quân theo thang điểm từ 1 đến 5. 
 C. Dữ liệu định tính (khảo sát kỳ vọng); được tiến hành phân tích nội dung để nhận biết nhu cầu, xu hướng thị trường nhằm phục vụ công tác quản trị điều hành. 
 D. Dữ liệu định tính (NPS); dùng để phân loại nhóm khách hàng Ủng hộ (Promoters) và nhóm Phản đối (Detractors). 
 Đáp án đúng: C
-Dưới đây là bộ 10 câu hỏi trắc nghiệm mức độ khó cao (Câu 86 đến Câu 95) với đáp án đúng được đặt trực tiếp ngay bên dưới mỗi câu hỏi và đã loại bỏ hoàn toàn biểu tượng/định dạng ticker:
-Câu 86.
-Theo định hướng của Agribank về tư duy xử lý khiếu nại trong môi trường số, trường hợp nào sau đây thể hiện việc cán bộ ngân hàng vi phạm nghiêm trọng nguyên tắc "Quản trị kỳ vọng" và nguyên tắc "An toàn" trong quy trình? 
+Câu 86. Theo định hướng của Agribank về tư duy xử lý khiếu nại trong môi trường số, trường hợp nào sau đây thể hiện việc cán bộ ngân hàng vi phạm nghiêm trọng nguyên tắc "Quản trị kỳ vọng" và nguyên tắc "An toàn" trong quy trình? 
 A. Tiếp nhận khiếu nại qua Tổng đài, tạo mã Ticket/CRM ngay lập tức nhưng từ chối đưa ra kết luận lỗi thuộc về ai khi chưa xác minh từ phía kỹ thuật. 
 B. Xin lỗi vì trải nghiệm chưa tốt của khách hàng, giải thích lý do quy trình cần 03 ngày làm việc và cam kết chủ động cập nhật tiến độ qua tin nhắn OTT chính thức. 
 C. Nhận thấy khách hàng rất bức xúc trên Fanpage chính thức, cán bộ hỗ trợ lập tức nhắn tin qua Facebook cá nhân cam kết chắc chắn sẽ hoàn tiền trong 24h để hạ nhiệt. 
 D. Áp dụng công thức A-A-A-A để lắng nghe khách hàng, chuyển thông tin cho bộ phận tra soát và hẹn mốc thời gian phản hồi cụ thể (SLA). 
-ĐÁP ÁN ĐÚNG: C
-Câu 87.
-Trong kỹ thuật đàm phán và xử lý khiếu nại "Tách người khỏi vấn đề" và "Không nhưng vẫn giúp", cách ứng xử nào dưới đây phản ánh đúng nhất tinh thần không "nhượng bộ rủi ro" của ngân hàng? 
+Đáp án đúng: C
+Câu 87. Trong kỹ thuật đàm phán và xử lý khiếu nại "Tách người khỏi vấn đề" và "Không nhưng vẫn giúp", cách ứng xử nào dưới đây phản ánh đúng nhất tinh thần không "nhượng bộ rủi ro" của ngân hàng? 
 A. Đồng ý chấp nhận ngoại lệ xử lý giao dịch ngoài quy định an toàn nếu khách hàng đe dọa đăng tải sự cố lên các hội nhóm mạng xã hội lớn. 
 B. Từ chối thẳng thừng yêu cầu của khách hàng bằng câu: "Theo quy định ngân hàng không thể làm việc này, anh/chị vui lòng thông cảm". 
 C. Bỏ qua bước xác minh chủ tài khoản qua kênh chính thức để tiết kiệm thời gian, giúp khách hàng khôi phục mật khẩu ngay khi khách gọi đến hotline. 
 D. Từ chối thực hiện yêu cầu trái quy định an toàn bảo mật, đồng thời giải thích rõ lý do rủi ro và đề xuất phương án hỗ trợ thay thế nằm trong khung cho phép. 
-ĐÁP ÁN ĐÚNG: D
-Câu 88.
-Xét theo các làn sóng phát triển của Trí tuệ nhân tạo (từ AI Phân tích đến AI Agents), đặc trưng cốt lõi nào phân biệt AI Agents (Tác nhân tự hành) với AI Tạo sinh (Generative AI)? 
+Đáp án đúng: D
+Câu 88. Xét theo các làn sóng phát triển của Trí tuệ nhân tạo (từ AI Phân tích đến AI Agents), đặc trưng cốt lõi nào phân biệt AI Agents (Tác nhân tự hành) với AI Tạo sinh (Generative AI)? 
 A. AI Agents chỉ có khả năng phân tích dữ liệu lịch sử bằng toán thống kê để dự báo, trong khi AI Tạo sinh có khả năng tạo nội dung mới. 
 B. AI Agents có khả năng tự lập kế hoạch, truy cập nhiều dữ liệu và gọi các công cụ (Tools/API) để thực hiện chuỗi tác vụ nhiều bước mà không cần con người can thiệp liên tục. 
 C. AI Agents hoạt động hoàn toàn dựa trên kịch bản cây quyết định (Rule-based) cố định, trong khi AI Tạo sinh hiểu ngữ cảnh tự nhiên. 
 D. AI Agents chỉ phản hồi văn bản ngắn, còn AI Tạo sinh có thể xử lý được tài liệu siêu dài lên đến 1 triệu token. 
-ĐÁP ÁN ĐÚNG: B
-Câu 89.
-Một cán bộ tín dụng muốn tóm tắt một văn bản Thông tư mới của Ngân hàng Nhà nước dài 80 trang và so sánh với quy định cũ. Dựa trên ma trận năng lực và đặc tính của các siêu trợ lý AI, lựa chọn công cụ nào dưới đây là tối ưu và an toàn nhất? 
+Đáp án đúng: B
+Câu 89. Một cán bộ tín dụng muốn tóm tắt một văn bản Thông tư mới của Ngân hàng Nhà nước dài 80 trang và so sánh với quy định cũ. Dựa trên ma trận năng lực và đặc tính của các siêu trợ lý AI, lựa chọn công cụ nào dưới đây là tối ưu và an toàn nhất? 
 A. Dùng ChatGPT bản miễn phí để tải toàn bộ văn bản và yêu cầu tóm tắt. 
 B. Sử dụng Claude (với Context Window 1M token, Constitutional AI) hoặc NotebookLM (Grounded AI) tải file văn bản đã công khai để truy xuất chính xác. 
 C. Đưa toàn bộ tài liệu lên Perplexity Finance để nhờ hệ thống viết lại kịch bản Telesale. 
 D. Dùng công cụ AI Phân tích (Analytical AI) để dự báo xu hướng lãi suất từ file văn bản Thông tư. 
-ĐÁP ÁN ĐÚNG: B
-Câu 90.
-Một cán bộ quản lý đang viết Prompt để giao nhiệm vụ cho AI lập kế hoạch chiến dịch huy động vốn. Cấu trúc Prompt nào dưới đây đáp ứng đầy đủ và chính xác nhất 06 thành phần cốt lõi theo chuẩn mô hình ABM? 
+Đáp án đúng: B
+Câu 90. Một cán bộ quản lý đang viết Prompt để giao nhiệm vụ cho AI lập kế hoạch chiến dịch huy động vốn. Cấu trúc Prompt nào dưới đây đáp ứng đầy đủ và chính xác nhất 06 thành phần cốt lõi theo chuẩn mô hình ABM? 
 A. "Hãy đóng vai Trưởng phòng Khách hàng cá nhân (Role). Lập bản kế hoạch huy động vốn (Task) trong tháng tới cho chi nhánh ngân hàng (Context) dưới dạng bảng (Format)." 
 B. "Bạn là Trưởng phòng KHCN 8 năm kinh nghiệm (Role). Hãy lập kế hoạch hành động 30 ngày chạy chiến dịch huy động vốn (Task). Mục tiêu huy động 100 tỷ, ngân sách 20 triệu, 5 nhân sự (Details). Dùng cho họp giao ban phân khai KPI (Context). Trình bày dạng Bảng có Timeline, Đầu việc, KPI (Format/Style). Lưu ý: Bám sát nhân sự ít, tuyệt đối không chạy quảng cáo truyền thông đại chúng (Note)." 
 C. "Lập kế hoạch huy động vốn 100 tỷ trong 30 ngày (Task). Trình bày đẹp mắt dưới dạng văn bản (Format). Lưu ý không tốn tiền quảng cáo (Note)." 
 D. "Đóng vai Chuyên gia Tín dụng (Role). Hãy phân tích báo cáo tài chính của doanh nghiệp ABC (Task) được đính kèm tại đây (Details). Yêu cầu viết thật chi tiết và chuyên nghiệp (Format/Style)." 
-ĐÁP ÁN ĐÚNG: B
-Câu 91.
-Theo quy định về An toàn thông tin & Quản trị rủi ro AI trong ngân hàng, hành vi nào dưới đây của cán bộ nhân viên bị coi là VI PHẠM NGHÊM TRỌNG (Thuộc Vùng Đỏ - Red Zone)? 
+Đáp án đúng: B
+Câu 91. Theo quy định về An toàn thông tin & Quản trị rủi ro AI trong ngân hàng, hành vi nào dưới đây của cán bộ nhân viên bị coi là VI PHẠM NGHÊM TRỌNG (Thuộc Vùng Đỏ - Red Zone)? 
 A. Tải văn bản Luật Tổ chức các Tín dụng đã công bố công khai lên NotebookLM để hỗ trợ tra cứu điều khoản nghiệp vụ. 
 B. Upload file Excel chứa danh sách full tên, số điện thoại, số CCCD và số dư tài khoản của 1.000 khách hàng lên ChatGPT công cộng để phân tích phân khúc. 
 C. Ẩn danh tên công ty (thay bằng [COMP_X]) và xóa mã số thuế trước khi đính kèm BCTC niêm yết lên AI để phân tích chỉ số tài chính. 
 D. Tạo Chat mới (New Chat) riêng biệt cho từng dự án để tránh ô nhiễm ngữ cảnh chéo giữa các luồng công việc. 
-ĐÁP ÁN ĐÚNG: B
-Câu 92.
-Khi xử lý các file dữ liệu phức tạp (như Excel nhiều sheet lồng hàm, PDF scan mờ nhòe, Word có Textbox lồng nhau) trước khi đưa vào AI để tránh rủi ro AI bị "ảo giác" hoặc bỏ sót dữ liệu, giải pháp chuẩn hóa dữ liệu được khuyến nghị là gì? 
+Đáp án đúng: B
+Câu 92. Khi xử lý các file dữ liệu phức tạp (như Excel nhiều sheet lồng hàm, PDF scan mờ nhòe, Word có Textbox lồng nhau) trước khi đưa vào AI để tránh rủi ro AI bị "ảo giác" hoặc bỏ sót dữ liệu, giải pháp chuẩn hóa dữ liệu được khuyến nghị là gì? 
 A. Tải thẳng toàn bộ file gốc phức tạp lên AI vì các mô hình AI hiện đại luôn tự động sửa lỗi dữ liệu. 
 B. Chuyển file sang định dạng ảnh (JPEG) rồi gửi cho AI đọc. 
 C. "Làm phẳng dữ liệu" (Flatten Data): Chuyển tài liệu phức tạp về dạng tuyến tính, gộp sheet/paste values xóa hàm trong Excel, xuất CSV hoặc text đơn giản. 
 D. Yêu cầu AI tự viết code Python để đọc file mà không cần kiểm tra lại định dạng đầu vào. 
-ĐÁP ÁN ĐÚNG: C
-Câu 93.
-Xu hướng chuyển đổi trong ngành Ngân hàng hiện nay đại diện cho sự thay đổi tư duy cốt lõi nào dưới đây? 
+Đáp án đúng: C
+Câu 93. Xu hướng chuyển đổi trong ngành Ngân hàng hiện nay đại diện cho sự thay đổi tư duy cốt lõi nào dưới đây? 
 A. Chuyển từ "Lấy khách hàng làm trung tâm" sang "Lấy sản phẩm làm trung tâm". 
 B. Chuyển từ "Xử lý đa kênh, tự động hóa" sang "Xử lý thủ công tại quầy để đảm bảo an toàn". 
 C. Chuyển từ "Lấy sản phẩm làm trung tâm" sang "Lấy khách hàng làm trung tâm", từ "Phản ứng bị động" sang "Chăm sóc & phòng ngừa chủ động". 
 D. Tập trung toàn bộ nguồn lực vào giao dịch tại quầy truyền thống, giảm bớt sự phụ thuộc vào các kênh giao dịch số. 
-ĐÁP ÁN ĐÚNG: C
-Câu 94.
-Trong quy trình thực thi "Brain-First" (5 bước) kết hợp giữa Con người và AI khi sử dụng không gian tương tác Canvas/Artifacts, vai trò nào thể hiện tính "Chốt chặn con người" (Human-in-the-loop)? 
+Đáp án đúng: C
+Câu 94. Trong quy trình thực thi "Brain-First" (5 bước) kết hợp giữa Con người và AI khi sử dụng không gian tương tác Canvas/Artifacts, vai trò nào thể hiện tính "Chốt chặn con người" (Human-in-the-loop)? 
 A. Bước 2 (Draft): AI tự động khởi tạo bản thảo đầu tiên trong không gian làm việc. 
 B. Bước 3 (Interact): Bôi đen đoạn văn và ra lệnh cho AI chỉnh sửa cục bộ. 
 C. Bước 4 (Review) & Bước 5 (Finalize): Con người trực tiếp thẩm định số liệu, kiểm tra tính logic, tuân thủ quy định nội bộ và phê duyệt trình ký. 
 D. Bước 1 (Input): AI chủ động quét dữ liệu hệ thống để đưa ra bối cảnh nghiệp vụ. 
-ĐÁP ÁN ĐÚNG: C
-Câu 95.
-Sự khác biệt căn bản về mặt phạm vi và trọng tâm giữa "Chăm sóc khách hàng truyền thống" và "Trải nghiệm khách hàng (CX) thời đại số" là gì? 
+Đáp án đúng: C
+Câu 95. Sự khác biệt căn bản về mặt phạm vi và trọng tâm giữa "Chăm sóc khách hàng truyền thống" và "Trải nghiệm khách hàng (CX) thời đại số" là gì? 
 A. CSKH truyền thống chú trọng vào cảm xúc toàn bộ hành trình; CX thời đại số chỉ tập trung giải quyết sự cố sau thanh toán. 
 B. CSKH truyền thống liên kết tất cả các bộ phận; CX thời đại số chỉ giao phó duy nhất cho phòng CSKH thực hiện. 
 C. CSKH truyền thống giới hạn sau thanh toán/sử dụng dịch vụ và chủ yếu giải quyết vấn đề phát sinh; CX thời đại số kiến tạo hành trình trải nghiệm liền mạch, chú trọng cảm xúc xuyên suốt trước - trong - sau giao dịch trên hệ sinh thái đa nền tảng. 
 D. Cả hai hình thức đều có mục tiêu, công cụ, kênh tiếp cận và đối tượng trách nhiệm hoàn toàn giống nhau. 
-ĐÁP ÁN ĐÚNG: C
-Câu 96.
-Theo Văn bản 8696/NHNo-CSKH, thành phần quy định tối thiểu của Tổ phản ứng nhanh (TPƯN) tại đơn vị xử lý sự cố gây rối gồm bao nhiêu người và cơ cấu như thế nào? 
+Đáp án đúng: C
+Câu 96. Theo Văn bản 8696/NHNo-CSKH, thành phần quy định tối thiểu của Tổ phản ứng nhanh (TPƯN) tại đơn vị xử lý sự cố gây rối gồm bao nhiêu người và cơ cấu như thế nào? 
 A. Tối thiểu 02 người, trong đó Tổ trưởng là Lãnh đạo cấp Phòng. 
 B. Tối thiểu 03 người, trong đó Tổ trưởng là Lãnh đạo đơn vị. 
 C. Tối thiểu 05 người, trong đó Tổ trưởng là Giám đốc Chi nhánh loại I. 
 D. Tối thiểu 03 người, trong đó Tổ trưởng là Cán bộ phòng Kiểm tra giám sát nội bộ. 
-ĐÁP ÁN ĐÚNG: B
-Câu 97.
-Khi phát sinh sự cố gây rối qua kênh thoại ở mức độ nghiêm trọng (xuyên tạc, vu khống, lặp lại hành vi nhiều lần), quy trình cảnh báo đối với Nhân viên đơn vị (NVĐV) được thực hiện chính xác theo thứ tự nào? 
+Đáp án đúng: B
+Câu 97. Khi phát sinh sự cố gây rối qua kênh thoại ở mức độ nghiêm trọng (xuyên tạc, vu khống, lặp lại hành vi nhiều lần), quy trình cảnh báo đối với Nhân viên đơn vị (NVĐV) được thực hiện chính xác theo thứ tự nào? 
 A. Cảnh báo lần 1 đề nghị chấm dứt hành vi - Cảnh báo lần 2 thông báo kết thúc cuộc gọi - Báo cáo Người kiểm soát (NKS). 
 B. Lập tức ngắt kết nối cuộc gọi - Báo cáo NKS - Nhắn tin cảnh báo bằng SMS chính thức. 
 C. Cảnh báo lần 1 thông báo sẽ báo Công an - Cảnh báo lần 2 ngắt máy - Chuyển cuộc gọi cho Tổ phản ứng nhanh. 
 D. Báo cáo NKS xin ý kiến - Tiến hành cảnh báo lần 1 - Kết thúc cuộc gọi. 
-ĐÁP ÁN ĐÚNG: A
-Câu 98.
-Đơn vị nào tại Trụ sở chính là đầu mối tiếp nhận, xử lý các trường hợp sự cố gây rối có liên quan đến đơn thư, khiếu nại, tố cáo, phản ánh... trong toàn hệ thống Agribank? 
+Đáp án đúng: A
+Câu 98. Đơn vị nào tại Trụ sở chính là đầu mối tiếp nhận, xử lý các trường hợp sự cố gây rối có liên quan đến đơn thư, khiếu nại, tố cáo, phản ánh... trong toàn hệ thống Agribank? 
 A. Ban Pháp chế. 
 B. Ban Truyền thông. 
 C. Ban Kiểm tra, giám sát nội bộ. 
 D. Trung tâm Chăm sóc khách hàng. 
-ĐÁP ÁN ĐÚNG: C
-Câu 99.
-Trường hợp sự cố gây rối xảy ra tại Trụ sở chính nằm ngoài phạm vi thẩm quyền xử lý của Agribank, đơn vị nào đóng vai trò đầu mối liên hệ, trình báo và phối hợp với cơ quan công an/cơ quan chức năng? 
+Đáp án đúng: C
+Câu 99. Trường hợp sự cố gây rối xảy ra tại Trụ sở chính nằm ngoài phạm vi thẩm quyền xử lý của Agribank, đơn vị nào đóng vai trò đầu mối liên hệ, trình báo và phối hợp với cơ quan công an/cơ quan chức năng? 
 A. Ban Kiểm tra, giám sát nội bộ. 
 B. Văn phòng Trụ sở chính. 
 C. Ban Pháp chế. 
 D. Tổ phản ứng nhanh Trụ sở chính. 
-ĐÁP ÁN ĐÚNG: B
-Câu 100.
-Đối với các Chi nhánh Agribank, định kỳ bao lâu phải gửi báo cáo về sự cố gây rối, quá trình và kết quả xử lý, đánh giá việc triển khai văn bản? 
+Đáp án đúng: B
+Câu 100. Đối với các Chi nhánh Agribank, định kỳ bao lâu phải gửi báo cáo về sự cố gây rối, quá trình và kết quả xử lý, đánh giá việc triển khai văn bản? 
 A. Hằng tháng (trước ngày 25). 
 B. Định kỳ 03 tháng/lần. 
 C. Định kỳ 06 tháng/lần. 
 D. Định kỳ 12 tháng/lần (vào cuối năm tài chính). 
-ĐÁP ÁN ĐÚNG: C
-Câu 101.
-Đối với hành vi gây rối tại Trụ sở làm việc thuộc Cấp độ 2 (như cố ý gây thương tích, hủy hoại tài sản, mang vũ khí sát thương), biện pháp xử lý nội bộ của NVĐV là gì? 
+Đáp án đúng: C
+Câu 101. Đối với hành vi gây rối tại Trụ sở làm việc thuộc Cấp độ 2 (như cố ý gây thương tích, hủy hoại tài sản, mang vũ khí sát thương), biện pháp xử lý nội bộ của NVĐV là gì? 
 A. Báo cáo Người kiểm soát (NKS) để tự thương lượng giải quyết. 
 B. Báo cáo Tổ phản ứng nhanh (TPƯN) trình báo và phối hợp với cơ quan chức năng/công an. 
 C. Yêu cầu lực lượng bảo vệ lập biên bản vi phạm hành chính tại chỗ. 
 D. Đóng cửa giao dịch và yêu cầu toàn bộ khách hàng xuất trình giấy tờ tùy thân. 
-ĐÁP ÁN ĐÚNG: B
-Câu 102.
-Theo Phụ lục của Văn bản 8696, đối tượng thực hiện hành vi "Phun sơn, viết, vẽ, dán, gắn hình ảnh, nội dung lên tường Trụ sở Agribank khi chưa được phép" nếu chưa đến mức truy cứu trách nhiệm hình sự thì bị phạt tiền ở mức nào? 
+Đáp án đúng: B
+Câu 102. Theo Phụ lục của Văn bản 8696, đối tượng thực hiện hành vi "Phun sơn, viết, vẽ, dán, gắn hình ảnh, nội dung lên tường Trụ sở Agribank khi chưa được phép" nếu chưa đến mức truy cứu trách nhiệm hình sự thì bị phạt tiền ở mức nào? 
 A. Phạt tiền từ 300.000 đồng đến 500.000 đồng. 
 B. Phạt tiền từ 1.000.000 đồng đến 2.000.000 đồng. 
 C. Phạt tiền từ 3.000.000 đồng đến 5.000.000 đồng. 
 D. Phạt tiền từ 5.000.000 đồng đến 8.000.000 đồng. 
-ĐÁP ÁN ĐÚNG: B
-Câu 103.
-Trường hợp người gây rối trên kênh Email/Fanpage thực hiện hành vi "Xuyên tạc lịch sử, phủ nhận thành tựu cách mạng, đăng thông tin dâm ô, đồi trụy", mức phạt tiền xử phạt vi phạm hành chính theo Nghị định 15/2020/NĐ-CP được nêu trong Phụ lục là bao nhiêu? 
+Đáp án đúng: B
+Câu 103. Trường hợp người gây rối trên kênh Email/Fanpage thực hiện hành vi "Xuyên tạc lịch sử, phủ nhận thành tựu cách mạng, đăng thông tin dâm ô, đồi trụy", mức phạt tiền xử phạt vi phạm hành chính theo Nghị định 15/2020/NĐ-CP được nêu trong Phụ lục là bao nhiêu? 
 A. Từ 5.000.000 đồng đến 10.000.000 đồng. 
 B. Từ 10.000.000 đồng đến 20.000.000 đồng. 
 C. Từ 30.000.000 đồng đến 50.000.000 đồng. 
 D. Từ 50.000.000 đồng đến 70.000.000 đồng. 
-ĐÁP ÁN ĐÚNG: D
-Câu 104.
-Khi xảy ra sự cố gây rối, quy định về phát ngôn và quản lý thông tin đối với cán bộ, nhân viên Agribank quy định bắt buộc nào sau đây? 
+Đáp án đúng: D
+Câu 104. Khi xảy ra sự cố gây rối, quy định về phát ngôn và quản lý thông tin đối với cán bộ, nhân viên Agribank quy định bắt buộc nào sau đây? 
 A. Được phép cung cấp hình ảnh cho báo chí nếu nhằm mục đích tố giác người gây rối. 
 B. Tuyệt đối không tự ý cung cấp thông tin, hình ảnh ra bên ngoài/báo chí/mạng xã hội và không đưa ý kiến cá nhân trên danh nghĩa cán bộ Agribank. 
 C. Cán bộ giao dịch được đăng tải clip giải thích lên Fanpage cá nhân để đính chính sự việc. 
 D. Chỉ Người kiểm soát mới có quyền tự do phát ngôn với báo chí tại hiện trường sự cố. 
-ĐÁP ÁN ĐÚNG: B
-Câu 105.
-Khi khách hàng gọi điện nhiều lần cố tình bắt bẻ ngôn từ NVĐV, yêu cầu ghi nhận khiếu nại chính NVĐV và đe dọa, uy hiếp tinh thần đòi bồi thường nhằm mục đích chiếm đoạt tài sản, NKS phải xử lý thế nào theo hướng dẫn Phụ lục Văn bản 8696? 
+Đáp án đúng: B
+Câu 105. Khi khách hàng gọi điện nhiều lần cố tình bắt bẻ ngôn từ NVĐV, yêu cầu ghi nhận khiếu nại chính NVĐV và đe dọa, uy hiếp tinh thần đòi bồi thường nhằm mục đích chiếm đoạt tài sản, NKS phải xử lý thế nào theo hướng dẫn Phụ lục Văn bản 8696? 
 A. Đồng ý trích quỹ chi đền bù nhỏ để tránh ảnh hưởng uy tín đơn vị. 
 B. Báo cáo Trưởng đơn vị trình báo và phối hợp cơ quan công an/cơ quan chức năng để tố giác, báo tin về tội phạm (theo Điều 170 BLHS). 
 C. Lập tức khóa tài khoản thanh toán của khách hàng trên hệ thống. 
 D. Chuyển thông tin cho Ban Truyền thông Trụ sở chính tự xử lý. 
-ĐÁP ÁN ĐÚNG: B
-Câu 106.
-Theo Văn bản hợp nhất 8374/VBHN-NHNo-TTh, khái niệm "Cảnh báo thông tin tiềm ẩn rủi ro" trên mạng xã hội được định nghĩa chính xác là gì? 
+Đáp án đúng: B
+Câu 106. Theo Văn bản hợp nhất 8374/VBHN-NHNo-TTh, khái niệm "Cảnh báo thông tin tiềm ẩn rủi ro" trên mạng xã hội được định nghĩa chính xác là gì? 
 A. Là hoạt động thu thập dữ liệu thông tin thảo luận liên quan đến Agribank và các tổ chức tín dụng khác trên mạng xã hội. 
 B. Là quá trình đơn vị đầu mối được Tổng Giám đốc phân công giám sát và phân tích dữ liệu trên mạng xã hội, Internet chuyển tiếp các thông tin có khả năng gây ra thiệt hại hoặc ảnh hưởng đến tài sản, hoạt động kinh doanh, uy tín thương hiệu của Agribank đến các đơn vị liên quan để kịp thời xử lý. 
 C. Là việc tập hợp lực lượng cán bộ nhân viên tổ chức báo xấu (report) các bài viết có nội dung sai lệch, xấu độc. 
 D. Là việc gửi thông báo yêu cầu cơ quan công an xử lý các tài khoản mạng xã hội giả mạo thương hiệu Agribank. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 107.
-Đường dẫn chính thức của trang Agribank Channel trên nền tảng Youtube theo quy định tại Điều 7 Văn bản hợp nhất 8374/VBHN-NHNo-TTh là gì? 
+Đáp án đúng: B 
+Câu 107. Đường dẫn chính thức của trang Agribank Channel trên nền tảng Youtube theo quy định tại Điều 7 Văn bản hợp nhất 8374/VBHN-NHNo-TTh là gì? 
 A. https://www.youtube.com/AgribankOfficial
 B. https://www.youtube.com/c/AgribankVN
 C. https://www.youtube.com/@AgribankOfficial
 D. https://www.youtube.com/@AgribankVietnam
-ĐÁP ÁN ĐÚNG: C 
-Câu 108.
-Trường hợp Chi nhánh có nhu cầu thiết lập, duy trì Fanpage riêng, thành phần nhân sự quản trị Fanpage do người đứng đầu Chi nhánh quyết định bằng văn bản gồm những ai? 
+Đáp án đúng: C 
+Câu 108. Trường hợp Chi nhánh có nhu cầu thiết lập, duy trì Fanpage riêng, thành phần nhân sự quản trị Fanpage do người đứng đầu Chi nhánh quyết định bằng văn bản gồm những ai? 
 A. Bắt buộc phải bao gồm Giám đốc Chi nhánh, Trưởng phòng Kiểm tra giám sát nội bộ và Cán bộ CNTT. 
 B. Giám đốc hoặc Phó Giám đốc được ủy quyền, Trưởng phòng Tổng hợp, cán bộ quản lý kỹ thuật và các thành phần khác (nếu có). 
 C. Toàn bộ Trưởng các Phòng nghiệp vụ tại Chi nhánh loại I và Giám đốc các Phòng giao dịch trực thuộc. 
 D. Trưởng phòng Điện toán, Trưởng phòng Kế hoạch và Cán bộ chuyên trách truyền thông. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 109.
-Theo quy định tại Điều 12 Văn bản 8374, khi phát sinh thông tin tiêu cực trên mạng xã hội tại Chi nhánh, đơn vị nào đóng vai trò là đầu mối xử lý thông tin? 
+Đáp án đúng: B 
+Câu 109. Theo quy định tại Điều 12 Văn bản 8374, khi phát sinh thông tin tiêu cực trên mạng xã hội tại Chi nhánh, đơn vị nào đóng vai trò là đầu mối xử lý thông tin? 
 A. Phòng Kinh doanh dịch vụ. 
 B. Phòng Kiểm tra giám sát nội bộ. 
 C. Phòng Khách hàng cá nhân. 
 D. Phòng Tổng hợp. 
-ĐÁP ÁN ĐÚNG: D 
-Câu 110.
-Trường hợp xảy ra sự cố thông tin tiêu cực trên mạng xã hội tại Văn phòng đại diện khu vực miền Nam, đơn vị nào là đầu mối phối hợp với Ban Truyền thông để xử lý thông tin? 
+Đáp án đúng: D 
+Câu 110. Trường hợp xảy ra sự cố thông tin tiêu cực trên mạng xã hội tại Văn phòng đại diện khu vực miền Nam, đơn vị nào là đầu mối phối hợp với Ban Truyền thông để xử lý thông tin? 
 A. Phòng Hỗ trợ phát triển kinh doanh. 
 B. Phòng Truyền thông (tại VPĐD khu vực miền Nam). 
 C. Phòng Hành chính - Nhân sự. 
 D. Ban Khách hàng cá nhân Trụ sở chính. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 111.
-Định kỳ theo khoảng thời gian nào Ban Truyền thông có trách nhiệm lập báo cáo đo lường kết quả truyền thông mạng xã hội qua các chỉ số cụ thể (reach, like, share, view, comment...)? 
+Đáp án đúng: B 
+Câu 111. Định kỳ theo khoảng thời gian nào Ban Truyền thông có trách nhiệm lập báo cáo đo lường kết quả truyền thông mạng xã hội qua các chỉ số cụ thể (reach, like, share, view, comment...)? 
 A. Định kỳ hằng tuần/hằng tháng. 
 B. Định kỳ tháng/quý. 
 C. Định kỳ 6 tháng/năm. 
 D. Định kỳ hằng năm. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 112.
-Đơn vị nào tại Trụ sở chính chịu trách nhiệm chính trong việc xây dựng bộ câu hỏi và giải đáp nhằm hướng dẫn khách hàng xử lý các tình huống phát sinh liên quan đến nghiệp vụ phát hành và thanh toán thẻ trên mạng xã hội? 
+Đáp án đúng: B 
+Câu 112. Đơn vị nào tại Trụ sở chính chịu trách nhiệm chính trong việc xây dựng bộ câu hỏi và giải đáp nhằm hướng dẫn khách hàng xử lý các tình huống phát sinh liên quan đến nghiệp vụ phát hành và thanh toán thẻ trên mạng xã hội? 
 A. Trung tâm Chăm sóc khách hàng phối hợp với Ban Truyền thông. 
 B. Trung tâm Thẻ. 
 C. Ban Khách hàng cá nhân. 
 D. Trung tâm Công nghệ thông tin. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 113.
-Theo Văn bản hợp nhất 8374, đơn vị nào có trách nhiệm "Hỗ trợ đơn vị, cá nhân Agribank được Tổng Giám đốc giao nhiệm vụ quản lý hoạt động truyền thông trên mạng xã hội trong việc thiết lập, cài đặt và quản lý mạng Internet dùng riêng"? 
+Đáp án đúng: B 
+Câu 113. Theo Văn bản hợp nhất 8374, đơn vị nào có trách nhiệm "Hỗ trợ đơn vị, cá nhân Agribank được Tổng Giám đốc giao nhiệm vụ quản lý hoạt động truyền thông trên mạng xã hội trong việc thiết lập, cài đặt và quản lý mạng Internet dùng riêng"? 
 A. Ban Truyền thông. 
 B. Văn phòng Trụ sở chính. 
 C. Trung tâm Công nghệ thông tin. 
 D. Ban An toàn thông tin. 
-ĐÁP ÁN ĐÚNG: C 
-Câu 114.
-Trách nhiệm cụ thể của Trung tâm Chăm sóc khách hàng đối với kênh mạng xã hội chính thức của Agribank gồm nhiệm vụ nào sau đây? 
+Đáp án đúng: C 
+Câu 114. Trách nhiệm cụ thể của Trung tâm Chăm sóc khách hàng đối với kênh mạng xã hội chính thức của Agribank gồm nhiệm vụ nào sau đây? 
 A. Trực tiếp phê duyệt kế hoạch truyền thông năm/quý/tháng của hệ thống. 
 B. Tiếp nhận thắc mắc và giải đáp khách hàng thông qua bình luận (comment), hộp thư (inbox) trên các trang mạng xã hội chính thức của Agribank và gửi các bộ phận liên quan để trả lời khách hàng trong thời gian nhanh nhất. 
 C. Quản lý mật khẩu và phân quyền người sử dụng đối với tất cả Fanpage của Chi nhánh. 
 D. Trình Bộ Thông tin và Truyền thông đóng các trang Fanpage giả mạo. 
-ĐÁP ÁN ĐÚNG: B 
-Câu 115.
-Theo quy định tại Điều 15 Văn bản 8374, cán bộ Agribank khi tham gia sử dụng mạng xã hội bị NGHIÊM CẤM thực hiện hành vi nào sau đây? 
+Đáp án đúng: B 
+Câu 115. Theo quy định tại Điều 15 Văn bản 8374, cán bộ Agribank khi tham gia sử dụng mạng xã hội bị NGHIÊM CẤM thực hiện hành vi nào sau đây? 
 A. Đăng tải bài viết cá nhân chia sẻ về các hoạt động thiện nguyện do Chi nhánh tổ chức. 
 B. Sử dụng tài khoản cá nhân để tương tác, chia sẻ bài viết từ trang Fanpage chính thức của Agribank. 
 C. Đăng tải văn bản, thông tin lưu hành nội bộ trên mạng xã hội. 
 D. Sử dụng tài khoản cá nhân để bày tỏ quan điểm văn minh về các vấn đề kinh tế - xã hội mà dư luận quan tâm. 
-ĐÁP ÁN ĐÚNG: C 
-Câu 116: Theo Chuẩn mực trong giới thiệu và tự giới thiệu của Agribank, khi giao tiếp ban đầu bằng danh thiếp với đối tác, quy định nào sau đây là ĐÚNG? 
+Đáp án đúng: C 
+Câu 116. Theo Chuẩn mực trong giới thiệu và tự giới thiệu của Agribank, khi giao tiếp ban đầu bằng danh thiếp với đối tác, quy định nào sau đây là ĐÚNG? 
 A. Khi nhận danh thiếp, cán bộ cần cất ngay vào túi áo ngực hoặc ví xách tay để đảm bảo sự gọn gàng. 
 B. Khi trao danh thiếp, nếu danh thiếp có 2 ngôn ngữ thì xoay mặt có ngôn ngữ tiếng Việt lên trên để thể hiện bản sắc văn hóa Agribank. 
 C. Khi trao đổi danh thiếp với nhiều người, cán bộ bắt đầu từ người đứng ở vị trí gần mình nhất để đảm bảo sự tiện lợi. 
 D. Cán bộ nữ có thể cất danh thiếp trong ví để ở túi xách nếu áo không có túi, nhưng tuyệt đối không cất ví chứa danh thiếp ở túi quần.
 Đáp án đúng: D
-Câu 117: Trong giao tiếp điện thoại công vụ tại Agribank, hành vi nào dưới đây ĐÚNG theo chuẩn mực văn hóa ứng xử của hệ thống? 
+Câu 117. Trong giao tiếp điện thoại công vụ tại Agribank, hành vi nào dưới đây ĐÚNG theo chuẩn mực văn hóa ứng xử của hệ thống? 
 A. Khi gọi điện thoại, câu đầu tiên cán bộ phải xưng danh bằng tên kèm cụm từ "Xin nghe". 
 B. Khi chuông điện thoại reo, cán bộ cần nhấc máy ngay ở tiếng chuông đầu tiên để thể hiện thái độ phục vụ nhanh chóng, chuyên nghiệp. 
 C. Khi kết thúc cuộc gọi với người có chức vụ cao hơn, cán bộ chủ động cúp máy trước để giải phóng đường dây nhanh nhất. 
 D. Cán bộ khi nhận điện thoại xưng tên người trả lời, tên đơn vị hoặc tên Ngân hàng kèm cụm từ "Xin nghe".
 Đáp án đúng: D
-Câu 118: Xét các phát biểu sau đây về Chuẩn mực trong hội họp tại Agribank, phát biểu nào KHÔNG ĐÚNG? 
+Câu 118. Xét các phát biểu sau đây về Chuẩn mực trong hội họp tại Agribank, phát biểu nào KHÔNG ĐÚNG? 
 A. Cán bộ phải có mặt và ổn định chỗ ngồi trước khi cuộc họp bắt đầu ít nhất 5 phút. 
 B. Chỉ sau khi Người điều hành cuộc họp tuyên bố kết thúc cuộc họp thì cán bộ mới được thu tài liệu và đứng dậy rời khỏi phòng họp. 
 C. Trong trường hợp họp với đối tác bên ngoài, cán bộ có thể chủ động rời phòng họp ngay khi người điều hành tuyên bố kết thúc để ra tiếp đón đối tác ở khu vực làm việc. 
 D. Nếu cần thiết xử lý công việc gấp qua điện thoại, cán bộ nên ra ngoài phòng họp để không làm ảnh hưởng đến cuộc họp.
 Đáp án đúng: C
-Câu 119: Theo quy định về Chuẩn mực trong ngồi xe ô tô con (4 chỗ) tại Agribank, vị trí ngồi nào được xác định có mức độ ưu tiên xếp ngay sau vị trí ưu tiên số 1 (chéo với ghế lái xe)? 
+Câu 119. Theo quy định về Chuẩn mực trong ngồi xe ô tô con (4 chỗ) tại Agribank, vị trí ngồi nào được xác định có mức độ ưu tiên xếp ngay sau vị trí ưu tiên số 1 (chéo với ghế lái xe)? 
 A. Chỗ ngồi bên trái ghế sau (thẳng với ghế ngồi của lái xe). 
 B. Chỗ ngồi ghế trước (bên phải ghế ngồi của lái xe). 
 C. Chỗ ngồi chính giữa của hàng ghế sau. 
 D. Vị trí do lái xe trực tiếp sắp xếp tùy thuộc theo tình huống giao thông.
 Đáp án đúng: A
-Câu 120: Trong Chuẩn mực viết, trả lời thư điện tử (email) công việc tại Agribank, nội dung nào sau đây là ĐÚNG quy định? 
+Câu 120. Trong Chuẩn mực viết, trả lời thư điện tử (email) công việc tại Agribank, nội dung nào sau đây là ĐÚNG quy định? 
 A. Cán bộ sử dụng phông chữ thích hợp để thể hiện Slogan Agribank ("Agribank mang phồn thịnh đến khách hàng") nổi bật, trang trọng ở phần mặc định dưới mỗi email. 
 B. Cán bộ có thể dùng email cá nhân (Gmail, Yahoo) để giao dịch công việc nếu hệ thống email nội bộ Agribank gặp sự cố gián đoạn. 
 C. Mỗi email công việc cần tổng hợp đầy đủ tất cả các vấn đề phát sinh trong tuần để đối tác tiện theo dõi. 
@@ -1213,472 +1176,487 @@ A. Hội đồng thành viên Agribank
 B. Phó Tổng Giám đốc Hoàng Minh Ngọc 
 C. Trưởng Ban Khách hàng doanh nghiệp 
 D. Tổng Giám đốc Agribank 
-Đáp án: D
+Đáp án đúng: D
 Câu 122. Về thời hạn tổng hợp thông tin điều chỉnh, bổ sung Sổ tay hướng dẫn danh mục SPDV KHDN hằng năm, quy định nào sau đây là ĐÚNG? 
 A. Các đơn vị Trụ sở chính gửi đề xuất về Ban KHDN trước ngày 10/7 và 10/12 hằng năm 
 B. Chi nhánh Loại I gửi đề xuất trực tiếp cho Tổng Giám đốc trước ngày 01/03 hằng năm 
 C. Ban KHDN định kỳ tổng hợp và trình ban hành văn bản sửa đổi trước ngày 31/12 hằng năm 
 D. Các đơn vị chuyên môn cập nhật dữ liệu trực tiếp trên hệ thống IPCAS trước ngày 10 hằng tháng 
-Đáp án: A
+Đáp án đúng: A
 Câu 123. Nội dung Sổ tay ban hành kèm Văn bản 5925/NHNo-KHDN đã hệ thống hóa và cập nhật các văn bản hướng dẫn SPDV KHDN tính đến mốc thời gian nào
 A. Ngày 31/12/2025 
 B. Ngày 01/03/2026 
 C. Ngày 09/04/2026 
 D. Ngày 14/04/2026 
-Đáp án: B
+Đáp án đúng: B
 Câu 124. Đối với sản phẩm Tiền gửi rút gốc linh hoạt (mã 642, 643), khi rút đúng hạn mà ngày đến hạn trùng vào ngày lễ/ngày nghỉ, quy định về lãi suất áp dụng cho những ngày nghỉ sau ngày đến hạn là: 
 A. Áp dụng mức lãi suất tiền gửi không kỳ hạn thấp nhất đối với khách hàng tổ chức 
 B. Tiếp tục hưởng mức lãi suất thỏa thuận trên Hợp đồng gốc 
 C. Không tính lãi đối với các ngày nghỉ, ngày lễ phát sinh sau ngày đến hạn 
 D. Áp dụng mức lãi suất bằng 50% mức lãi suất niêm yết của kỳ hạn 01 tháng 
-Đáp án: A
+Đáp án đúng: A
 Câu 125. Điều kiện về số tiền gửi vượt định mức đối với sản phẩm Tiền gửi đầu tư tự động linh hoạt dành cho BHXH Việt Nam (mã 69Z) được trích chuyển tự động là: 
 A. Số dư trên TKTT vượt 200 tỷ đồng và phần vượt từ 01 tỷ đồng trở lên 
 B. Số dư trên TKTT vượt 1.000 tỷ đồng và phần vượt từ 100 triệu đồng trở lên 
 C. Số dư trên TKTT vượt 100 tỷ đồng và phần vượt từ 500 triệu đồng trở lên 
 D. Số dư trên TKTT vượt 500 tỷ đồng và phần vượt từ 01 tỷ đồng trở lên 
-Đáp án: A
-Câu 126. Phương thức xác định mức lãi suất áp dụng đối với tài khoản Tiền gửi đầu tư tự động linh hoạt BHXH khi lãi suất bình quân của 04 NHTM vượt trần quy định của NHNN là: A. Áp dụng ngay mức lãi suất trần tối đa do NHNN quy định cho kỳ hạn 01 tháng 
+Đáp án đúng: A
+Câu 126. Phương thức xác định mức lãi suất áp dụng đối với tài khoản Tiền gửi đầu tư tự động linh hoạt BHXH khi lãi suất bình quân của 04 NHTM vượt trần quy định của NHNN là: 
+A. Áp dụng ngay mức lãi suất trần tối đa do NHNN quy định cho kỳ hạn 01 tháng 
 B. Áp dụng mức lãi suất thông báo đối với tài khoản tiền gửi ĐTTĐLH của ngày tiếp theo gần nhất có thông báo mức lãi suất bình quân đảm bảo không vượt trần NHNN 
 C. Tạm dừng tính lãi tự động và chuyển sang áp dụng lãi suất tiền gửi không kỳ hạn thấp nhất 
 D. Áp dụng mức lãi suất do Giám đốc Chi nhánh nơi mở tài khoản quyết định 
-Đáp án: B
+Đáp án đúng: B
 Câu 127. Khách hàng rút tiền trước hạn đối với sản phẩm Tiền gửi có kỳ hạn lãi sau định kỳ (TGLSĐK) sẽ bị xử lý như thế nào về mặt lãi suất và tiền lãi? 
 A. Hưởng lãi suất không kỳ hạn và được giữ lại 50% số tiền lãi định kỳ đã nhận 
 B. Agribank thu hồi lại toàn bộ khoản lãi đã trả (nếu có), khách hàng hưởng lãi suất rút trước hạn 
 C. Được bảo lưu phần lãi suất của các kỳ đã hoàn thành, chỉ thu hồi tiền lãi của kỳ đang gửi 
 D. Áp dụng mức lãi suất tiền gửi không kỳ hạn bình quân của các NHTM Nhà nước 
-Đáp án: B
+Đáp án đúng: B
 Câu 128. Quy định nào sau đây là ĐÚNG đối với tần suất và thời điểm tích lũy của sản phẩm Tiền gửi tích lũy (mã 526, 527)? 
 A. Số tiền và số lần tích lũy cố định định kỳ hằng tháng; lần gửi cuối cùng thực hiện trước ngày đến hạn tối thiểu 15 ngày 
 B. Số tiền và số lần tích lũy không cố định; lần gửi cuối cùng phải thực hiện trước ngày đến hạn của tài khoản tối thiểu một (01) tháng 
 C. Khách hàng chỉ được gửi tiền tích lũy tối đa 01 lần/tháng vào ngày mở tài khoản 
 D. Lần gửi tích lũy cuối cùng phải thực hiện trước ngày đến hạn tối thiểu 03 tháng 
-Đáp án: B
+Đáp án đúng: B
 Câu 129. Khách hàng tổ chức tất toán tài khoản Tiền gửi trực tuyến sau kỳ tái tục (đóng trước hạn ở kỳ hạn gia hạn) sẽ được hưởng lãi suất như thế nào đối với khoảng thời gian của kỳ tái tục đó? 
 A. Lãi suất không kỳ hạn tại thời điểm đóng tài khoản tính từ ngày đến hạn kỳ liền trước đến hết ngày liền kề ngày đóng tài khoản 
 B. Lãi suất tiền gửi có kỳ hạn cố định ban đầu cho toàn bộ thời gian thực gửi 
 C. Không được hưởng bất kỳ khoản lãi nào đối với khoảng thời gian thuộc kỳ tái tục 
 D. Hưởng 50% mức lãi suất có kỳ hạn của thỏa thuận ban đầu 
-Đáp án: A
+Đáp án đúng: A
 Câu 130. Phương pháp tính số ngày thực tế khi xác định số tiền lãi Giấy tờ có giá (GTCG) trả sau theo công thức chuẩn được quy định như thế nào? 
 A. Tính từ ngày phát hành đến hết ngày đến hạn (tính cả ngày đầu và ngày cuối) 
 B. Tính từ ngày phát hành hoặc ngày bắt đầu thời hạn tính lãi đến hết ngày liền kề trước ngày đến hạn GTCG (tính ngày đầu, bỏ ngày cuối) 
 C. Bỏ ngày đầu tiên phát hành và tính trọn vẹn ngày đến hạn thanh toán 
 D. Lấy tổng số tháng gửi nhân với 30 ngày cố định 
-Đáp án: B
+Đáp án đúng: B
 Câu 131. Trường hợp tài khoản thanh toán chỉ định nhận gốc/lãi của sản phẩm Tiền gửi rút gốc linh hoạt trực tuyến (TGRGLHTT) bị phong tỏa/đóng khi đến hạn, số tiền gốc sẽ được xử lý tính lãi như thế nào? 
 A. Bảo lưu chờ thanh toán; số tiền gốc được trả lãi bằng lãi suất tiền gửi không kỳ hạn từ ngày đến hạn đến hết ngày liền kề trước ngày đóng tài khoản 
 B. Tự động chuyển toàn bộ tiền gốc sang tài khoản tiền gửi giữ hộ không hưởng lãi 
 C. Tiếp tục gia hạn tự động số tiền gốc với kỳ hạn tương đương và áp dụng lãi suất tiền gửi không kỳ hạn 
 D. Chuyển toàn bộ gốc và lãi vào tài khoản treo và ngừng tính mọi khoản lãi phát sinh 
-Đáp án: A
+Đáp án đúng: A
 Câu 132. Đối với sản phẩm Tiền gửi trả lãi sau định kỳ trực tuyến (TGTLSĐKTT), trường hợp khách hàng đóng sớm tài khoản trong vòng 03 ngày kể từ ngày mở tài khoản thì quyền lợi lãi suất là: 
 A. Hưởng lãi suất không kỳ hạn thấp nhất 
 B. Không được hưởng lãi 
-C. Hưởng 50% lãi suất không kỳ hạn hiện hành D. Chịu phí đóng sớm 0,1% trên tổng số dư tiền gửi 
-Đáp án: B
+C. Hưởng 50% lãi suất không kỳ hạn hiện hành 
+D. Chịu phí đóng sớm 0,1% trên tổng số dư tiền gửi 
+Đáp án đúng: B
 Câu 133. Để đủ điều kiện vay vốn Cấp tín dụng đầu tư kinh doanh bất động sản, khách hàng doanh nghiệp phải thỏa mãn điều kiện về xếp hạng tín dụng nội bộ và lịch sử nợ xấu như thế nào? 
 A. Xếp hạng từ A1 đến A12; không có nợ chú ý trong 12 tháng và không có nợ xấu/nợ bán VAMC/nợ ngoại bảng trong 3 năm gần nhất 
 B. Xếp hạng từ AAA đến A; không có nợ xấu trong vòng 24 tháng gần nhất 
 C. Xếp hạng từ A1 đến A10; không có nợ nhóm 2 trong 6 tháng gần nhất 
 D. Chỉ cần không có nợ xấu tại thời điểm nộp hồ sơ vay vốn 
-Đáp án: A
+Đáp án đúng: A
 Câu 134. Đối với dự án bất động sản có quy mô sử dụng đất dưới 20 ha, quy định về Tổng tỷ lệ dư nợ vay tại TCTD và dư nợ trái phiếu doanh nghiệp để thực hiện dự án là: 
 A. Không quá 3,0 lần vốn chủ sở hữu 
 B. Không quá 4,0 lần vốn chủ sở hữu 
 C. Không quá 5,67 lần vốn chủ sở hữu 
 D. Không quá 7,0 lần vốn chủ sở hữu 
-Đáp án: B
+Đáp án đúng: B
 Câu 135. Mức cấp tín dụng tối đa đối với các dự án bất động sản như Sân Golf, Condotel, Resort nghỉ dưỡng được quy định không vượt quá bao nhiêu phần trăm tổng mức đầu tư dự án? 
 A. 50% 
 B. 60% 
 C. 70% 
 D. 80% 
-Đáp án: B
+Đáp án đúng: B
 Câu 136. Theo Văn bản số 4286/NHNo-KTGS ngày 19/03/2026 của Agribank, cấp thẩm quyền ký ban hành văn bản này là: 
 A. Phó Tổng Giám đốc Nguyễn Quang Hùng ký thay Tổng Giám đốc 
 B. Tổng Giám đốc Agribank trực tiếp ký duyệt 
 C. Phó Tổng Giám đốc Hoàng Minh Ngọc ký thừa lệnh Tổng Giám đốc 
 D. Trưởng Ban Kiểm tra, giám sát nội bộ ký thừa ủy quyền 
-Đáp án: A 
+Đáp án đúng: A 
 Câu 137. Văn bản số 4286/NHNo-KTGS yêu cầu các đơn vị tăng cường kiểm tra, giám sát đối với khách hàng sản xuất, kinh doanh thương mại các mặt hàng tiêu dùng ở những giai đoạn nào của quy trình tín dụng? 
 A. Kiểm tra, giám sát trước và trong khi cho vay 
 B. Kiểm tra, giám sát trong và sau khi cho vay 
 C. Kiểm tra, giám sát trước, trong và sau khi cho vay 
 D. Kiểm tra, giám sát định kỳ sau khi giải ngân 
-Đáp án: C
+Đáp án đúng: C
 Câu 138. Khi phát sinh vụ việc liên quan đến buôn lậu, gian lận thương mại và hàng giả tại đơn vị, Văn bản 4286/NHNo-KTGS yêu cầu kịp thời báo cáo Tổng Giám đốc qua các đầu mối chuyên môn nào? 
 A. Ban Khách hàng doanh nghiệp và Ban Kiểm tra, giám sát nội bộ 
 B. Ban Kiểm tra, giám sát nội bộ và Trung tâm Quản lý rủi ro phi tín dụng 
 C. Văn phòng Trụ sở chính và Phòng Pháp chế 
 D. Ban Kiểm soát và Trung tâm Quản lý rủi ro tín dụng 
-Đáp án: B
+Đáp án đúng: B
 Câu 139. Việc báo cáo các vụ việc phát sinh liên quan đến buôn lậu, gian lận thương mại và hàng giả theo chỉ đạo tại Văn bản 4286/NHNo-KTGS phải căn cứ thực hiện theo quy định nội bộ nào của Agribank? 
 A. Quy định số 302/QĐ-NHNo-PTD ngày 16/02/2023 về Thu thập, phân tích số liệu tổn thất nội bộ và bên ngoài 
 B. Quy định số 1264/QĐ-NHNo-KTGS ngày 25/02/2026 về Kiểm tra giám sát nội bộ 
 C. Quy định số 176/QĐ-NHNo-RRDN ngày 08/12/2025 về Quản lý rủi ro hoạt động 
 D. Quy định số 55/QĐ-NHNo-KHDN ngày 21/05/2025 về Cấp tín dụng khách hàng doanh nghiệp 
-Đáp án: A
+Đáp án đúng: A
 Câu 140. Căn cứ pháp lý trực tiếp từ Ngân hàng Nhà nước Việt Nam để Agribank ban hành Văn bản số 4286/NHNo-KTGS chỉ đạo toàn hệ thống là văn bản nào sau đây? 
 A. Văn bản số 176/KH-BCĐ389 ngày 08/12/2025 của Ban Chỉ đạo 389 quốc gia 
 B. Văn bản số 1264/NHNN-TTNH ngày 25/02/2026 của Ngân hàng Nhà nước Việt Nam 
 C. Chỉ thị số 13/CT-TTg ngày 17/05/2025 của Thủ tướng Chính phủ 
 D. Thông báo số 341/TB-VPCP ngày 01/07/2025 của Văn phòng Chính phủ 
-Đáp án: B
+Đáp án đúng: B
 Câu 141. Theo Quy định ban hành kèm Quyết định số 3919/QĐ-NHNo-TCKT của Agribank, quy định về tên tài khoản thanh toán cá nhân, tổ chức và tài khoản thanh toán chung có hiệu lực thi hành từ ngày nào? 
 A. Ngày 18/11/2025 
 B. Ngày 01/12/2025 
 C. Ngày 01/03/2026 
 D. Ngày 01/04/2026 
-Đáp án: C
+Đáp án đúng: C
 Câu 142. Theo Quy định ban hành kèm Quyết định số 3919/QĐ-NHNo-TCKT, trường hợp nào sau đây Agribank nơi mở tài khoản không bắt buộc phải gặp mặt trực tiếp người đại diện hợp pháp của chủ tài khoản tổ chức để kiểm tra, xác minh thông tin? 
 A. Pháp nhân nước ngoài mở tài khoản thanh toán tại Agribank 
 B. Các doanh nghiệp tư nhân thuộc Top 500 doanh nghiệp lớn nhất Việt Nam (VNR500) 
 C. Các tổ chức niêm yết theo quy định tại Luật Chứng khoán 
 D. Khách hàng tổ chức đăng ký mở tài khoản thanh toán lần đầu tại Agribank 
-Đáp án: C
+Đáp án đúng: C
 Câu 143. Theo Quy định ban hành kèm Quyết định số 3919/QĐ-NHNo-TCKT, đối với tài khoản thanh toán của nhà đầu tư nước ngoài là người không cư trú thực hiện đầu tư gián tiếp tại Việt Nam (Điều 15a), quy định nào sau đây được áp dụng? 
 A. Bắt buộc áp dụng quy định về hợp pháp hóa lãnh sự đối với tài liệu do cơ quan có thẩm quyền nước ngoài cấp 
 B. Các tài liệu do cơ quan nước ngoài cấp phải được công chứng, chứng thực trong vòng 12 tháng tính đến ngày Agribank nhận hồ sơ 
 C. Bắt buộc gặp mặt trực tiếp nhà đầu tư nước ngoài tại trụ sở Agribank để đối chiếu sinh trắc học 
 D. Không được phép sử dụng hệ thống SWIFT trong việc mở và sử dụng tài khoản thanh toán 
-Đáp án: B
+Đáp án đúng: B
 Câu 144. Theo Quy định ban hành kèm Quyết định số 3919/QĐ-NHNo-TCKT, việc mở tài khoản thanh toán bằng phương tiện điện tử không áp dụng đối với trường hợp nào sau đây? 
 A. Khách hàng cá nhân là công dân Việt Nam từ đủ 18 tuổi trở lên 
 B. Tổ chức được thành lập và hoạt động hợp pháp tại Việt Nam 
 C. Tài khoản thanh toán chung 
 D. Khách hàng cá nhân đã có tài khoản thanh toán mở trực tiếp tại Agribank 
-Đáp án: C
+Đáp án đúng: C
 Câu 145. Theo Quy định ban hành kèm Quyết định số 3919/QĐ-NHNo-TCKT, định kỳ trước ngày nào hàng tháng Agribank phải cung cấp thông tin về các tài khoản nghi ngờ liên quan gian lận, lừa đảo, vi phạm pháp luật cho NHNN? 
 A. Trước ngày 05 hàng tháng 
 B. Trước ngày 10 hàng tháng 
 C. Trước ngày 15 hàng tháng 
 D. Ngày cuối cùng của tháng 
-Đáp án: B
+Đáp án đúng: B
 Câu 146. Hệ thống thông tin cung cấp dịch vụ trực tuyến cho khách hàng có xử lý, lưu trữ dữ liệu của bao nhiêu khách hàng trở lên thì bắt buộc phải xếp loại Hệ thống thông tin Cấp độ 4? 
 A. Từ 10.000 khách hàng trở lên 
 B. Từ 1 triệu khách hàng trở lên 
 C. Từ 5 triệu khách hàng trở lên 
 D. Từ 10 triệu khách hàng trở lên 
-Đáp án: D 
+Đáp án đúng: D 
 Câu 147. Theo Quy chế 3896, trách nhiệm Phê duyệt hồ sơ đề xuất cấp độ an toàn hệ thống thông tin Cấp độ 1, 2 do Chi nhánh tự phát triển hoặc đầu tư triển khai thuộc về ai? 
 A. Tổng Giám đốc Agribank 
 B. Cục Công nghệ thông tin - Ngân hàng Nhà nước 
 C. Trưởng Ban Công nghệ Agribank 
 D. Trưởng đơn vị quản lý hệ thống thông tin (căn cứ kết quả thẩm định của Ban Công nghệ) 
-Đáp án: D 
+Đáp án đúng: D 
 Câu 148. Đối với các hệ thống thông tin được đầu tư xây dựng mới hoặc mở rộng, nâng cấp, đơn vị quản lý phải thực hiện xác định, phê duyệt hoặc trình phê duyệt hồ sơ đề xuất cấp độ hệ thống thông tin sau thời gian hoạt động là bao lâu? 
 A. Sau 01 tháng 
 B. Sau 03 tháng 
 C. Sau 06 tháng 
 D. Sau 12 tháng 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 149. Phát biểu nào sau đây KHÔNG ĐÚNG về quy định bảo vệ tài sản thông tin và xóa bỏ dữ liệu tại Điều 10 Quy chế 3896? 
 A. Tài sản thông tin trên hệ thống thông tin từ Cấp độ 3 trở lên phải áp dụng phương án phòng chống thất thoát dữ liệu (DLP). 
 B. Mọi dữ liệu có khóa mã hóa liên quan phải được lưu trữ để có thể giải mã các tài sản thông tin. 
 C. Định kỳ 03 tháng/lần, đơn vị chủ quản hệ thống thông tin làm đầu mối phối hợp rà soát, xác định các dữ liệu không cần thiết và thực hiện xóa an toàn. 
 D. Khi sử dụng dịch vụ bên thứ ba hoặc nhà cung cấp dịch vụ đám mây, đơn vị đầu mối phải yêu cầu quy định xóa dữ liệu rõ trong hợp đồng kèm bằng chứng xóa. 
-Đáp án: C 
+Đáp án đúng: C 
 Câu 150. Theo quy định về An toàn cài đặt máy tính (Điều 18), yêu cầu bắt buộc đối với máy tính làm chức năng máy chủ hoặc sử dụng hệ điều hành là gì? 
 A. Tắt hoàn toàn cơ chế ghi nhật ký hoạt động (Log file) để tối ưu hóa hiệu năng máy chủ. 
 B. Máy tính sử dụng hệ điều hành Windows bắt buộc cài đặt phần mềm diệt mã độc theo quy định của Trung tâm CNTT. 
 C. Cho phép mở tất cả các dịch vụ hệ thống mặc định để phục vụ công tác kiểm thử linh hoạt. 
 D. Được phép cài đặt các phần mềm dùng thử (trial) chưa rõ nguồn gốc nếu do cán bộ CNTT trực tiếp thao tác. 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 151. Đối với công tác Đảm bảo nguồn nhân lực (Điều 26), các hệ thống ứng dụng có yêu cầu thực hiện phê duyệt việc cấp quyền qua hai người quản trị khác nhau bắt buộc phải có tối thiểu bao nhiêu quản trị viên và bao nhiêu User quản trị? 
 A. Tối thiểu 02 quản trị viên và 02 User quản trị 
 B. Tối thiểu 03 quản trị viên (02 chính thức, 01 dự bị) và 02 User quản trị 
 C. Tối thiểu 03 quản trị viên (01 chính thức, 02 dự bị) và 03 User quản trị 
 D. Tối thiểu 04 quản trị viên và 04 User quản trị 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 152. Yêu cầu kiểm soát nhiệt độ và độ ẩm tiêu chuẩn môi trường bên trong Trung tâm dữ liệu (Điều 31) được quy định như thế nào? 
 A. Nhiệt độ duy trì từ 18°C đến 22°C; Độ ẩm duy trì từ 40% đến 50%. 
 B. Nhiệt độ duy trì từ 20°C đến 24°C; Độ ẩm duy trì từ 45% đến 55%. 
 C. Nhiệt độ duy trì từ 20°C đến 25°C; Độ ẩm duy trì từ 50% đến 60%. 
 D. Nhiệt độ duy trì từ 15°C đến 30°C; Độ ẩm duy trì từ 30% đến 70%. 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 153. Dữ liệu hình ảnh thu được từ camera, hệ thống kiểm soát và nhật ký theo dõi vào/ra Trung tâm dữ liệu bắt buộc phải được lưu trữ tối thiểu trong thời gian bao lâu? 
 A. 30 ngày 
 B. 60 ngày 
 C. 90 ngày 
 D. 180 ngày 
-Đáp án: C 
+Đáp án đúng: C 
 Câu 154. Tần suất kiểm thử khả năng phục hồi dữ liệu sao lưu đối với các hệ thống thông tin từ Cấp độ 3 trở lên được quy định tối thiểu là bao lâu? 
 A. Tối thiểu 06 tháng 01 lần 
 B. Tối thiểu 01 năm 01 lần 
 C. Tối thiểu 02 năm 01 lần 
 D. Tối thiểu 03 năm 01 lần 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 155. Khi xảy ra sự cố cắt điện lưới tại Trung tâm dữ liệu, máy phát điện dự phòng phải tự động cấp nguồn trong thời gian tối đa bao lâu, và thiết bị UPS phải duy trì tải tối thiểu bao lâu? 
 A. Máy phát tự động cấp nguồn tối đa 03 phút; UPS duy trì tối thiểu 30 phút. 
 B. Máy phát tự động cấp nguồn tối đa 05 phút; UPS duy trì tối thiểu 15 phút. 
 C. Máy phát tự động cấp nguồn tối đa 01 phút; UPS duy trì tối thiểu 60 phút. 
 D. Máy phát tự động cấp nguồn tối đa 10 phút; UPS duy trì tối thiểu 20 phút. 
-Đáp án: A 
-Câu 156:Theo Điều 7 Quy định ban hành kèm theo Quyết định 3838/QĐ-NHNO-TD, tổ chức kinh tế trong nước sử dụng đất dưới hình thức nào sau đây KHÔNG được thế chấp QSDĐ mà CHỈ được thế chấp tài sản thuộc sở hữu của mình gắn liền với đất?
+Đáp án đúng: A 
+Câu 156. Theo Điều 7 Quy định ban hành kèm theo Quyết định 3838/QĐ-NHNO-TD, tổ chức kinh tế trong nước sử dụng đất dưới hình thức nào sau đây KHÔNG được thế chấp QSDĐ mà CHỈ được thế chấp tài sản thuộc sở hữu của mình gắn liền với đất?
 A. Được Nhà nước giao đất có thu tiền sử dụng đất để thực hiện dự án đầu tư nhà ở xã hội mà được miễn, giảm tiền sử dụng đất.
 B. Nhận chuyển nhượng QSDĐ nông nghiệp và được phép chuyển mục đích sử dụng đất sang hình thức Nhà nước cho thuê đất thu tiền thuê đất một lần cho cả thời gian thuê.
 C. Thuê đất của Nhà nước thu tiền thuê đất hằng năm để xây dựng công trình ngầm.
 D. Thuê lại đất gắn với kết cấu hạ tầng trong khu công nghiệp trả tiền thuê đất một lần cho cả thời gian thuê.
-Đáp án: C 
-Câu 157:Trường hợp cá nhân thuê lại đất trả tiền hằng năm trong khu công nghiệp để sản xuất kinh doanh thì được thế chấp loại tài sản nào tại Agribank?
+Đáp án đúng: C 
+Câu 157. Trường hợp cá nhân thuê lại đất trả tiền hằng năm trong khu công nghiệp để sản xuất kinh doanh thì được thế chấp loại tài sản nào tại Agribank?
 A. Được thế chấp QSDĐ và tài sản thuộc sở hữu của mình gắn liền với đất.
 B. Chỉ được thế chấp tài sản thuộc sở hữu của mình gắn liền với đất.
 C. Được thế chấp QSDĐ nếu có sự đồng ý bằng văn bản của chủ đầu tư hạ tầng khu công nghiệp.
 D. Không được nhận làm tài sản bảo đảm dưới bất kỳ hình thức nào.
-Đáp án: B 
-Câu 158:Tổ chức kinh tế trong nước được Nhà nước cho thuê đất thu tiền một lần cho cả thời gian thuê để thực hiện dự án kinh doanh, thuộc diện được miễn, giảm tiền thuê đất. Khi Agribank xử lý TSBĐ là QSDĐ này, nghĩa vụ tài chính bắt buộc phải thực hiện (trừ trường hợp pháp luật có quy định khác) là gì?
+Đáp án đúng: B 
+Câu 158. Tổ chức kinh tế trong nước được Nhà nước cho thuê đất thu tiền một lần cho cả thời gian thuê để thực hiện dự án kinh doanh, thuộc diện được miễn, giảm tiền thuê đất. Khi Agribank xử lý TSBĐ là QSDĐ này, nghĩa vụ tài chính bắt buộc phải thực hiện (trừ trường hợp pháp luật có quy định khác) là gì?
 A. Bị thu hồi toàn bộ số tiền đã được miễn giảm và phạt chậm nộp tính theo lãi suất nợ quá hạn.
 B. Nộp cho Nhà nước một khoản tiền tương ứng với số tiền sử dụng đất, tiền thuê đất đã được miễn, giảm tại thời điểm giao đất, cho thuê đất, cho phép chuyển mục đích sử dụng đất.
 C. Nộp cho Nhà nước một khoản tiền tương ứng với giá trị tiền thuê đất đã được miễn, giảm tính theo bảng giá đất tại thời điểm xử lý tài sản.
 D. Không phải nộp lại tiền miễn giảm, chỉ phải thanh toán chi phí cưỡng chế xử lý tài sản. 
-Đáp án: B 
-Câu 159:Chi nhánh Agribank nhận TSBĐ là hàng hóa luân chuyển trong quá trình SXKD của khách hàng. Điều kiện nào sau đây về xếp hạng tín dụng và quan hệ tín dụng là ĐÚNG theo quy định sửa đổi tại Điều 23?
+Đáp án đúng: B 
+Câu 159. Chi nhánh Agribank nhận TSBĐ là hàng hóa luân chuyển trong quá trình SXKD của khách hàng. Điều kiện nào sau đây về xếp hạng tín dụng và quan hệ tín dụng là ĐÚNG theo quy định sửa đổi tại Điều 23?
 A. Khách hàng xếp hạng từ A1 đến A10; Quan hệ tín dụng tối thiểu 01 năm liên tục.
 B. Khách hàng xếp hạng từ A1 đến A12; Quan hệ tín dụng tối thiểu 02 năm liên tục.
 C. Khách hàng xếp hạng từ AAA đến A; Quan hệ tín dụng tối thiểu 02 năm liên tục.
 D. Khách hàng xếp hạng từ A1 đến A12; Quan hệ tín dụng tối thiểu 03 năm liên tục.
-Đáp án: B 
-Câu 160:Theo sửa đổi tại Điều 26, trường hợp nhận TSBĐ là cổ phiếu niêm yết, bên bảo đảm cam kết bổ sung/thay thế TSBĐ khác và Agribank có quyền bán cổ phiếu hoặc thu hồi nợ trước hạn khi giá cổ phiếu bị giảm xuống mức nào?
+Đáp án đúng: B 
+Câu 160. Theo sửa đổi tại Điều 26, trường hợp nhận TSBĐ là cổ phiếu niêm yết, bên bảo đảm cam kết bổ sung/thay thế TSBĐ khác và Agribank có quyền bán cổ phiếu hoặc thu hồi nợ trước hạn khi giá cổ phiếu bị giảm xuống mức nào?
 A. Giảm còn 50% giá trị TSBĐ khi cấp tín dụng.
 B. Giảm 30% so với mệnh giá cổ phiếu.
 C. Giảm còn 70% giá trị TSBĐ khi cấp tín dụng.
 D. Giảm 20% so với giá đóng cửa của phiên giao dịch gần nhất.
-Đáp án: C 
-Câu 161:Theo khoản 12 Điều 28 sửa đổi, việc soạn thảo "Biên bản xác định giá trị TSBĐ" thuộc trách nhiệm trực tiếp của vị trí/bộ phận nào?
+Đáp án đúng: C 
+Câu 161. Theo khoản 12 Điều 28 sửa đổi, việc soạn thảo "Biên bản xác định giá trị TSBĐ" thuộc trách nhiệm trực tiếp của vị trí/bộ phận nào?
 A. Người thẩm định.
 B. Tổ thẩm định tài sản.
 C. Người quan hệ khách hàng.
 D. Hội đồng xác định giá trị tài sản chi nhánh.
-Đáp án: C 
-Câu 162:Theo Điều 29 sửa đổi, tài sản bảo đảm nào sau đây có giá trị trên 12 tỷ đồng và phạm vi bảo đảm trên 10 tỷ đồng vẫn KHÔNG bắt buộc phải thông qua Tổ thẩm định TSBĐ?
+Đáp án đúng: C 
+Câu 162. Theo Điều 29 sửa đổi, tài sản bảo đảm nào sau đây có giá trị trên 12 tỷ đồng và phạm vi bảo đảm trên 10 tỷ đồng vẫn KHÔNG bắt buộc phải thông qua Tổ thẩm định TSBĐ?
 A. QSDĐ ở của cá nhân dùng bảo đảm cho công ty do chính cá nhân đó làm Giám đốc.
 B. Nhà ở hình thành trong tương lai.
 C. Dự án đầu tư kinh doanh bất động sản đã hoàn thành nghiệm thu.
 D. Tàu biển chở hàng quốc tế.
-Đáp án: B 
-Câu 163:Trường hợp nào sau đây bắt buộc TSBĐ phải thẩm định giá bởi tổ chức thẩm định giá độc lập hoặc kiểm toán độc lập?
+Đáp án đúng: B 
+Câu 163. Trường hợp nào sau đây bắt buộc TSBĐ phải thẩm định giá bởi tổ chức thẩm định giá độc lập hoặc kiểm toán độc lập?
 A. TSBĐ bảo đảm cho nghĩa vụ cấp tín dụng 15 tỷ đồng gốc cho Kế toán trưởng của Agribank.
 B. TSBĐ bảo đảm cho nghĩa vụ cấp tín dụng 25 tỷ đồng gốc dưới hình thức phát hành thẻ tín dụng cho cán bộ thẩm định.
 C. TSBĐ có giá trị 60 tỷ đồng đã được kiểm toán giá trị hoàn thành bởi đơn vị kiểm toán độc lập cách thời điểm thẩm định 04 tháng.
 D. TSBĐ bảo đảm cho nghĩa vụ cấp tín dụng 22 tỷ đồng gốc đối với doanh nghiệp có thành viên Ban kiểm soát Agribank sở hữu 15% vốn điều lệ.
-Đáp án: D 
-Câu 164:Loại tài sản nào sau đây thuộc Danh mục Agribank quy định KHÔNG được nhận làm tài sản bảo đảm CHÍNH THỨC (Phụ lục số 01/PL/TSBĐ)?
+Đáp án đúng: D 
+Câu 164. Loại tài sản nào sau đây thuộc Danh mục Agribank quy định KHÔNG được nhận làm tài sản bảo đảm CHÍNH THỨC (Phụ lục số 01/PL/TSBĐ)?
 A. Cổ phiếu của công ty cổ phần đã niêm yết chính thức trên sàn HOSE từ 08 tháng.
 B. QSDĐ ở thực tế không có đường vào khu đất.
 C. Quyền đòi nợ phát sinh từ hợp đồng kinh tế ký kết giữa Agribank và nhà thầu xây dựng.
 D. Trái phiếu do Ngân hàng Thương mại Cổ phần Công thương Việt Nam (VietinBank) phát hành.
-Đáp án: B 
-Câu 165:Tại Phụ lục 07/PL/TSBĐ (Cách 1 - Cho vay mua QSDĐ/TSGLVĐ đã có Giấy chứng nhận và thế chấp chính tài sản đó), tại Bước 5, khi Agribank giải ngân tiền vay vào tài khoản phong tỏa của Bên bán, thông tin TSBĐ trên hệ thống IPCAS phải được đăng ký dưới hình thức nào?
+Đáp án đúng: B 
+Câu 165. Tại Phụ lục 07/PL/TSBĐ (Cách 1 - Cho vay mua QSDĐ/TSGLVĐ đã có Giấy chứng nhận và thế chấp chính tài sản đó), tại Bước 5, khi Agribank giải ngân tiền vay vào tài khoản phong tỏa của Bên bán, thông tin TSBĐ trên hệ thống IPCAS phải được đăng ký dưới hình thức nào?
 A. Đăng ký loại "Obtained" tại màn hình Loan/Lnc105/Pledge và thực hiện nhập kho ngay.
 B. Hạch toán loại "Proposed" tại màn hình Loan/Lnc105/Pledge/registration và chưa thực hiện nhập kho TSBĐ.
 C. Hạch toán loại "Approved" và nhập kho hồ sơ tạm thời.
 D. Chưa hạch toán bất kỳ thông tin nào trên hệ thống IPCAS cho đến khi sang tên xong Giấy chứng nhận.
-Đáp án: B 
-Câu 166:Một doanh nghiệp tại TP. Hà Nội nộp tiền mặt VNĐ vào tài khoản tiền gửi của đối tác mở tại Agribank Chi nhánh tỉnh Phú Thọ. Số tiền nộp là 10.000.000.000 VNĐ (10 tỷ VNĐ). Mức phí nộp tiền mặt (chưa bao gồm thuế GTGT) mà doanh nghiệp này phải trả theo Quyết định 3446/QĐ-NHNo-TCKT là bao nhiêu?
+Đáp án đúng: B 
+Câu 166. Một doanh nghiệp tại TP. Hà Nội nộp tiền mặt VNĐ vào tài khoản tiền gửi của đối tác mở tại Agribank Chi nhánh tỉnh Phú Thọ. Số tiền nộp là 10.000.000.000 VNĐ (10 tỷ VNĐ). Mức phí nộp tiền mặt (chưa bao gồm thuế GTGT) mà doanh nghiệp này phải trả theo Quyết định 3446/QĐ-NHNo-TCKT là bao nhiêu?
 A. 3.000.000 VNĐ
 B. 2.000.000 VNĐ
 C. 1.000.000 VNĐ
 D. Miễn phí
-Đáp án: B 
-Câu 167:Chủ thẻ tín dụng quốc tế hạng Kim Cương do Agribank phát hành gửi yêu cầu chấm dứt sử dụng thẻ trước ngày hết hạn hiệu lực. Theo Phụ lục I/BPKHCN ban hành kèm theo Quyết định 3446/QĐ-NHNo-TCKT, mức phí chấm dứt sử dụng thẻ trước hạn (chưa bao gồm thuế GTGT) áp dụng cho trường hợp này là bao nhiêu?
+Đáp án đúng: B 
+Câu 167. Chủ thẻ tín dụng quốc tế hạng Kim Cương do Agribank phát hành gửi yêu cầu chấm dứt sử dụng thẻ trước ngày hết hạn hiệu lực. Theo Phụ lục I/BPKHCN ban hành kèm theo Quyết định 3446/QĐ-NHNo-TCKT, mức phí chấm dứt sử dụng thẻ trước hạn (chưa bao gồm thuế GTGT) áp dụng cho trường hợp này là bao nhiêu?
 A. 100.000 VNĐ/thẻ
 B. 300.000 VNĐ/thẻ
 C. 200.000 VNĐ/thẻ
 D. Miễn phí
-Đáp án: B 
-Câu 168:Agribank là Tổ chức thanh toán thẻ (TCTTT) cung cấp thiết bị POS cho một Khách sạn (mã loại hình kinh doanh MCC 7011). Giám đốc Chi nhánh Agribank thực hiện giảm phí chiết khấu tối thiểu cho Đơn vị chấp nhận thẻ này đối với thẻ quốc tế Visa do ngân hàng khác phát hành. Mức tỷ lệ giảm phí chiết khấu tối đa mà Giám đốc Chi nhánh được quyền chủ động quyết định theo quy định là bao nhiêu?
+Đáp án đúng: B 
+Câu 168. Agribank là Tổ chức thanh toán thẻ (TCTTT) cung cấp thiết bị POS cho một Khách sạn (mã loại hình kinh doanh MCC 7011). Giám đốc Chi nhánh Agribank thực hiện giảm phí chiết khấu tối thiểu cho Đơn vị chấp nhận thẻ này đối với thẻ quốc tế Visa do ngân hàng khác phát hành. Mức tỷ lệ giảm phí chiết khấu tối đa mà Giám đốc Chi nhánh được quyền chủ động quyết định theo quy định là bao nhiêu?
 A. Tối đa 50% mức phí chiết khấu.
 B. Tối đa 20% mức phí chiết khấu.
 C. Tối đa 0,7% số tiền giao dịch.
 D. Giám đốc Chi nhánh không được quyền giảm phí chiết khấu đối với thẻ quốc tế.
-Đáp án: B 
-Câu 169:Một khách hàng cá nhân sử dụng Thẻ ghi nợ quốc tế Agribank thực hiện giao dịch rút tiền mặt tại máy ATM của Agribank (on-us) với số tiền 5.000.000 VNĐ và yêu cầu in hóa đơn giao dịch. Mức phí giao dịch (chưa bao gồm thuế GTGT) khách hàng phải trả là bao nhiêu?
+Đáp án đúng: B 
+Câu 169. Một khách hàng cá nhân sử dụng Thẻ ghi nợ quốc tế Agribank thực hiện giao dịch rút tiền mặt tại máy ATM của Agribank (on-us) với số tiền 5.000.000 VNĐ và yêu cầu in hóa đơn giao dịch. Mức phí giao dịch (chưa bao gồm thuế GTGT) khách hàng phải trả là bao nhiêu?
 A. 100.000 VNĐ
 B. 100.500 VNĐ
 C. 1.500 VNĐ
 D. 1.000 VNĐ
-Đáp án: C 
-Câu 170:Khách hàng tổ chức thực hiện giao dịch L/C xuất khẩu tại Agribank và yêu cầu "Mua hẳn miễn truy đòi bộ chứng từ theo L/C do Agribank phát hành". Theo quy định tại Phụ lục II/BPKHTC (Mục V - Thư tín dụng nội địa/nội bộ), phí xử lý bộ chứng từ (mã phí BO, chưa bao gồm thuế GTGT) là bao nhiêu?
+Đáp án đúng: C 
+Câu 170. Khách hàng tổ chức thực hiện giao dịch L/C xuất khẩu tại Agribank và yêu cầu "Mua hẳn miễn truy đòi bộ chứng từ theo L/C do Agribank phát hành". Theo quy định tại Phụ lục II/BPKHTC (Mục V - Thư tín dụng nội địa/nội bộ), phí xử lý bộ chứng từ (mã phí BO, chưa bao gồm thuế GTGT) là bao nhiêu?
 A. 500.000 VNĐ/bộ
 B. 200.000 VNĐ/bộ
 C. 20 USD/bộ
 D. Theo quy định của Tổng Giám đốc từng thời kỳ
-Đáp án: B 
-Câu 171: Trường hợp nào dưới đây Agribank được phép chủ động trích Nợ tài khoản thanh toán của khách hàng mà không cần phải thông báo cho chủ tài khoản thanh toán biết?
+Đáp án đúng: B 
+Câu 171. Trường hợp nào dưới đây Agribank được phép chủ động trích Nợ tài khoản thanh toán của khách hàng mà không cần phải thông báo cho chủ tài khoản thanh toán biết?
 A. Khi phát hiện đã ghi Có nhầm vào tài khoản của khách hàng.
 B. Theo yêu cầu bằng văn bản của cơ quan nhà nước có thẩm quyền trong việc cưỡng chế thi hành quyết định thu thuế.
 C. Khi khách hàng vi phạm nghĩa vụ duy trì số dư tối thiểu và phải thanh toán nghĩa vụ nợ đến hạn đối với Agribank.
 D. Cả 3 trường hợp trên Agribank đều phải thông báo cho chủ tài khoản thanh toán biết.
-Đáp án: D
-Câu 172: Định kỳ hằng năm, Agribank tổ chức thực hiện đối chiếu số dư tài khoản thanh toán của khách hàng tại quầy giao dịch đối với các khách hàng có nhu cầu trong khoảng thời gian nào?
+Đáp án đúng: D
+Câu 172. Định kỳ hằng năm, Agribank tổ chức thực hiện đối chiếu số dư tài khoản thanh toán của khách hàng tại quầy giao dịch đối với các khách hàng có nhu cầu trong khoảng thời gian nào?
 A. Từ ngày 01/01 đến trước ngày 15/01 hằng năm.
 B. Từ ngày 01/01 đến trước ngày 31/01 hằng năm.
 C. Từ ngày 01/01 đến hết ngày 31/01 hằng năm.
 D. Từ ngày 15/01 đến hết ngày 28/02 hằng năm.
-Đáp án: B
-Câu 173: Một tài khoản thanh toán cá nhân có số dư bằng 0, không phát sinh giao dịch do khách hàng thực hiện liên tục trong 12 tháng kể từ ngày không đủ số dư tối thiểu. Theo Quy định 3325, Agribank sẽ xử lý tài khoản này ra sao? A. Tự động đóng tài khoản ngay sau 12 tháng không hoạt động. B. Chuyển tài khoản sang trạng thái không hoạt động; nếu tình trạng này vượt quá 36 tháng, Agribank sẽ chủ động đóng tài khoản. C. Thực hiện phong tỏa toàn bộ tài khoản thanh toán cho đến khi khách hàng nộp đủ số dư tối thiểu. D. Chuyển toàn bộ tài khoản sang quản lý tại tài khoản thu nhập bất thường của ngân hàng. 
-Đáp án: B 
-Câu 174: Trong quá trình xử lý tra soát, khiếu nại phát sinh do nghi ngờ có gian lận hoặc tổn thất, Agribank phải thực hiện biện pháp ban đầu nào dưới đây?
+Đáp án đúng: B
+Câu 173. Một tài khoản thanh toán cá nhân có số dư bằng 0, không phát sinh giao dịch do khách hàng thực hiện liên tục trong 12 tháng kể từ ngày không đủ số dư tối thiểu. Theo Quy định 3325, Agribank sẽ xử lý tài khoản này ra sao? 
+A. Tự động đóng tài khoản ngay sau 12 tháng không hoạt động. 
+B. Chuyển tài khoản sang trạng thái không hoạt động; nếu tình trạng này vượt quá 36 tháng, Agribank sẽ chủ động đóng tài khoản. 
+C. Thực hiện phong tỏa toàn bộ tài khoản thanh toán cho đến khi khách hàng nộp đủ số dư tối thiểu. 
+D. Chuyển toàn bộ tài khoản sang quản lý tại tài khoản thu nhập bất thường của ngân hàng. 
+Đáp án đúng: B 
+Câu 174. Trong quá trình xử lý tra soát, khiếu nại phát sinh do nghi ngờ có gian lận hoặc tổn thất, Agribank phải thực hiện biện pháp ban đầu nào dưới đây?
 A. Tạm dừng cung cấp toàn bộ dịch vụ ngân hàng điện tử của khách hàng trong vòng 24 giờ.
 B. Tiến hành bồi hoàn tổn thất cho khách hàng trong thời hạn tối đa 05 ngày làm việc.
 C. Thực hiện ngay các biện pháp để phong tỏa tài khoản thanh toán và phối hợp với các đơn vị liên quan xử lý.
 D. Chuyển vụ việc sang Cơ quan Công an điều tra trong phạm vi 03 ngày làm việc.
-Đáp án: C
-Câu 175: Khách hàng A nộp hồ sơ đăng ký mở tài khoản thanh toán trực tiếp tại quầy giao dịch Agribank. Trường hợp Agribank từ chối mở tài khoản thanh toán do không đủ điều kiện, thời hạn tối đa để Agribank thông báo lý do bằng văn bản/thông báo cho khách hàng là bao lâu?
+Đáp án đúng: C
+Câu 175. Khách hàng A nộp hồ sơ đăng ký mở tài khoản thanh toán trực tiếp tại quầy giao dịch Agribank. Trường hợp Agribank từ chối mở tài khoản thanh toán do không đủ điều kiện, thời hạn tối đa để Agribank thông báo lý do bằng văn bản/thông báo cho khách hàng là bao lâu?
 A. Ngay trong ngày làm việc tiếp nhận hồ sơ.
 B. Trong phạm vi 03 ngày làm việc kể từ ngày nhận đủ hồ sơ.
 C. Trong phạm vi 05 ngày làm việc kể từ ngày tiếp nhận hồ sơ.
 D. Trong phạm vi 30 ngày kể từ ngày nhận hồ sơ mở tài khoản.
-Đáp án: B
-Câu 176: Khi thực hiện đóng tài khoản thanh toán của khách hàng, trường hợp chủ tài khoản/người thụ hưởng hợp pháp không đến nhận số dư còn lại dù đã được thông báo (và không có thỏa thuận khác), Agribank nơi mở tài khoản sẽ xử lý số tiền này như thế nào? A. Chuyển toàn bộ vào Ngân sách Nhà nước sau 36 tháng. B. Hạch toán số tiền còn lại vào tài khoản thu nhập bất thường. C. Giữ nguyên trên hệ thống IPCAS và tiếp tục trích phí quản lý tài khoản hàng tháng. D. Tự động chuyển toàn bộ số tiền vào tài khoản tiền gửi tiết kiệm không kỳ hạn đứng tên Giám đốc chi nhánh. 
-Đáp án: B
-Câu 177: Phương thức mở tài khoản thanh toán bằng phương tiện điện tử (eKYC) không được phép áp dụng đối với đối tượng nào sau đây? A. Doanh nghiệp tư nhân thành lập hợp pháp theo pháp luật Việt Nam. B. Cá nhân là công dân Việt Nam từ đủ 18 tuổi trở lên có đầy đủ năng lực hành vi dân sự. C. Cá nhân là công dân Việt Nam từ đủ 15 tuổi đến chưa đủ 18 tuổi. D. Người đại diện theo pháp luật của tổ chức là pháp nhân Việt Nam. 
-Đáp án: C
-Câu 178: Tại chi nhánh Agribank, thời hạn định kỳ hằng tháng để cập nhật và cung cấp thông tin các tài khoản có dấu hiệu gian lận, lừa đảo, vi phạm pháp luật về Trụ sở chính (qua Trung tâm Quản lý rủi ro phi tín dụng) là khi nào?
+Đáp án đúng: B
+Câu 176. Khi thực hiện đóng tài khoản thanh toán của khách hàng, trường hợp chủ tài khoản/người thụ hưởng hợp pháp không đến nhận số dư còn lại dù đã được thông báo (và không có thỏa thuận khác), Agribank nơi mở tài khoản sẽ xử lý số tiền này như thế nào? 
+A. Chuyển toàn bộ vào Ngân sách Nhà nước sau 36 tháng. 
+B. Hạch toán số tiền còn lại vào tài khoản thu nhập bất thường. 
+C. Giữ nguyên trên hệ thống IPCAS và tiếp tục trích phí quản lý tài khoản hàng tháng. 
+D. Tự động chuyển toàn bộ số tiền vào tài khoản tiền gửi tiết kiệm không kỳ hạn đứng tên Giám đốc chi nhánh. 
+Đáp án đúng: B
+Câu 177. Phương thức mở tài khoản thanh toán bằng phương tiện điện tử (eKYC) không được phép áp dụng đối với đối tượng nào sau đây? 
+A. Doanh nghiệp tư nhân thành lập hợp pháp theo pháp luật Việt Nam. 
+B. Cá nhân là công dân Việt Nam từ đủ 18 tuổi trở lên có đầy đủ năng lực hành vi dân sự. 
+C. Cá nhân là công dân Việt Nam từ đủ 15 tuổi đến chưa đủ 18 tuổi. 
+D. Người đại diện theo pháp luật của tổ chức là pháp nhân Việt Nam. 
+Đáp án đúng: C
+Câu 178. Tại chi nhánh Agribank, thời hạn định kỳ hằng tháng để cập nhật và cung cấp thông tin các tài khoản có dấu hiệu gian lận, lừa đảo, vi phạm pháp luật về Trụ sở chính (qua Trung tâm Quản lý rủi ro phi tín dụng) là khi nào?
 A. Chậm nhất ngày 01 hằng tháng.
 B. Chậm nhất ngày 05 hằng tháng.
 C. Chậm nhất ngày 10 hằng tháng.
 D. Chậm nhất ngày 15 hằng tháng.
-Đáp án: B
-Câu 179: Đối với tài khoản thanh toán cá nhân mở bằng phương tiện điện tử, trước khi hoàn thành xác thực thông tin tại quầy và đối chiếu sinh trắc học, khách hàng được phép thực hiện giao dịch nào sau đây không bị khống chế bởi tổng hạn mức giao dịch ghi Nợ?
+Đáp án đúng: B
+Câu 179. Đối với tài khoản thanh toán cá nhân mở bằng phương tiện điện tử, trước khi hoàn thành xác thực thông tin tại quầy và đối chiếu sinh trắc học, khách hàng được phép thực hiện giao dịch nào sau đây không bị khống chế bởi tổng hạn mức giao dịch ghi Nợ?
 A. Rút tiền mặt tại máy ATM/CDM của Agribank.
 B. Chuyển tiền thanh toán tiền điện, nước, dịch vụ công qua ứng dụng Agribank Plus.
 C. Chuyển khoản để mở tài khoản tiền gửi tiết kiệm, tiền gửi có kỳ hạn của chính khách hàng trong hệ thống Agribank.
 D. Chuyển tiền liên ngân hàng qua tài khoản của người thân.
-Đáp án: C
-Câu 180: Nội dung nào dưới đây về hiệu lực thi hành của Quy định 3325/QĐ-NHNo-TCKT là chính xác?
+Đáp án đúng: C
+Câu 180. Nội dung nào dưới đây về hiệu lực thi hành của Quy định 3325/QĐ-NHNo-TCKT là chính xác?
 A. Quy định có hiệu lực thi hành toàn bộ kể từ ngày 01/11/2024.
 B. Quy định có hiệu lực từ 01/11/2024; riêng quy định đối chiếu khớp đúng sinh trắc học khi giao dịch điện tử của cá nhân và tổ chức đều có hiệu lực từ 01/01/2025.
 C. Quy định có hiệu lực từ 01/11/2024; quy định sinh trắc học giao dịch điện tử cá nhân có hiệu lực từ 01/01/2025, còn quy định sinh trắc học giao dịch điện tử của tổ chức có hiệu lực từ 01/07/2025.
 D. Quy định có hiệu lực từ 01/01/2025 cho tất cả các đối tượng khách hàng.
-Đáp án: C
-Câu 181: Khách hàng A (công dân Việt Nam, người cư trú) có nhu cầu chuyển tiền ra nước ngoài để thanh toán chi phí tham gia chương trình đầu tư nhận quốc tịch tại một quốc gia Châu Âu. Khách hàng xuất trình thông báo chi phí của tổ chức nước ngoài, bao gồm: 5.000 USD phí xét duyệt hồ sơ và 250.000 USD là khoản giá trị đầu tư bắt buộc để được cấp quốc tịch. Chi nhánh Agribank xử lý hạn mức chuyển tiền cho khách hàng này như thế nào? 
+Đáp án đúng: C
+Câu 181. Khách hàng A (công dân Việt Nam, người cư trú) có nhu cầu chuyển tiền ra nước ngoài để thanh toán chi phí tham gia chương trình đầu tư nhận quốc tịch tại một quốc gia Châu Âu. Khách hàng xuất trình thông báo chi phí của tổ chức nước ngoài, bao gồm: 5.000 USD phí xét duyệt hồ sơ và 250.000 USD là khoản giá trị đầu tư bắt buộc để được cấp quốc tịch. Chi nhánh Agribank xử lý hạn mức chuyển tiền cho khách hàng này như thế nào? 
 A. Chuyển toàn bộ 255.000 USD theo đúng giấy thông báo chi phí của phía nước ngoài. 
 B. Chỉ chấp nhận chuyển tối đa 5.000 USD cho khoản phí xét duyệt hồ sơ, không duyệt 250.000 USD giá trị đầu tư. 
 C. Không xử lý chuyển tiền cho cả 2 khoản chi phí trên do mục đích đầu tư định cư không thuộc phạm vi chuyển tiền một chiều. 
 D. Yêu cầu khách hàng xuất trình giấy phép đầu tư ra nước ngoài của cơ quan có thẩm quyền mới được chuyển 255.000 USD. 
-Đáp án: B
-Câu 182: Khách hàng B đi du lịch qua 3 nước thuộc khối Schengen trong thời gian 15 ngày. Phía nước ngoài không có giấy thông báo chi phí. Biết rằng thu nhập bình quân đầu người/năm (GDP per capita) công bố mới nhất của 3 nước lần lượt là: Nước X = 36.500 USD, Nước Y = 51.100 USD, Nước Z = 43.800 USD. Hạn mức chuyển tiền tối đa cho lần đi du lịch này của khách hàng B là bao nhiêu? 
+Đáp án đúng: B
+Câu 182. Khách hàng B đi du lịch qua 3 nước thuộc khối Schengen trong thời gian 15 ngày. Phía nước ngoài không có giấy thông báo chi phí. Biết rằng thu nhập bình quân đầu người/năm (GDP per capita) công bố mới nhất của 3 nước lần lượt là: Nước X = 36.500 USD, Nước Y = 51.100 USD, Nước Z = 43.800 USD. Hạn mức chuyển tiền tối đa cho lần đi du lịch này của khách hàng B là bao nhiêu? 
 A. 1.500 USD 
 B. 1.800 USD 
 C. 2.100 USD 
 D. 51.100 USD 
-Đáp án: C
-Câu 183: Khách hàng C là người nước ngoài (Người không cư trú) có tài khoản thanh toán ngoại tệ (USD) mở tại Agribank. Khách hàng đề nghị chuyển 50.000 USD từ tài khoản này ra nước ngoài cho người thân. Thành phần hồ sơ nào dưới đây là BẮT BUỘC Chi nhánh phải yêu cầu khách hàng xuất trình để thực hiện giao dịch? 
+Đáp án đúng: C
+Câu 183. Khách hàng C là người nước ngoài (Người không cư trú) có tài khoản thanh toán ngoại tệ (USD) mở tại Agribank. Khách hàng đề nghị chuyển 50.000 USD từ tài khoản này ra nước ngoài cho người thân. Thành phần hồ sơ nào dưới đây là BẮT BUỘC Chi nhánh phải yêu cầu khách hàng xuất trình để thực hiện giao dịch? 
 A. Chứng từ chứng minh nguồn tiền trên tài khoản là thu nhập hợp pháp tại Việt Nam (hợp đồng lao động, chứng từ thuế). 
 B. Giấy xác nhận hoàn thành nghĩa vụ thuế với Nhà nước Việt Nam cho khoản tiền 50.000 USD. 
 C. Bản sao giấy tờ tùy thân còn hiệu lực của Người chuyển tiền (và văn bản ủy quyền/giấy tờ đại diện nếu có). 
 D. Giấy tờ chứng minh quan hệ thân nhân giữa người chuyển tiền và người thụ hưởng ở nước ngoài. 
-Đáp án: C
-Câu 184: Khách hàng D là người Việt Nam định cư ở nước ngoài (mang hộ chiếu nước ngoài) thắng thưởng tại một điểm kinh doanh Casino hợp pháp tại Việt Nam. Khách hàng muốn chuyển số tiền thưởng ngoại tệ mặt ra nước ngoài qua Agribank. Hồ sơ chuyển tiền KHÔNG bắt buộc phải có chứng từ nào sau đây? 
+Đáp án đúng: C
+Câu 184. Khách hàng D là người Việt Nam định cư ở nước ngoài (mang hộ chiếu nước ngoài) thắng thưởng tại một điểm kinh doanh Casino hợp pháp tại Việt Nam. Khách hàng muốn chuyển số tiền thưởng ngoại tệ mặt ra nước ngoài qua Agribank. Hồ sơ chuyển tiền KHÔNG bắt buộc phải có chứng từ nào sau đây? 
 A. Bản chính giấy xác nhận trúng thưởng, trả thưởng bằng ngoại tệ tiền mặt do tổ chức kinh doanh casino phát hành. 
 B. Văn bản xác nhận đã hoàn thành nghĩa vụ thuế thu nhập cá nhân đối với tiền trúng thưởng do cơ quan Thuế cấp. 
 C. Bản sao giấy tờ chứng minh khách hàng được nhập cảnh hợp pháp vào Việt Nam tại thời điểm tham gia trò chơi. 
 D. Bản sao giấy tờ tùy thân của khách hàng. 
-Đáp án: B
-Câu 185: Trường hợp giấy thông báo chi phí (như phí hội viên, phí xét hồ sơ visa) từ phía nước ngoài KHÔNG ghi đích danh tên của người sử dụng dịch vụ phát sinh phí, Chi nhánh Agribank phải xử lý như thế nào? 
+Đáp án đúng: B
+Câu 185. Trường hợp giấy thông báo chi phí (như phí hội viên, phí xét hồ sơ visa) từ phía nước ngoài KHÔNG ghi đích danh tên của người sử dụng dịch vụ phát sinh phí, Chi nhánh Agribank phải xử lý như thế nào? 
 A. Từ chối thực hiện giao dịch chuyển tiền vì chứng từ không hợp lệ. 
 B. Yêu cầu khách hàng lập văn bản cam kết tự chịu trách nhiệm về tính chính xác của thông báo chi phí. 
 C. Yêu cầu khách hàng bổ sung giấy tờ chứng minh khách hàng đã/đang sử dụng các dịch vụ phát sinh phí đó. 
 D. Yêu cầu cơ sở cấp thông báo chi phí ở nước ngoài phát hành lại chứng từ mới ghi rõ họ tên khách hàng. 
-Đáp án: C
-Câu 186: Khách hàng E là công dân Việt Nam xin chuyển tiền phục vụ chuyến đi công tác nước ngoài. Trong các chứng từ dưới đây, chứng từ nào KHÔNG thuộc danh mục hồ sơ chuyển tiền theo quy định tại Điều 19? 
+Đáp án đúng: C
+Câu 186. Khách hàng E là công dân Việt Nam xin chuyển tiền phục vụ chuyến đi công tác nước ngoài. Trong các chứng từ dưới đây, chứng từ nào KHÔNG thuộc danh mục hồ sơ chuyển tiền theo quy định tại Điều 19? 
 A. Bản sao quyết định cử đi công tác nước ngoài. 
 B. Bản sao vé máy bay/tàu hỏa/tàu thủy hoặc các phương tiện di chuyển khác. 
 C. Bản sao hợp đồng lao động của người đi công tác với cơ quan/doanh nghiệp chủ quản. 
 D. Bản sao hộ chiếu và visa/giấy tờ tương đương visa (hoặc hộ chiếu đối với nước miễn thị thực). 
-Đáp án: C
-Câu 187: Khách hàng F là người nước ngoài cư trú tại Việt Nam có nguồn thu từ lương nhập trên tài khoản VND mở tại Agribank. Khách hàng muốn dùng số tiền VND này để mua ngoại tệ chuyển ra nước ngoài. Nhận định nào sau đây là ĐÚNG về hồ sơ và hạn mức? 
+Đáp án đúng: C
+Câu 187. Khách hàng F là người nước ngoài cư trú tại Việt Nam có nguồn thu từ lương nhập trên tài khoản VND mở tại Agribank. Khách hàng muốn dùng số tiền VND này để mua ngoại tệ chuyển ra nước ngoài. Nhận định nào sau đây là ĐÚNG về hồ sơ và hạn mức? 
 A. Hạn mức chuyển tiền theo đề nghị của khách hàng và không vượt quá khoản thu nhập được chứng minh là hợp pháp. 
 B. Khách hàng được chuyển tối đa không quá 50.000 USD/năm mà không cần chứng minh nguồn thu nhập hợp pháp. 
 C. Chỉ cần xuất trình bản sao giấy tờ tùy thân và thẻ tạm trú còn thời hạn hiệu lực. 
 D. Phải có giấy xác nhận đã hoàn thành nghĩa vụ thuế thu nhập cá nhân do cơ quan thuế trực tiếp quản lý xác nhận. 
-Đáp án: A
-Câu 188: Khi tính toán hạn mức chuyển tiền cho khách hàng đi du lịch/công tác nước ngoài trong trường hợp phía nước ngoài không có thông báo chi phí, công thức xác định dựa vào tham số nào? 
+Đáp án đúng: A
+Câu 188. Khi tính toán hạn mức chuyển tiền cho khách hàng đi du lịch/công tác nước ngoài trong trường hợp phía nước ngoài không có thông báo chi phí, công thức xác định dựa vào tham số nào? 
 A. Tổng số ngày ghi trên visa/thẻ tạm trú được cấp. 
 B. Số ngày khách hàng thực tế đã ở tại nước ngoài tính đến thời điểm giao dịch. 
 C. Số ngày khách hàng được phép lưu trú tại nước ngoài cho 01 lần nhập cảnh. 
 D. Số ngày đi thực tế ghi trên vé máy bay khứ hồi. 
-Đáp án: C
-Câu 189: Quy định về chuyển nguồn thu hợp pháp ra nước ngoài tại Điều 20 KHÔNG áp dụng đối với trường hợp nào sau đây? 
+Đáp án đúng: C
+Câu 189. Quy định về chuyển nguồn thu hợp pháp ra nước ngoài tại Điều 20 KHÔNG áp dụng đối với trường hợp nào sau đây? 
 A. Thu nhập từ lương, thưởng của cá nhân người nước ngoài làm việc tại Việt Nam. 
 B. Thu nhập từ trúng thưởng Casino của người nước ngoài tại Việt Nam. 
 C. Thu nhập hợp pháp liên quan đến các hoạt động đầu tư của cá nhân người nước ngoài tại Việt Nam. 
 D. Thu nhập từ nhận thừa kế tài sản tại Việt Nam của người cư trú là người có quốc tịch nước ngoài. 
-Đáp án: C
-Câu 190: Khách hàng G là người nước ngoài đang cư trú hợp pháp tại Việt Nam đến Agribank đề nghị chuyển tiền ra nước ngoài để thanh toán phí xét duyệt hồ sơ xin visa cho con ruột. Agribank có áp dụng quy định tại Điều 18 (Chuyển tiền thanh toán các loại phí, lệ phí) cho khách hàng G không? 
+Đáp án đúng: C
+Câu 190. Khách hàng G là người nước ngoài đang cư trú hợp pháp tại Việt Nam đến Agribank đề nghị chuyển tiền ra nước ngoài để thanh toán phí xét duyệt hồ sơ xin visa cho con ruột. Agribank có áp dụng quy định tại Điều 18 (Chuyển tiền thanh toán các loại phí, lệ phí) cho khách hàng G không? 
 A. Có, vì mọi cá nhân cư trú tại Việt Nam đều được áp dụng Điều 18. 
 B. Không, vì đối tượng khách hàng áp dụng tại Điều 18 phải là Người cư trú có quốc tịch Việt Nam. 
 C. Có, chỉ cần khách hàng xuất trình giấy chứng minh quan hệ thân nhân. 
 D. Không, vì người nước ngoài tuyệt đối không được chuyển tiền thanh toán phí, lệ phí ra nước ngoài. 
-Đáp án: B
+Đáp án đúng: B
 Câu 191. Căn cứ theo Quy định 1866/QĐ-NHNo-TD, đối tượng nào sau đây KHÔNG thuộc phạm vi áp dụng quy định này? 
 A. Chủ doanh nghiệp tư nhân vay vốn phục vụ hoạt động của doanh nghiệp. 
 B. Doanh nghiệp tư nhân hoạt động theo Luật Doanh nghiệp. 
 C. Khách hàng vay vốn tại Agribank là tổ chức tín dụng. 
 D. Các thành viên hộ kinh doanh có đăng ký kinh doanh. 
-Đáp án: C 
+Đáp án đúng: C 
 Câu 192. Trường hợp khách hàng thỏa thuận trả nợ bằng đồng tiền khác đồng tiền cho vay tại thời điểm ký kết Hợp đồng tín dụng (HĐTD) hoặc sửa đổi, bổ sung HĐTD, Agribank nơi cho vay phải thực hiện trình tự nào sau đây? 
 A. Agribank nơi cho vay và khách hàng tự thỏa thuận mua bán ngoại tệ theo quy định hiện hành. 
 B. Trình Giám đốc Chi nhánh loại I phê duyệt chấp thuận. 
 C. Trình Tổng Giám đốc qua Ban Khách hàng doanh nghiệp. 
 D. Trình Tổng Giám đốc qua Ban Chính sách tín dụng. 
-Đáp án: C 
+Đáp án đúng: C 
 Câu 193. Phát biểu nào sau đây ĐÚNG về quy định lãi chậm trả và lãi quá hạn? 
 A. Lãi quá hạn do Agribank nơi cho vay thỏa thuận với khách hàng nhưng không vượt quá 150%/năm. 
 B. Lãi chậm trả tính trên số tiền lãi trong hạn theo phân kỳ trả nợ với lãi suất thỏa thuận không vượt quá 10%/năm. 
 C. Lãi chậm trả tính trên cả số tiền lãi trong hạn và lãi quá hạn với lãi suất thỏa thuận tối đa 10%/năm. 
 D. Khi chuyển nợ quá hạn, lãi suất quá hạn áp dụng tự động bằng 150% lãi suất trong hạn. 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 194. Đối với khách hàng cá nhân vay theo hạn mức quy mô nhỏ, phát biểu nào sau đây SAI theo quy định tại Điều 22 và Điều 26? 
 A. Hạn mức cho vay tối đa không vượt quá 500 triệu đồng đối với một khách hàng, trừ trường hợp Tổng Giám đốc có quy định khác theo sản phẩm/chương trình tín dụng. 
 B. Thời gian duy trì hạn mức tối đa được thỏa thuận là 36 tháng. 
 C. Khi hết thời gian duy trì hạn mức, khách hàng được gia hạn hạn mức nhiều lần, mỗi lần tối đa 12 tháng. 
 D. Việc gia hạn thời gian duy trì hạn mức cho vay được thực hiện trước hoặc trong thời gian 10 ngày làm việc tính đến ngày hết thời hạn duy trì. 
-Đáp án: C 
+Đáp án đúng: C 
 Câu 195. Trong phương thức Cho vay tuần hoàn (rollover), điều kiện nào sau đây KHÔNG bắt buộc đối với khoản vay? 
 A. Tổng thời hạn vay vốn không vượt quá 12 tháng kể từ ngày giải ngân ban đầu và không vượt quá một chu kỳ hoạt động kinh doanh. 
 B. Khách hàng xếp hạng từ A1 đến A8 theo quy định về xếp hạng khách hàng của Agribank tại thời điểm xem xét cho vay. 
 C. Khách hàng không có nợ nhóm 2, nợ xấu, nợ ngoại bảng tại Agribank và các TCTD khác tại thời điểm xem xét. 
 D. Tài sản hình thành từ vốn vay tương ứng với dư nợ của khách hàng và chu kỳ kinh doanh chưa kết thúc. 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 196. Cho vay bù đắp tài chính đối với chi phí thuộc đầu tư tài sản cố định ĐÃ ĐI VÀO SỬ DỤNG quy định thời gian đã sử dụng vốn tối đa là bao lâu kể từ ngày tài sản đi vào sử dụng/cấp GCN đến ngày đề nghị vay/trên Phương án/ngày nhận nợ? 
 A. Không quá 06 tháng. 
 B. Không quá 12 tháng. 
 C. Không quá 24 tháng. 
 D. Không quá 60 tháng. 
-Đáp án: D 
+Đáp án đúng: D 
 Câu 197. Trong quy trình rà soát, đánh giá khoản vay trình phê duyệt tại Chi nhánh loại I, trường hợp hồ sơ trình của Chi nhánh loại II bị thiếu hoặc chưa rõ, số lần tối đa Chi nhánh loại I được yêu cầu bổ sung hồ sơ và thời hạn Chi nhánh loại II phải hoàn thiện tương ứng ở khâu Rà soát (Người đánh giá) là: 
 A. Tối đa 02 lần; hoàn thiện trong tối đa 10 ngày làm việc kể từ ngày nhận được văn bản. 
 B. Tối đa 01 lần; hoàn thiện trong tối đa 05 ngày làm việc kể từ ngày nhận được văn bản. 
 C. Tối đa 02 lần; hoàn thiện trong tối đa 05 ngày làm việc kể từ ngày nhận được văn bản. 
 D. Tối đa 01 lần; hoàn thiện trong tối đa 10 ngày làm việc kể từ ngày nhận được văn bản. 
-Đáp án: A 
+Đáp án đúng: A 
 Câu 198. Theo quy định về bàn giao và lưu giữ hồ sơ tại Agribank nơi cho vay (Điều 14), tài liệu nào sau đây do Người quản lý nợ trực tiếp quản lý (KHÔNG bàn giao cho Giao dịch viên)? 
 A. Bản gốc Báo cáo đề xuất cho vay/Báo cáo thẩm định. 
 B. Bản gốc Hợp đồng tín dụng và Hợp đồng bảo đảm. 
 C. Bản gốc/Bản chính giấy tờ chứng minh quyền sở hữu, quyền sử dụng TSBĐ. 
 D. Biên bản kiểm tra sử dụng vốn vay, Biên bản kiểm tra tình hình hoạt động kinh doanh. 
-Đáp án: D 
+Đáp án đúng: D 
 Câu 199. Trường hợp cho vay để thanh toán tiền góp vốn theo hợp đồng hợp tác kinh doanh để thực hiện dự án, điều kiện bắt buộc đối với bên nhận góp vốn (nếu không phải là doanh nghiệp mới thành lập để thực hiện dự án) là gì? 
 A. Phải có bảo đảm 100% bằng tài sản và xếp hạng tín dụng từ A1 trở lên. 
 B. Phải có kết quả kinh doanh có lãi 02 năm trước liền kề, Báo cáo tài chính phải được kiểm toán và có ý kiến kiểm toán chấp nhận toàn phần. 
 C. Phải có kết quả kinh doanh có lãi 01 năm liền kề và được Agribank cấp hạn mức tín dụng dự phòng. 
 D. Phải có thời gian hoạt động tối thiểu 03 năm và không có nợ từ nhóm 2 đến nhóm 5 tại các TCTD. 
-Đáp án: B 
+Đáp án đúng: B 
 Câu 200. Văn bản phê duyệt cho vay sau khi chấp thuận phải được gửi cho đơn vị kiểm tra trong thời hạn bao lâu kể từ ngày ký? 
 A. Trong vòng 03 ngày làm việc. 
 B. Trong vòng 05 ngày làm việc. 
 C. Trong vòng 07 ngày làm việc. 
 D. Trong vòng 10 ngày làm việc. 
-Đáp án: B `;
+Đáp án đúng: B`;
 
+        // Hàm phân tích văn bản (Parser)
         function parseRawQuestions(text) {
             const questions = [];
-            // Cắt đoạn văn bản theo cụm "Câu X:"
-            const blocks = text.split(/Câu \d+:/g).filter(b => b.trim().length > 0);
+            // Cắt đoạn văn bản theo cụm "Câu X." hoặc "Câu X:"
+            const blocks = text.split(/Câu \d+[\.\:]/g).filter(b => b.trim().length > 0);
 
             blocks.forEach((block, index) => {
                 const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -1689,20 +1667,29 @@ D. Trong vòng 10 ngày làm việc.
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
+                    
+                    // Xử lý các dòng bắt đầu bằng A., B., C., D.
                     if (line.startsWith('A.')) { options[0] = line.substring(2).trim(); currentOption = 0; }
                     else if (line.startsWith('B.')) { options[1] = line.substring(2).trim(); currentOption = 1; }
                     else if (line.startsWith('C.')) { options[2] = line.substring(2).trim(); currentOption = 2; }
                     else if (line.startsWith('D.')) { options[3] = line.substring(2).trim(); currentOption = 3; }
-                    else if (line.startsWith('Đáp án:')) {
-                        const ans = line.replace('Đáp án:', '').trim().charAt(0).toUpperCase();
-                        if (ans === 'A') correctIndex = 0;
-                        else if (ans === 'B') correctIndex = 1;
-                        else if (ans === 'C') correctIndex = 2;
-                        else if (ans === 'D') correctIndex = 3;
+                    // Xử lý dòng chứa đáp án đúng (có thể là "Đáp án đúng: X" hoặc "Đáp án: X")
+                    else if (line.toLowerCase().includes('đáp án đúng:') || line.toLowerCase().includes('đáp án:')) {
+                        let ans = line.split(':');
+                        if (ans.length > 1) {
+                            ans = ans[1].trim().charAt(0).toUpperCase();
+                            if (ans === 'A') correctIndex = 0;
+                            else if (ans === 'B') correctIndex = 1;
+                            else if (ans === 'C') correctIndex = 2;
+                            else if (ans === 'D') correctIndex = 3;
+                        }
                     } else {
-                        // Nếu chưa chạm tới các đáp án A B C D thì nó thuộc về nội dung câu hỏi
+                        // Nối vào nội dung câu hỏi nếu chưa duyệt tới các đáp án
                         if (currentOption === -1) {
                             content += (content.length > 0 ? " " : "") + line;
+                        } else {
+                            // Nếu đang ở trong một option mà bị xuống dòng, nối tiếp vào option đó
+                            options[currentOption] += " " + line;
                         }
                     }
                 }
@@ -1716,7 +1703,7 @@ D. Trong vòng 10 ngày làm việc.
             return questions;
         }
 
-        // Tự động giải mã văn bản 200 câu thành bộ đề thi!
+        // Tạo bộ dữ liệu câu hỏi từ văn bản mới
         const MY_REAL_QUESTIONS = parseRawQuestions(RAW_TEXT);
         // ==========================================================
 
