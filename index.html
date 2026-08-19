@@ -444,25 +444,1254 @@
         };
         // ===========================================
 
-        // === 🚀 KHU VỰC NHẬP DỮ LIỆU CÂU HỎI CỦA BẠN VÀO ĐÂY 🚀 ===
-        // Hệ thống sẽ ưu tiên dùng dữ liệu này cho mọi thiết bị (điện thoại, máy tính)
-        // Cách điền: Copy mẫu bên dưới và thay nội dung. 
-        // correctAnswerIndex: 0 là A, 1 là B, 2 là C, 3 là D.
-        const MY_REAL_QUESTIONS = [
-            {
-                content: "Một khách hàng có doanh thu thuần 12 tỷ đồng/năm, chi phí tiền mặt 8,4 tỷ đồng và nghĩa vụ trả nợ gốc trong năm 1,8 tỷ đồng. DSCR là bao nhiêu?",
-                options: ["2,33 lần", "2,67 lần", "1,67 lần", "2,00 lần"],
-                correctAnswerIndex: 3 // Đáp án D
-            },
-            {
-                content: "Câu hỏi thật số 2: Vốn lưu động ròng được tính bằng công thức nào?",
-                options: ["Tài sản ngắn hạn - Nợ ngắn hạn", "Tài sản dài hạn - Nợ dài hạn", "Tổng tài sản - Tổng nợ", "Vốn chủ sở hữu - Tài sản cố định"],
-                correctAnswerIndex: 0 // Đáp án A
-            }
-            // Thêm phẩy (,) và copy block ngoặc nhọn {} trên để thêm câu 3, 4, 5... đến 200
-        ];
+        // === 🚀 TỰ ĐỘNG PHÂN TÍCH 200 CÂU HỎI TỪ VĂN BẢN 🚀 ===
+        const RAW_TEXT = `Câu 1: Doanh thu thuần 9.6 tỷ đồng, chi phí tiền mặt 6.1 tỷ đồng và nghĩa vụ trả nợ 1.4 tỷ đồng. DSCR theo dòng tiền = (Doanh thu - Chi phí tiền mặt) / Nghĩa vụ trả nợ là:
+A. 2.50 lần
+B. 2.75 lần
+C. 2.30 lần
+D. 3.00 lần
+Đáp án: A 
+Câu 2: Doanh thu thuần 14.2 tỷ đồng, chi phí tiền mặt 9.7 tỷ đồng và nghĩa vụ trả nợ 2.25 tỷ đồng. Chỉ số DSCR là:
+A. 1.80 lần
+B. 2.00 lần
+C. 2.50 lần
+D. 2.25 lần
+Đáp án: B 
+Câu 3: Doanh thu thuần 11.5 tỷ đồng, chi phí tiền mặt 7.9 tỷ đồng và nghĩa vụ trả nợ 1.8 tỷ đồng. Chỉ số DSCR là:
+A. 2.25 lần
+B. 1.80 lần
+C. 2.00 lần
+D. 2.50 lần
+Đáp án: C 
+Câu 4: Doanh thu thuần 18 tỷ đồng, chi phí tiền mặt 12.4 tỷ đồng và nghĩa vụ trả nợ 2.8 tỷ đồng. Chỉ số DSCR là:
+A. 2.50 lần
+B. 1.80 lần
+C. 2.25 lần
+D. 2.00 lần
+Đáp án: D 
+Câu 5: Doanh thu thuần 7.8 tỷ đồng, chi phí tiền mặt 4.9 tỷ đồng và nghĩa vụ trả nợ 1.45 tỷ đồng. Chỉ số DSCR là:
+A. 2.00 lần
+B. 2.50 lần
+C. 1.80 lần
+D. 2.25 lần
+Đáp án: A 
+Câu 6: Tổng nhu cầu vốn hợp lý 16.8 tỷ đồng; vốn tự có 5.2 tỷ đồng; nguồn tài trợ khác chắc chắn 2.1 tỷ đồng. Nhu cầu vay vốn tối đa là:
+A. 10.3 tỷ đồng
+B. 9.5 tỷ đồng
+C. 8.9 tỷ đồng
+D. 10.7 tỷ đồng
+Đáp án: B 
+Câu 7: Tổng nhu cầu vốn hợp lý 21.5 tỷ đồng; vốn tự có 7.3 tỷ đồng; nguồn tài trợ khác chắc chắn 3.4 tỷ đồng. Nhu cầu vay vốn tối đa là:
+A. 11.6 tỷ đồng
+B. 10.2 tỷ đồng
+C. 10.8 tỷ đồng
+D. 12.0 tỷ đồng
+Đáp án: C 
+Câu 8: Tổng nhu cầu vốn hợp lý 13.7 tỷ đồng; vốn tự có 2.8 tỷ đồng; nguồn tài trợ khác chắc chắn 1.9 tỷ đồng. Nhu cầu vay vốn tối đa là:
+A. 8.4 tỷ đồng
+B. 10.2 tỷ đồng
+C. 9.8 tỷ đồng
+D. 9.0 tỷ đồng
+Đáp án: D 
+Câu 9: Tổng nhu cầu vốn hợp lý 25.2 tỷ đồng; vốn tự có 8.6 tỷ đồng; nguồn tài trợ khác chắc chắn 4.7 tỷ đồng. Nhu cầu vay vốn tối đa là:
+A. 11.9 tỷ đồng
+B. 12.7 tỷ đồng
+C. 11.3 tỷ đồng
+D. 13.1 tỷ đồng
+Đáp án: A 
+Câu 10: Khoản vay 4.80 tỷ đồng, lãi suất 7.60%/năm, tính lãi đơn theo số ngày thực tế trên cơ sở 360 ngày. Tiền lãi của 75 ngày là:
+A. 82.00 triệu đồng
+B. 76.00 triệu đồng
+C. 73.20 triệu đồng
+D. 79.50 triệu đồng
+Đáp án: B 
+Câu 11: Khoản vay 6.20 tỷ đồng, lãi suất 8.10%/năm, tính lãi đơn theo số ngày thực tế trên cơ sở 360 ngày. Tiền lãi của 120 ngày là:
+A. 170.90 triệu đồng
+B. 164.60 triệu đồng
+C. 167.40 triệu đồng
+D. 173.40 triệu đồng
+Đáp án: C 
+Câu 12: Khoản vay 3.75 tỷ đồng, lãi suất 9.20%/năm, tính lãi đơn theo số ngày thực tế trên cơ sở 365 ngày. Tiền lãi của 95 ngày là:
+A. 86.99 triệu đồng
+B. 93.29 triệu đồng
+C. 95.79 triệu đồng
+D. 89.79 triệu đồng
+Đáp án: D 
+Câu 13: Khoản vay 7.40 tỷ đồng, lãi suất 7.50%/năm, tính lãi đơn theo số ngày thực tế trên cơ sở 360 ngày. Tiền lãi của 150 ngày là:
+A. 231.25 triệu đồng
+B. 228.45 triệu đồng
+C. 237.25 triệu đồng
+D. 234.75 triệu đồng
+Đáp án: A 
+Câu 14: Khoản vay 5.60 tỷ đồng, lãi suất 8.25%/năm, tính lãi đơn theo số ngày thực tế trên cơ sở 360 ngày. Tiền lãi của 210 ngày là:
+A. 273.00 triệu đồng
+B. 269.50 triệu đồng
+C. 275.50 triệu đồng
+D. 266.70 triệu đồng
+Đáp án: B 
+Câu 15: Giá trị tài sản bảo đảm công nhận là 13.6 tỷ đồng; tỷ lệ cho vay tối đa là 72%. Dư nợ tối đa theo giới hạn bảo đảm là:
+A. 9.39 tỷ đồng
+B. 10.59 tỷ đồng
+C. 9.79 tỷ đồng
+D. 10.29 tỷ đồng
+Đáp án: C 
+Câu 16: Giá trị tài sản bảo đảm công nhận là 9.8 tỷ đồng; tỷ lệ cho vay tối đa là 68%. Dư nợ tối đa theo giới hạn bảo đảm là:
+A. 7.16 tỷ đồng
+B. 6.26 tỷ đồng
+C. 7.46 tỷ đồng
+D. 6.66 tỷ đồng
+Đáp án: D 
+Câu 17: Giá trị tài sản bảo đảm công nhận là 17.5 tỷ đồng; tỷ lệ cho vay tối đa là 65%. Dư nợ tối đa theo giới hạn bảo đảm là:
+A. 11.38 tỷ đồng
+B. 11.88 tỷ đồng
+C. 10.97 tỷ đồng
+D. 12.18 tỷ đồng
+Đáp án: A
+Câu 18: Giá trị tài sản bảo đảm công nhận là 11.2 tỷ đồng; tỷ lệ cho vay tối đa là 75%. Dư nợ tối đa theo giới hạn bảo đảm là:
+A. 8.00 tỷ đồng
+B. 8.40 tỷ đồng
+C. 9.20 tỷ đồng
+D. 8.90 tỷ đồng
+Đáp án: B 
+Câu 19: Giá trị tài sản bảo đảm công nhận là 8.4 tỷ đồng; tỷ lệ cho vay tối đa là 70%. Dư nợ tối đa theo giới hạn bảo đảm là:
+A. 6.68 tỷ đồng
+B. 5.48 tỷ đồng
+C. 5.88 tỷ đồng
+D. 6.38 tỷ đồng
+Đáp án: C 
+Câu 20: Khoản vay 6.4 tỷ đồng, lãi suất 8.2%/năm; trả trước 0.6 tỷ đồng vào đầu tháng 7. Tổng lãi 12 tháng (năm 360 ngày) là:
+A. 528.56 triệu đồng
+B. 458.56 triệu đồng
+C. 568.56 triệu đồng
+D. 498.56 triệu đồng
+Đáp án: A 
+Câu 21: Khoản vay 9.0 tỷ đồng, lãi suất 7.8%/năm; trả trước 0.9 tỷ đồng vào đầu tháng 5. Tổng lãi 12 tháng là:
+A. 655.20 triệu đồng
+B. 685.20 triệu đồng
+C. 615.20 triệu đồng
+D. 725.20 triệu đồng
+Đáp án: A 
+Câu 22: Khoản vay 4.5 tỷ đồng, lãi suất 9.0%/năm; trả trước 0.5 tỷ đồng vào đầu tháng 8. Tổng lãi 12 tháng là:
+A. 458.12 triệu đồng
+B. 388.12 triệu đồng
+C. 418.12 triệu đồng
+D. 348.12 triệu đồng
+Đáp án: B 
+Câu 23: Khoản vay 12.0 tỷ đồng, lãi suất 7.2%/năm; trả trước 1.2 tỷ đồng vào đầu tháng 7. Tổng lãi 12 tháng là:
+A. 850.80 triệu đồng
+B. 890.80 triệu đồng
+C. 820.80 triệu đồng
+D. 780.80 triệu đồng
+Đáp án: C 
+Câu 24: Khoản vay 7.2 tỷ đồng, lãi suất 8.4%/năm; trả trước 0.7 tỷ đồng vào đầu tháng 4. Tổng lãi 12 tháng là:
+A. 589.44 triệu đồng
+B. 519.44 triệu đồng
+C. 629.44 triệu đồng
+D. 559.44 triệu đồng
+Đáp án: D 
+Câu 25: Một khách hàng đang dùng tiền gửi và tín dụng nhưng hầu như không phát sinh giao dịch thanh toán. Cách phát triển dịch vụ phù hợp nhất là:
+A. Phân tích dòng tiền, nhu cầu thanh toán và thiết kế thêm giải pháp tài khoản, QR, ngân hàng số phù hợp.
+B. Phân tích dòng tiền, nhu cầu thanh toán nhưng ưu tiên chuyển toàn bộ tiền gửi sang kỳ hạn dài để tối ưu hóa nguồn vốn.
+C. Phân tích dòng tiền, nhu cầu thanh toán và tư vấn tăng hạn mức tín dụng theo dư nợ hiện hữu mà không gắn với dịch vụ thanh toán.
+D. Phân tích dòng tiền, nhu cầu thanh toán và đề xuất khách hàng mua ngay hợp đồng bảo hiểm nhân thọ để gia tăng tiện ích.
+Đáp án: A
+Câu 26: Một khách hàng hộ kinh doanh có doanh thu tiền mặt hàng ngày rất lớn và muốn giảm thời gian đối soát. Gói tiếp cận có tính liên kết cao nhất là:
+A. Kết hợp tài khoản thanh toán, QR/POS, ngân hàng số và đề xuất vay trung hạn bổ sung vốn cố định.
+B. Kết hợp tài khoản thanh toán, QR/POS, ngân hàng số và giải pháp quản lý dòng tiền phù hợp.
+C. Kết hợp tài khoản thanh toán, QR/POS, ngân hàng số và hướng dẫn khách hàng gửi tiết kiệm kỳ hạn dài.
+D. Kết hợp tài khoản thanh toán, QR/POS, ngân hàng số và phát hành thẻ tín dụng cá nhân để chi tiêu.
+Đáp án: B
+Câu 27: Khách hàng đề nghị mở rộng sử dụng Agribank Plus nhưng lo ngại rủi ro bảo mật giao dịch số. Cách tư vấn phù hợp nhất là:
+A. Giải thích tiện ích đi kèm cơ chế xác thực, đồng thời cam kết ngân hàng hoàn tiền 100% cho mọi trường hợp giao dịch sự cố.
+B. Giải thích tiện ích đi kèm cơ chế xác thực, nhưng khuyên khách hàng chỉ thực hiện các giao dịch giá trị nhỏ dưới 1 triệu đồng.
+C. Giải thích tiện ích đi kèm cơ chế xác thực, cảnh báo và hướng dẫn khách hàng tự bảo vệ thông tin giao dịch.
+D. Giải thích tiện ích đi kèm cơ chế xác thực, đồng thời đề nghị khách hàng cung cấp mật khẩu để cán bộ hỗ trợ kiểm soát thường xuyên.
+Đáp án: C
+Câu 28: Khách hàng dùng Thẻ Lộc Việt thường xuyên nhưng chưa biết quản lý thẻ trên ứng dụng Agribank Plus. Cách giới thiệu phù hợp nhất là:
+A. Hướng dẫn các chức năng quản lý thẻ trên Agribank Plus, đồng thời yêu cầu khách hàng cung cấp mã PIN để cán bộ cài đặt trực tiếp.
+B. Hướng dẫn các chức năng quản lý thẻ trên Agribank Plus, nhưng khuyến nghị khách hàng chỉ nên thực hiện tra cứu tại quầy để an toàn.
+C. Hướng dẫn các chức năng quản lý thẻ trên Agribank Plus, đồng thời tư vấn khách hàng hủy thẻ vật lý để chuyển hoàn toàn sang thẻ phi vật lý.
+D. Hướng dẫn các chức năng quản lý thẻ trên Agribank Plus như khóa thẻ, vấn tin, thanh toán dư nợ và quản lý giao dịch.
+Đáp án: D
+Câu 29: Trong giao dịch thanh toán QR, khách hàng yêu cầu cán bộ chụp màn hình mã OTP gửi qua tin nhắn để 'hỗ trợ xác thực'. Cách xử lý đúng quy định là:
+A. Từ chối yêu cầu, giải thích OTP là thông cải xác thực bí mật và hướng dẫn khách hàng tự thực hiện trên thiết bị.
+B. Từ chối yêu cầu, nhưng chấp nhận nhận mã OTP qua điện thoại của cán bộ nếu khách hàng viết giấy ủy quyền giao dịch.
+C. Từ chối yêu cầu, tuy nhiên có thể chụp màn hình mã OTP nếu đã che đi 3 số cuối để bảo đảm an toàn.
+D. Từ chối yêu cầu, nhưng lưu mã OTP vào hồ sơ kiểm soát giao dịch để thuận tiện đối soát về sau.
+Đáp án: A
+Câu 30: Khách hàng muốn sử dụng thẻ tín dụng nội địa Lộc Việt để thanh toán hàng hóa dịch vụ. Cách tư vấn phù hợp nhất là:
+A. Tư vấn đúng chức năng thẻ, hạn mức, nghĩa vụ thanh toán và khẳng định khách hàng có thể rút tiền mặt không giới hạn ngoài hạn mức.
+B. Tư vấn đúng chức năng thẻ, hạn mức, nghĩa vụ thanh toán và các ưu đãi đang áp dụng theo điều kiện chương trình.
+C. Tư vấn đúng chức năng thẻ, hạn mức, nghĩa vụ thanh toán và tư vấn thẻ có thể thay thế hoàn toàn tài khoản thanh toán.
+D. Tư vấn đúng chức năng thẻ, hạn mức, nghĩa vụ thanh toán và cam kết mọi giao dịch đều được miễn lãi vô thời hạn.
+Đáp án: B
+Câu 31: Một khách hàng có nhu cầu vay phương án xanh để lắp đặt điện mặt trời áp mái. Thông tin bắt buộc cần kiểm tra trước khi tư vấn chương trình là:
+A. Mục đích/phương án xanh, đối tượng vay và chỉ cần kiểm tra khách hàng đã có tiền gửi tiết kiệm tại Agribank hay chưa.
+B. Mục đích/phương án xanh, đối tượng vay và chỉ kiểm tra mức thu nhập cá nhân mà không cần thẩm định tính chất phương án.
+C. Mục đích/phương án xanh, đối tượng vay và các điều kiện của chương trình tín dụng xanh đang áp dụng.
+D. Mục đích/phương án xanh, đối tượng vay và chỉ kiểm tra giá trị tài sản bảo đảm mà bỏ qua quy chuẩn kỹ thuật phương án.
+Đáp án: C
+Câu 32: Một khoản chuyển tiền quốc tế có tên người thụ hưởng trùng khớp một phần với danh sách cấm vận. Cách xử lý chuẩn xác nhất là:
+A. Dừng/kiểm soát giao dịch theo quy trình, nhưng cho phép hạch toán trước rồi rà soát sau để tránh chậm trễ phục vụ khách hàng.
+B. Dừng/kiểm soát giao dịch theo quy trình, nhưng bỏ qua nếu tên người thụ hưởng không trùng khớp 100% ký tự.
+C. Dừng/kiểm soát giao dịch theo quy trình, đồng thời yêu cầu khách hàng ký cam kết tự chịu trách nhiệm để tiếp tục chuyển tiền.
+D. Dừng/kiểm soát giao dịch theo quy trình sàng lọc, xác minh thông tin và chỉ xử lý tiếp khi có kết luận phù hợp.
+Đáp án: D
+Câu 33: Một đơn vị chấp nhận thanh toán (E-Merchant) đề nghị ngân hàng cung cấp toàn bộ dữ liệu thẻ để chạy quảng cáo. Cách xử lý đúng quy định là:
+A. Không cung cấp dữ liệu thẻ trái quy định; chỉ xử lý dữ liệu theo phạm vi, mục đích và yêu cầu bảo mật được phép.
+B. Không cung cấp dữ liệu thẻ trái quy định, trừ trường hợp E-Merchant có cam kết bằng văn bản không chia sẻ cho bên thứ ba.
+C. Không cung cấp dữ liệu thẻ trái quy định, trừ trường hợp được Lãnh đạo phụ trách dịch vụ chấp thuận qua Email.
+D. Không cung cấp dữ liệu thẻ trái quy định, trừ trường hợp khách hàng đã từng thực hiện giao dịch tại chính E-Merchant đó.
+Đáp án: A
+Câu 34: Sản phẩm SoftPOS được triển khai trên thiết bị di động tích hợp công nghệ NFC. Biện pháp kiểm soát an toàn quan trọng nhất là:
+A. Kiểm soát tính toàn vẹn thiết bị, nhưng chỉ tập trung vào kích thước màn hình để bảo đảm hiển thị giao diện thanh toán.
+B. Kiểm soát tính toàn vẹn thiết bị, môi trường hệ điều hành và các dấu hiệu Root/Jailbreak theo yêu cầu bảo mật.
+C. Kiểm soát tính toàn vẹn thiết bị, nhưng chỉ kiểm tra tốc độ kết nối mạng internet tại thời điểm cài đặt.
+D. Kiểm soát tính toàn vẹn thiết bị, nhưng chỉ yêu cầu thiết bị có dung lượng pin trên 50% khi giao dịch.
+Đáp án: B
+Câu 35: Khách hàng mở tài khoản trực tuyến qua eKYC nhưng thông tin định danh có dấu hiệu không trùng khớp. Cán bộ nghiệp vụ cần xử lý:
+A. Tạm dừng xử lý giao dịch, nhưng cho phép mở tài khoản hạn chế nếu khách hàng đã đăng ký số điện thoại chính chủ.
+B. Tạm dừng xử lý giao dịch, đồng thời yêu cầu khách hàng gửi bổ sung ảnh CCCD qua ứng dụng nhắn tin cá nhân.
+C. Tạm dừng xử lý giao dịch cần xác thực, kiểm tra và đối chiếu lại thông tin theo quy trình định danh.
+D. Tạm dừng xử lý giao dịch, tuy nhiên có thể linh động kích hoạt trước rồi hoàn thiện xác minh trong 24 giờ.
+Đáp án: C
+Câu 36: Khi phát hiện tài khoản mới mở nhận tiền từ nhiều địa phương rồi chuyển/rút ngay với tần suất bất thường. Dấu hiệu rủi ro cần ưu tiên nhận diện là:
+A. Khả năng tài khoản đang thực hiện thanh toán tập trung cho các hóa đơn điện nước định kỳ.
+B. Khả năng tài khoản đang nhận tiền chi trả nông sản theo mùa vụ tập trung của hộ kinh doanh.
+C. Khả năng tài khoản đang tích lũy tiền gửi tiết kiệm cho khoản đầu tư dài hạn.
+D. Khả năng tài khoản bị lợi dụng làm tài khoản trung gian cho gian lận, lừa đảo hoặc rửa tiền.
+Đáp án: D
+Câu 37: Khách hàng bị mất sổ tiết kiệm và đề nghị rút tiền gấp bằng giấy tờ tùy thân tại quầy giao dịch. Bước kiểm soát đầu tiên đúng chuẩn là:
+A. Tiếp nhận báo mất, kiểm tra chủ thể và thực hiện biện pháp ngăn chặn/phong tỏa theo quy định trước khi giải quyết rút tiền.
+B. Tiếp nhận báo mất, nhưng linh động cho rút trước 50% số tiền gốc để hỗ trợ khách hàng trong lúc xác minh.
+C. Tiếp nhận báo mất, và giải quyết rút tiền ngay nếu khách hàng ký cam kết tự chịu mọi trách nhiệm phát sinh.
+D. Tiếp nhận báo mất, và cho rút tiền nếu chữ ký trên giấy đề nghị tương đối giống với mẫu chữ ký lưu.
+Đáp án: A
+Câu 38: Một tài khoản thanh toán đang bị phong tỏa theo quyết định của cơ quan nhà nước có thẩm quyền. Khi có tiền chuyển đến tài khoản này, cách hạch toán đúng là:
+A. Việc ghi Có và xử lý số tiền thực hiện bình thường, đồng thời cán bộ được tự ý giải tỏa phần tiền mới nhận nếu khách hàng yêu cầu.
+B. Việc ghi Có và xử lý số tiền phải tuân theo trạng thái phong tỏa và cơ chế hạch toán của hệ thống, không tự ý giải tỏa.
+C. Việc ghi Có và xử lý số tiền bị tạm dừng, toàn bộ tiền chuyển đến phải trích sang tài khoản treo chờ xử lý cá nhân.
+D. Việc ghi Có và xử lý số tiền thực hiện bình thường vì lệnh phong tỏa tự động mất hiệu lực đối với các khoản tiền mới đến.
+Đáp án: B
+Câu 39: Khi phát sinh lệnh chuyển tiền liên chi nhánh bị sai sót thông tin người thụ hưởng. Nguyên tắc xử lý nghiệp vụ là:
+A. Sử dụng kênh tra soát phù hợp, đồng thời yêu cầu khách hàng tự liên hệ Chi nhánh nhận để làm thủ tục nhận lại tiền.
+B. Sử dụng kênh tra soát phù hợp, nhưng cho phép cán bộ tự chỉnh sửa trực tiếp dữ liệu giao dịch trên máy cá nhân.
+C. Sử dụng kênh tra soát phù hợp để đính chính/hủy/hoàn trả theo trạng thái lệnh và thẩm quyền xử lý.
+D. Sử dụng kênh tra soát phù hợp, tuy nhiên bỏ qua không xử lý nếu số tiền sai sót dưới 1 triệu đồng.
+Đáp án: C
+Câu 40: Trong kiểm soát cuối ngày đối với giao dịch liên chi nhánh, dấu hiệu nào bắt buộc phải xử lý triệt để trước khi đóng sổ:
+A. Chênh lệch về số lượng khách hàng đến quầy giao dịch so với ngày làm việc liền kề trước đó.
+B. Chênh lệch về số lượng ấn phẩm quảng cáo sản phẩm dịch vụ chưa phát hết trong ngày.
+C. Chênh lệch về số lượt tải và đăng ký ứng dụng Agribank Plus của khách hàng tại quầy.
+D. Chênh lệch, bút toán treo hoặc tài khoản trung gian chưa được đối soát và đưa về trạng thái phù hợp.
+Đáp án: D
+Câu 41: Khách hàng rút tiền gửi tiết kiệm có kỳ hạn trước hạn toàn bộ khoản tiền. Mức lãi suất áp dụng theo quy định là:
+A. Tiền gửi được tính theo mức lãi suất không kỳ hạn theo quy định áp dụng cho trường hợp rút trước hạn toàn bộ.
+B. Tiền gửi được tính theo mức lãi suất do khách hàng và ngân hàng tự thỏa thuận tại thời điểm rút.
+C. Tiền gửi được giữ nguyên mức lãi suất có kỳ hạn ban đầu cho toàn bộ thời gian thực gửi.
+D. Tiền gửi được tính theo mức lãi suất cho vay ngắn hạn thông thường để bù đắp chi phí vốn.
+Đáp án: A
+Câu 42: Một khoản tiền gửi tiết kiệm trả lãi trước được khách hàng tất toán trước hạn. Phần tiền lãi đã trả trước được xử lý như thế nào:
+A. Khấu trừ phần lãi đã trả thừa, đồng thời thu thêm một khoản tiền phạt cố định tính trên dư nợ gốc.
+B. Khấu trừ phần lãi đã trả thừa theo quy định vào số tiền gốc khách hàng được nhận.
+C. Khấu trừ toàn bộ tiền gốc và chuyển số dư còn lại sang tài khoản theo dõi nợ chờ xử lý.
+D. Giữ nguyên toàn bộ phần lãi đã trả trước vì ngân hàng đã thực hiện chi trả cho khách hàng.
+Đáp án: B
+Câu 43: Khách hàng doanh nghiệp muốn mở rộng dịch vụ E-Merchant nhưng Người đại diện pháp luật chưa hoàn tất xác thực định danh. Cách xử lý chuẩn xác là:
+A. Hoàn tất yêu cầu định danh/xác thực, nhưng cho phép xác thực Kế toán trưởng thay thế cho Người đại diện pháp luật.
+B. Hoàn tất yêu cầu định danh/xác thực, tuy nhiên có thể bỏ qua nếu doanh nghiệp đã mở tài khoản thanh toán lâu năm.
+C. Hoàn tất yêu cầu định danh/xác thực cần thiết trước khi cung cấp chức năng thuộc phạm vi phải xác thực.
+D. Hoàn tất yêu cầu định danh/xác thực bằng cách chấp nhận ảnh chụp Giấy phép kinh doanh gửi qua Email cá nhân.
+Đáp án: C
+Câu 44: Khách hàng yêu cầu hỗ trợ thu hồi khoản tiền chuyển nhầm nhưng đã quá thời hạn tra soát theo quy định sản phẩm. Cán bộ nên xử lý:
+A. Kiểm tra đúng loại giao dịch, và tự động trích tiền từ tài khoản người nhận để hoàn trả cho khách hàng.
+B. Kiểm tra đúng loại giao dịch, và từ chối ngay lập tức mọi hỗ trợ mà không cần hướng dẫn thêm.
+C. Kiểm tra đúng loại giao dịch, đồng thời cam kết chắc chắn ngân hàng sẽ thu hồi được 100% số tiền.
+D. Kiểm tra đúng loại giao dịch, thời hạn áp dụng và hướng dẫn khách hàng phương án xử lý còn khả thi theo quy định.
+Đáp án: D
+Câu 45: Khách hàng phản ánh giao dịch thẻ không do mình thực hiện. Cán bộ giao dịch cần ưu tiên thực hiện:
+A. Tiếp nhận yêu cầu tra soát, kiểm soát rủi ro thẻ và hướng dẫn khách hàng thực hiện các bước bảo vệ tài khoản/thẻ.
+B. Tiếp nhận yêu cầu tra soát, nhưng chỉ hướng dẫn khách hàng tự liên hệ với Đơn vị chấp nhận thanh toán để giải quyết.
+C. Tiếp nhận yêu cầu tra soát, và yêu cầu khách hàng phải đợi đến kỳ sao kê tiếp theo mới được phản ánh.
+D. Tiếp nhận yêu cầu tra soát, đồng thời cam kết hoàn tiền ngay lập tức cho khách hàng trước khi xác minh.
+Đáp án: A
+Câu 46: Khách hàng muốn sử dụng tài khoản thanh toán nhận lương và đồng thời gia tăng số dư CASA cho ngân hàng. Giải pháp tối ưu là:
+A. Kết hợp tài khoản thanh toán, trả lương và khuyên khách hàng chuyển toàn bộ tiền nhận được sang tiết kiệm kỳ hạn dài.
+B. Kết hợp tài khoản thanh toán, trả lương qua tài khoản và các dịch vụ số/thanh toán tạo dòng tiền thường xuyên.
+C. Kết hợp tài khoản thanh toán, trả lương nhưng chỉ phát hành thẻ tín dụng mà không kích hoạt dịch vụ ngân hàng số.
+D. Kết hợp tài khoản thanh toán, trả lương nhưng không tư vấn thêm các dịch vụ thanh toán tự động đi kèm.
+Đáp án: B
+Câu 47: Khi tư vấn bán chéo sản phẩm bảo hiểm ABIC và Thẻ Lộc Việt cho khách hàng vay vốn. Nguyên tắc cán bộ bắt buộc tuân thủ là:
+A. Sản phẩm được tư vấn phù hợp nhu cầu, nhưng bắt buộc đưa bảo hiểm vào như một điều kiện tiên quyết để giải ngân.
+B. Sản phẩm được tư vấn phù hợp nhu cầu, tuy nhiên chỉ tập trung giới thiệu sản phẩm mang lại phí dịch vụ cao nhất.
+C. Sản phẩm được tư vấn phù hợp nhu cầu, giải thích rõ điều kiện và không biến bán chéo thành điều kiện trái quy định.
+D. Sản phẩm được tư vấn phù hợp nhu cầu, và tự động tích hợp phí bảo hiểm vào hồ sơ vay mà không cần giải thích chi tiết.
+Đáp án: C
+Câu 48: Khách hàng có nhu cầu thanh toán hóa đơn điện nước định kỳ nhưng thường xuyên quên ngày thanh toán. Tính năng phù hợp nhất trên Agribank Plus là:
+A. Sử dụng tiện ích khóa/Mở khóa thẻ tự động trên ứng dụng để nhắc nhở thanh toán.
+B. Sử dụng tiện ích tra cứu lãi suất tiết kiệm trực tuyến để theo dõi lịch thanh toán.
+C. Sử dụng tiện ích chuyển tiền định kỳ hàng năm vào tài khoản cá nhân của cán bộ để nộp hộ.
+D. Sử dụng tiện ích thanh toán hóa đơn/tự động thanh toán phù hợp với loại dịch vụ được cung cấp.
+Đáp án: D
+Câu 49: Khách hàng muốn thực hiện thanh toán phí dịch vụ công bằng mã QR trên nền tảng số. Cách tư vấn chuẩn mực là:
+A. Hướng dẫn sử dụng chức năng QR thanh toán dịch vụ công trên kênh Agribank hỗ trợ, đồng thời kiểm tra đúng loại dịch vụ.
+B. Hướng dẫn khách hàng đến giao dịch trực tiếp tại quầy vì kênh số chưa bảo đảm độ chính xác.
+C. Hướng dẫn khách hàng chuyển tiền mặt cho cán bộ để thực hiện nộp hộ trên tài khoản cá nhân.
+D. Hướng dẫn khách hàng gửi ảnh chụp CCCD qua mạng xã hội cá nhân của cán bộ để đăng ký hộ.
+Đáp án: A
+Câu 50: Doanh thu thuần 9.6 tỷ đồng, chi phí tiền mặt 6.1 tỷ đồng và nghĩa vụ trả nợ 1.4 tỷ đồng. Mức độ đảm bảo khả năng trả nợ (DSCR) được xác định là:
+A. Dưới 1.5 lần
+B. 2.50 lần
+C. 1.80 lần
+D. 2.00 lần
+Đáp án: B
+Câu 51: Trong kế toán ngân hàng, tài khoản thuộc nhóm Tài sản (Đầu 2, 3, 39...) có đặc điểm kết cấu số dư thông thường là:
+A. Luôn có số dư Có hoặc không có số dư.
+B. Luôn có số dư Nợ (hoặc phản ánh tài sản thu hồi).
+C. Chỉ có số dư vào thời điểm cuối năm tài chính.
+D. Có thể tự do hạch toán bù trừ số dư Nợ/Có mà không cần phân loại chi tiết.
+Đáp án: B
+Câu 52: Theo quy định hiện hành của Ngân hàng Nhà nước, thời hạn loại nợ quá hạn đối với khoản vay tiêu dùng bị chậm trả nợ gốc từ 91 đến 180 ngày được phân loại vào:
+A. Nợ nhóm 1 (Nợ đủ tiêu chuẩn).
+B. Nợ nhóm 3 (Nợ dưới tiêu chuẩn).
+C. Nợ nhóm 2 (Nợ cần chú ý).
+D. Nợ nhóm 4 (Nợ nghi ngờ).
+Đáp án: B
+Câu 53: Khách hàng phát sinh khoản nợ bị nhảy sang Nợ nhóm 3 tại một TCTD khác. Theo cơ chế của CIC và quy định phân loại nợ, Agribank phải xử lý khoản vay của khách hàng này tại Agribank như thế nào:
+A. Giữ nguyên nhóm 1 nếu khách hàng vẫn trả nợ đầy đủ tại Agribank.
+B. Tự động điều chỉnh phân loại khoản vay tại Agribank sang nhóm 3 (hoặc nhóm rủi ro cao hơn) theo danh sách CIC.
+C. Điều chỉnh ngay khoản vay sang Nợ nhóm 5 (Nợ có khả năng mất vốn) bất kể CIC.
+D. Hủy bỏ toàn bộ hợp đồng tín dụng và thu hồi tài sản bảo đảm ngay lập tức.
+Đáp án: B
+Câu 54: Khi kiểm soát hồ sơ giải ngân khoản vay trung hạn mua máy móc thiết bị, chứng từ nào dưới đây là chứng từ sử dụng vốn bắt buộc phải kiểm tra sau giải ngân:
+A. Giấy đề nghị vay vốn của khách hàng.
+B. Biên bản định giá tài sản bảo đảm của ngân hàng.
+C. Thông báo nộp lệ phí trước bạ của bên thế chấp.
+D. Hóa đơn tài chính, biên bản bàn giao nghiệm thu máy móc và chứng từ chuyển tiền cho bên bán.
+Đáp án: D
+Câu 55: Khi thực hiện kiểm kê quỹ tiền mặt đột xuất tại Chi nhánh vào cuối ngày, phát hiện thừa tiền mặt chưa rõ nguyên nhân. Bút toán xử lý kế toán tạm thời là:
+A. Ghi Nợ TK Tiền mặt tại quỹ / Ghi Có TK Thu nhập khác.
+B. Ghi Nợ TK Tiền mặt tại quỹ / Ghi Có TK Thừa chờ xử lý.
+C. Ghi Nợ TK Thiếu chờ xử lý / Ghi Có TK Tiền mặt tại quỹ.
+D. Ghi Nợ TK Tiền mặt tại quỹ / Ghi Có TK Tiền gửi khách hàng.
+Đáp án: B
+Câu 56: Hợp đồng thế chấp quyền sử dụng đất để bảo đảm cho khoản vay bắt buộc phải hoàn thành thủ tục nào dưới đây để có hiệu lực pháp lý đối kháng với bên thứ ba:
+A. Chỉ cần công chứng/chứng thực tại Tổ chức hành nghề công chứng.
+B. Đăng ký giao dịch bảo đảm tại Văn phòng đăng ký đất đai có thẩm quyền.
+C. Chỉ cần Lãnh đạo Chi nhánh Ngân hàng ký tên và đóng dấu xác nhận.
+D. Lập biên bản bàn giao bản gốc Giấy chứng nhận quyền sử dụng đất tại quầy.
+Đáp án: B
+Câu 57: Theo Luật Các tổ chức tín dụng hiện hành, tổng dư nợ cấp tín dụng đối với một khách hàng không được vượt quá bao nhiêu phần trăm (%) Vốn tự có của Ngân hàng thương mại (trừ trường hợp đặc biệt):
+A. 25% đối với khách hàng cá nhân.
+B. 20% đối với khách hàng doanh nghiệp.
+C. Tỷ lệ phần trăm theo quy định của Luật CCTCD đối với một khách hàng (ví dụ: 14% theo lộ trình giảm dần).
+D. 50% đối với khách hàng có tài sản bảo đảm bằng tiền gửi.
+Đáp án: C
+Câu 58: Trong quy trình kiểm soát nội bộ, nguyên tắc "Bất kiêm nhiệm" bắt buộc cán bộ không được đồng thời đảm nhiệm hai vị trí/chức năng nào sau đây:
+A. Cán bộ thẩm định tín dụng và Cán bộ quản lý rủi ro.
+B. Cán bộ giao dịch quầy và Cán bộ đề xuất cho vay.
+C. Cán bộ lập chứng từ/giao dịch viên và Cán bộ kiểm soát/phê duyệt giao dịch kế toán đó.
+D. Cán bộ tín dụng và Cán bộ hỗ trợ tín dụng.
+Đáp án: C
+Câu 59: Bút toán trích lập dự phòng rủi ro tín dụng cụ thể được hạch toán vào chi phí của ngân hàng theo định kỳ nhằm mục đích:
+A. Tạo nguồn tài chính dự phòng để xử lý rủi ro khi khoản vay không thu hồi được gốc, lãi.
+B. Tăng doanh thu hoạt động tài chính cuối năm.
+C. Giảm nghĩa vụ nộp thuế thu nhập doanh nghiệp của ngân hàng.
+D. Chi trả tiền thưởng cho cán bộ quản lý nợ tốt.
+Đáp án: A
+Câu 60: Khi kiểm soát rủi ro hoạt động thanh toán thẻ tại quầy, việc cán bộ ngân hàng giữ lại mã CVV/CVC hoặc ghi chép thông tin thẻ của khách hàng là vi phạm quy định nào:
+A. Quy định về kiểm soát bù trừ điện tử.
+B. An toàn bảo mật thông tin thẻ và tiêu chuẩn PCI-DSS.
+C. Quy trình xử lý nợ quá hạn.
+D. Quy định về hạn mức cho vay tiêu dùng.
+Đáp án: B
+Câu 61: Nguyên tắc hạch toán "Ghi sổ kép" trong hệ thống kế toán ngân hàng đòi hỏi mỗi một giao dịch kinh tế phát sinh phải được ghi nhận:
+A. Vào Nợ của ít nhất một tài khoản và Có của ít nhất một tài khoản với tổng số tiền bằng nhau.
+B. Vào bên Nợ của hai tài khoản khác nhau với số tiền độc lập.
+C. Vào bên Có của tài khoản Tài sản và bên Nợ của tài khoản Chi phí.
+D. Bằng hai đồng tiền khác nhau trên cùng một chứng từ kế toán.
+Đáp án: A
+Câu 62: Trường hợp khách hàng cá nhân bị mất năng lực hành vi dân sự, việc thực hiện các giao dịch liên quan đến tài sản, tiền gửi của khách hàng tại ngân hàng phải do ai đại diện thực hiện:
+A. Bạn bè thân thiết hoặc đồng nghiệp cùng cơ quan.
+B. Người giám hộ hợp pháp được pháp luật quy định hoặc Tòa án chỉ định.
+C. Cán bộ tín dụng trực tiếp quản lý hồ sơ khách hàng.
+D. UBND cấp xã nơi khách hàng đăng ký thường trú.
+Đáp án: B
+Câu 63: Khi phát hiện chứng từ kế toán do khách hàng lập có dấu hiệu tẩy xóa, sửa chữa chữ số hoặc chữ ký không khớp đúng với mẫu đã đăng ký, Giao dịch viên phải xử lý:
+A. Linh động dùng bút mực sửa lại cho đúng với thực tế giao dịch.
+B. Từ chối thực hiện giao dịch, giải thích cho khách hàng và yêu cầu lập lại chứng từ mới hợp lệ.
+C. Cho phép khách hàng ký đè lên chữ ký cũ để xác nhận.
+D. Tiếp nhận và phê duyệt nếu số tiền giao dịch dưới 5 triệu đồng.
+Đáp án: B
+Câu 64: Theo quy định hiện hành về phòng, chống rửa tiền (AML), mức giá trị giao dịch tiền mặt bằng đồng Việt Nam có giá trị lớn bắt buộc phải báo cáo Cục Phòng, chống rửa tiền là từ:
+A. 200 triệu đồng trở lên.
+B. 300 triệu đồng trở lên.
+C. 400 triệu đồng trở lên.
+D. 500 triệu đồng trở lên.
+Đáp án: C
+Câu 65: Tài sản bảo đảm là Quyền tài sản phát sinh từ hợp đồng mua bán nhà ở hình thành trong tương lai khi nhận thế chấp bắt buộc phải đăng ký biện pháp bảo đảm tại:
+A. Văn phòng Công chứng nơi có bất động sản.
+B. Trung tâm Đăng ký giao dịch, tài sản thuộc Cục Đăng ký quốc gia giao dịch bảo đảm (Bộ Tư pháp).
+C. UBND phường/xã nơi cư trú của bên thế chấp.
+D. Sở Xây dựng tỉnh/thành phố.
+Đáp án: B
+Câu 66: Báo cáo tài chính định kỳ của Chi nhánh ngân hàng bao gồm bảng cân đối tài khoản kế toán nhằm phản ánh:
+A. Số dư và phát sinh của toàn bộ các tài khoản kế toán trong kỳ báo cáo.
+B. Danh sách chi tiết từng khách hàng đang vay nợ tại Chi nhánh.
+C. Số lượng ấn phẩm truyền thông đã phát hành trong tháng.
+D. Chỉ số xếp hạng thi đua của từng phòng chuyên môn.
+Đáp án: A
+Câu 67: Kiểm soát viên kế toán trước khi ký phê duyệt lệnh chuyển tiền đi trên hệ thống phải chịu trách nhiệm kiểm tra yếu tố nào:
+A. Tính hợp pháp, hợp lệ của chứng từ, sự khớp đúng thông tin và tính đủ số dư khả dụng/hạn mức.
+B. Hoàn cảnh gia đình của người chuyển tiền và người nhận tiền.
+C. Tình hình hoạt động sản xuất kinh doanh của đối tác nhận tiền.
+D. Uy tín cá nhân của Giao dịch viên lập lệnh.
+Đáp án: A
+Câu 68: Khoản thu nợ gốc vay đã được xử lý bằng nguồn dự phòng rủi ro tín dụng trước đó, khi thu hồi được sẽ được hạch toán vào tài khoản nào:
+A. Giảm chi phí quản lý doanh nghiệp.
+B. Thu nhập khác (Thu nợ đã xử lý rủi ro).
+C. Giảm giá vốn hàng bán.
+D. Tăng vốn góp của chủ sở hữu.
+Đáp án: B
+Câu 69: Trong hoạt động cấp tín dụng, việc thẩm định năng lực pháp lý của khách hàng doanh nghiệp dựa trên giấy tờ quan trọng nhất nào:
+A. Giấy chứng nhận đăng ký doanh nghiệp và Điều lệ hoạt động của doanh nghiệp.
+B. Bảng báo giá sản phẩm của đối thủ cạnh tranh.
+C. Sổ tạm trú của Giám đốc doanh nghiệp.
+D. Hóa đơn tiền điện 3 tháng gần nhất của trụ sở.
+Đáp án: A
+Câu 70: Trường hợp người thế chấp tài sản là hai vợ chồng, nhưng tài sản thế chấp là Tài sản chung của vợ chồng trong thời kỳ hôn nhân, hợp đồng thế chấp bắt buộc phải có:
+A. Chữ ký xác nhận của tất cả các con trong gia đình.
+B. Chữ ký của cả hai vợ chồng (hoặc người được ủy quyền hợp pháp của một trong hai bên).
+C. Chữ ký của Tổ trưởng dân phố nơi có tài sản.
+D. Chữ ký của đại diện Ngân hàng Nhà nước Chi nhánh tỉnh.
+Đáp án: B
+Câu 71: Rủi ro thị trường trong hoạt động ngân hàng bao gồm các loại rủi ro chính nào:
+A. Rủi ro lãi suất, rủi ro tỷ giá, rủi ro giá cổ phiếu và rủi ro giá hàng hóa.
+B. Rủi ro cháy nổ, rủi ro tràn dịch bệnh và rủi ro tai nạn lao động.
+C. Rủi ro sai sót chứng từ và rủi ro nhầm lẫn của giao dịch viên.
+D. Rủi ro lừa đảo qua mạng xã hội của bên thứ ba.
+Đáp án: A
+Câu 72: Lãi nợ vay đến hạn nhưng khách hàng không trả được và ngân hàng không cho gia hạn nợ, phần lãi treo chưa thu được này sẽ xử lý kế toán như thế nào:
+A. Tiếp tục hạch toán ghi nhận vào thu nhập dự thu của ngân hàng.
+B. Chuyển ra theo dõi ngoại bảng (Tài khoản lãi tiền vay chưa thu được) và ngừng ghi nhận dự thu vào nội bảng.
+C. Xóa bỏ hoàn toàn nghĩa vụ trả lãi cho khách hàng.
+D. Hạch toán thẳng vào tài khoản chi phí thanh lý tài sản.
+Đáp án: B
+Câu 73: Trong công tác quản lý an toàn kho quỹ, việc mở khóa kho tiền đầu ngày làm việc bắt buộc phải được thực hiện theo nguyên tắc:
+A. Một cán bộ duy nhất nắm giữ toàn bộ chìa khóa và mã số bảo mật.
+B. Chìa khóa và mã số do các thành viên Ban quản lý kho quỹ (Giám đốc/Thủ quỹ/Kiểm soát) nắm giữ độc lập và cùng chứng kiến mở.
+C. Cho phép bảo vệ cơ quan giữ hộ chìa khóa qua đêm.
+D. Mở sẵn cửa kho tiền từ đêm hôm trước để thông thoáng.
+Đáp án: B
+Câu 74: Biện pháp bảo đảm tiền vay nào sau đây là biện pháp Bảo đảm bằng tài sản của chính bên vay:
+A. Bảo lãnh của bên thứ ba bằng tài sản.
+B. Thế chấp tài sản thuộc sở hữu của bên vay / Cầm cố tài sản của bên vay.
+C. Tín chấp của tổ chức chính trị - xã hội tại địa phương.
+D. Cam kết hỗ trợ tài chính từ công ty mẹ ở nước ngoài.
+Đáp án: B
+Câu 75: Kiểm tra sau giải ngân là quy trình bắt buộc nhằm kiểm soát mục tiêu nào:
+A. Xác minh việc khách hàng sử dụng vốn vay đúng mục đích đã cam kết trong hợp đồng tín dụng và đánh giá thực trạng tài sản bảo đảm.
+B. Ép buộc khách hàng phải mua thêm các sản phẩm dịch vụ ngoài hợp đồng.
+C. Đề nghị khách hàng bàn giao toàn bộ máy móc thiết bị cho ngân hàng cất giữ.
+D. Thay đổi lãi suất cho vay cố định đã ký kết.
+Đáp án: A
+Câu 76: Loại tiền gửi nào của khách hàng tổ chức không được trả lãi theo quy định hiện hành của Ngân hàng Nhà nước:
+A. Tiền gửi chi trả thông thường bằng VND.
+B. Tiền gửi ký quỹ bảo đảm thanh toán L/C hay Bảo lãnh (tùy thuộc thỏa thuận/quy định từng thời kỳ).
+C. Tiền gửi tiết kiệm kỳ hạn 12 tháng.
+D. Tiền gửi thanh toán của Chống rửa tiền / Ngân hàng Nhà nước hoặc các tài khoản bị cấm chi trả theo pháp luật đặc thù.
+Đáp án: D
+Câu 77: Khi nhận thế chấp Tài sản gắn liền với đất là Nhà ở đã hoàn thành xây dựng, điều kiện bắt buộc để tài sản này đáp ứng tính pháp lý là:
+A. Phải có Giấy chứng nhận thể hiện quyền sở hữu nhà ở (hoặc đăng ký bổ sung tài sản trên GCN).
+B. Chỉ cần bản vẽ thiết kế xây dựng do kiến trúc sư tự vẽ.
+C. Chỉ cần giấy phép xây dựng do UBND xã cấp.
+D. Chỉ cần cam kết của chủ nhà là xây dựng không tranh chấp.
+Đáp án: A
+Câu 78: Báo cáo lưu chuyển tiền tệ trong báo cáo tài chính ngân hàng phản ánh yếu tố nào:
+A. Lượng tiền vào và lượng tiền ra từ các hoạt động kinh doanh, đầu tư và tài chính trong kỳ.
+B. Tổng số lượng tài sản cố định đang khấu hao tại đơn vị.
+C. Danh sách cán bộ nhân viên được khen thưởng trong năm.
+D. Chi tiết nợ xấu của từng chi nhánh phụ thuộc.
+Đáp án: A
+Câu 79: Lập dự phòng chung đối với dư nợ tín dụng (từ nhóm 1 đến nhóm 4, trừ khoản tiền gửi/tiền vay TCTD khác) được tính theo tỷ lệ bao nhiêu trên tổng dư nợ phân loại:
+A. 0.5%.
+B. 0.75%.
+C. 1.0%.
+D. 2.0%.
+Đáp án: B
+Câu 80: Khi khách hàng vay vốn bị tử vong hoặc bị Tòa án tuyên bố là đã chết, nghĩa vụ trả nợ khoản vay được giải quyết theo quy định pháp luật về:
+A. Tự động xóa bỏ toàn bộ nợ gốc và lãi vay.
+B. Thực hiện nghĩa vụ tài sản trong phạm vi di sản thừa kế do người thừa kế tiếp nhận hoặc xử lý tài sản bảo đảm.
+C. Cán bộ tín dụng trực tiếp vay trả thay cho khách hàng.
+D. Chuyển nghĩa vụ trả nợ cho UBND xã nơi khách hàng cư trú.
+Đáp án: B
+Câu 81: Thời hạn lưu trữ đối với tài liệu, chứng từ kế toán ngân hàng quan trọng liên quan trực tiếp đến an ninh quốc phòng hoặc hồ sơ tài sản cố định là:
+A. Lưu trữ 5 năm.
+B. Lưu trữ 10 năm.
+C. Lưu trữ vĩnh viễn hoặc theo thời gian tối đa pháp luật quy định.
+D. Lưu trữ 1 năm sau khi kiểm toán.
+Đáp án: C
+Câu 82: Trong công tác phòng chống gian lận nội bộ, hành vi nào sau đây bị nghiêm cấm tuyệt đối đối với cán bộ ngân hàng:
+A. Tư vấn cho khách hàng chọn sản phẩm tiết kiệm có lợi nhất.
+B. Thực hiện giao dịch "khống", lập hồ sơ giả mạo hoặc thông đồng với khách hàng để chiếm đoạt tiền của ngân hàng.
+C. Giải thích rõ các khoản phí dịch vụ cho khách hàng trước khi thu.
+D. Nhắc nợ khách hàng qua điện thoại khi đến hạn trả gốc/lãi.
+Đáp án: B
+Câu 83: Quy trình xử lý tài sản bảo đảm để thu hồi nợ khi khách hàng vi phạm nghĩa vụ trả nợ phải tuân thủ nguyên tắc:
+A. Theo thỏa thuận trong Hợp đồng thế chấp/thỏa thuận xử lý tài sản và quy định của pháp luật.
+B. Ngân hàng tự ý thu giữ tài sản mà không cần thông báo cho bên thế chấp.
+C. Ngân hàng được quyền tự định giá tài sản thấp hơn 90% giá thị trường để bán nhanh.
+D. Bắt buộc phải bán tài sản cho cán bộ nhân viên trong chi nhánh.
+Đáp án: A
+Câu 84: Sổ kế toán tổng hợp dùng để ghi chép các giao dịch tài chính theo tài khoản kế toán được gọi là:
+A. Sổ quỹ tiền mặt.
+B. Sổ Cái (General Ledger).
+C. Nhật ký chứng từ phụ.
+D. Bảng kê kiểm quỹ.
+Đáp án: B
+Câu 85: Trường hợp một khoản cho vay có rủi ro cao bị quá hạn trả nợ trên 360 ngày, theo quy định phân loại nợ sẽ thuộc nhóm nào:
+A. Nợ nhóm 2 (Nợ cần chú ý).
+B. Nợ nhóm 3 (Nợ dưới tiêu chuẩn).
+C. Nợ nhóm 4 (Nợ nghi ngờ).
+D. Nợ nhóm 5 (Nợ có khả năng mất vốn).
+Đáp án: D
+Câu 86: Chức năng cơ bản nhất của Thanh tra / Kiểm toán nội bộ trong hệ thống Ngân hàng là:
+A. Trực tiếp phê duyệt các khoản vay lớn cho khách hàng.
+B. Đánh giá độc lập, khách quan về tính tuân thủ, hiệu lực và hiệu quả của hệ thống kiểm soát nội bộ.
+C. Thay thế Ban Giám đốc điều hành hoạt động kinh doanh hàng ngày.
+D. Ký hợp đồng cung cấp dịch vụ với khách hàng ngoài.
+Đáp án: B
+Câu 87: Khi khách hàng doanh nghiệp mở tài khoản thanh toán tại ngân hàng, chứng từ pháp lý bắt buộc xác định quyền quản lý tài khoản là:
+A. Quyết định bổ nhiệm/Ủy quyền Kế toán trưởng và Người đại diện theo pháp luật kèm Giấy đăng ký mẫu chữ ký, con dấu.
+B. Danh sách cổ đông sở hữu dưới 1% cổ phần.
+C. Bảng lương chi tiết của toàn bộ công nhân viên.
+D. Hợp đồng thuê nhà xưởng của công ty.
+Đáp án: A
+Câu 88: Tiêu chuẩn xác định tài sản cố định hữu hình trong kế toán ngân hàng yêu cầu giá trị tối thiểu của tài sản phải từ:
+A. 10 triệu đồng trở lên.
+B. 20 triệu đồng trở lên.
+C. 30 triệu đồng trở lên.
+D. 50 triệu đồng trở lên.
+Đáp án: C
+Câu 89: Rủi ro thanh khoản của ngân hàng phát sinh chủ yếu khi nào:
+A. Ngân hàng không có khả năng thực hiện các nghĩa vụ thanh toán khi đến hạn hoặc thiếu nguồn vốn để giải ngân cam kết cấp tín dụng.
+B. Hệ thống mạng máy tính bị ngắt kết nối trong vòng 5 phút.
+C. Giá USD trên thị trường tự do tăng nhẹ.
+D. Khách hàng nộp tiền mặt vào tài khoản quá nhiều.
+Đáp án: A
+Câu 90: Đối với khoản vay ngắn hạn phục vụ sản xuất kinh doanh, thời hạn cho vay tối đa theo quy định pháp luật là:
+A. Tối đa đến 06 tháng.
+B. Tối đa đến 12 tháng.
+C. Tối đa đến 24 tháng.
+D. Tối đa đến 36 tháng.
+Đáp án: B
+Câu 91: Khái niệm "Nợ xấu" (NPL - Non-Performing Loans) theo quy định hiện hành của Ngân hàng Nhà nước bao gồm các khoản nợ thuộc:
+A. Nợ nhóm 1 và Nợ nhóm 2.
+B. Nợ nhóm 2, Nhóm 3 và Nhóm 4.
+C. Nợ nhóm 3, Nhóm 4 và Nhóm 5.
+D. Chỉ duy nhất Nợ nhóm 5.
+Đáp án: C
+Câu 92: Trong công tác quản lý tài chính nội bộ, khoản chi nào sau đây không được tính vào chi phí hợp lý hợp lệ khi xác định thuế TNDN:
+A. Chi trả lãi tiền gửi cho khách hàng.
+B. Chi lương, thưởng cho cán bộ nhân viên theo chế độ quy định.
+C. Chi tiền phạt vi phạm hành chính do vi phạm pháp luật.
+D. Chi phí khấu hao tài sản cố định dùng cho hoạt động kinh doanh.
+Đáp án: C
+Câu 93: Khi thực hiện bảo lãnh ngân hàng, văn bản cam kết của ngân hàng với Bên nhận bảo lãnh về việc sẽ thực hiện nghĩa vụ tài chính thay cho Bên được bảo lãnh được gọi là:
+A. Hợp đồng cho vay hạn mức.
+B. Cam kết bảo lãnh / Thư bảo lãnh.
+C. Hợp đồng thế chấp tài sản.
+D. Thỏa thuận mở tài khoản thanh toán.
+Đáp án: B
+Câu 94: Giấy tờ có giá do Agribank phát hành nhằm huy động vốn trung và dài hạn trên thị trường bao gồm loại nào:
+A. Kỳ phiếu, Trái phiếu, Chứng chỉ tiền gửi.
+B. Hóa đơn GTGT.
+C. Thẻ ghi nợ nội địa.
+D. Giấy nhận nợ khoản vay.
+Đáp án: A
+Câu 95: Nguyên tắc quản lý "Mã định danh cán bộ" (User ID) trên các hệ thống phần mềm nghiệp vụ ngân hàng là:
+A. Mỗi cán bộ được cấp một User ID riêng biệt, tự bảo mật mật khẩu và chịu trách nhiệm hoàn toàn về các giao dịch phát sinh dưới User ID đó.
+B. Cán bộ được phép cho đồng nghiệp mượn User ID để xử lý công việc khi vắng mặt.
+C. Dùng chung một User ID cho tất cả cán bộ trong cùng một phòng giao dịch.
+D. Dán mật khẩu User ID trên màn hình máy tính để tránh bị quên.
+Đáp án: A
+Câu 96: Trong giao dịch ngoại hối, tỷ giá giao dịch mua/bán ngoại tệ giữa Ngân hàng và Khách hàng thực hiện ngay trong ngày làm việc được gọi là:
+A. Tỷ giá Kỳ hạn (Forward rate).
+B. Tỷ giá Giao ngay (Spot rate).
+C. Tỷ giá Quyền chọn (Option rate).
+D. Tỷ giá Hoán đổi (Swap rate).
+Đáp án: B
+Câu 97: Để đảm bảo an toàn tiền gửi của người gửi tiền, ngân hàng thương mại có nghĩa vụ bắt buộc phải tham gia tổ chức nào:
+A. Bảo hiểm tiền gửi Việt Nam.
+B. Quỹ Bảo vệ người tiêu dùng.
+C. Hiệp hội Doanh nghiệp vừa và nhỏ.
+D. Công ty Mua bán nợ VAMC.
+Đáp án: A
+Câu 98: Khi kiểm soát chứng từ chi tiền mặt tại quầy giao dịch, chữ ký của ai là bắt buộc phải có trên Phiếu chi trước khi Thủ quỹ xuất tiền:
+A. Người nhận tiền, Giao dịch viên lập chứng từ, Kiểm soát viên/Kế toán trưởng và Lãnh đạo có thẩm quyền phê duyệt.
+B. Chỉ cần chữ ký của Người nhận tiền.
+C. Chỉ cần chữ ký của nhân viên bảo vệ kho quỹ.
+D. Chữ ký của Trưởng phòng Tín dụng.
+Đáp án: A
+Câu 99: Hành vi nào dưới đây được coi là vi phạm pháp luật trong hoạt động huy động vốn của cán bộ ngân hàng:
+A. Áp dụng đúng biểu lãi suất niêm yết công khai của Ngân hàng.
+B. Thỏa thuận chi khuyến mại, chi ngoài lãi suất trái quy định (chạy lãi ngoài) cho khách hàng.
+C. Hướng dẫn khách hàng điền đầy đủ thông tin trên Thẻ tiết kiệm.
+D. Cấp xác nhận số dư tiền gửi theo đúng yêu cầu hợp lệ của khách hàng.
+Đáp án: B
+Câu 100: Mục đích cuối cùng của Hệ thống Quản trị rủi ro và Kiểm soát nội bộ trong Ngân hàng Thương mại là:
+A. Bảo đảm hoạt động an toàn, hiệu quả, tuân thủ pháp luật và bảo vệ tài sản của ngân hàng cũng như người gửi tiền.
+B. Tăng tối đa số lượng khoản vay nợ xấu.
+C. Loại bỏ hoàn toàn 100% mọi chi phí vận hành.
+D. Giảm số lượng cán bộ làm việc tại các chi nhánh.
+Đáp án: A
+Câu 101: Trong phương thức thanh toán Tín dụng thư (L/C), Cam kết thanh toán của Ngân hàng phát hành (Issuing Bank) đối với Người thụ hưởng (Beneficiary) mang tính chất:
+A. Phụ thuộc vào việc Người nhập khẩu đã nhận được hàng hóa hay chưa.
+B. Độc lập hoàn toàn với Hợp đồng mua bán ngoại thương gầm làm cơ sở của L/C.
+C. Chỉ có hiệu lực khi Người nhập khẩu ký xác nhận đồng ý thanh toán.
+D. Thay đổi linh hoạt theo yêu cầu một bên của Bên yêu cầu mở L/C.
+Đáp án: B
+Câu 102: Theo quy tắc UCP 600 của Phòng Thương mại Quốc tế (ICC), Ngân hàng phát hành L/C có tối đa bao nhiêu ngày làm việc ngân hàng để kiểm tra bộ chứng từ và quyết định chấp nhận hoặc từ chối thanh toán:
+A. 03 ngày làm việc tiếp theo ngày nhận bộ chứng từ.
+B. 05 ngày làm việc tiếp theo ngày nhận bộ chứng từ.
+C. 07 ngày làm việc tiếp theo ngày nhận bộ chứng từ.
+D. 10 ngày làm việc tiếp theo ngày nhận bộ chứng từ.
+Đáp án: B
+Câu 103: Trong nghiệp vụ nhờ thu xuất khẩu, phương thức "Nhờ thu trả chậm" (D/A - Documents against Acceptance) yêu cầu Ngân hàng thu hộ chỉ trao bộ chứng từ cho Người nhập khẩu khi:
+A. Người nhập khẩu đã thanh toán toàn bộ giá trị tiền mặt cho ngân hàng.
+B. Người nhập khẩu ký chấp nhận thanh toán trên Hối phiếu có thời hạn.
+C. Người nhập khẩu xuất trình giấy ủy quyền của Ngân hàng phục vụ Người xuất khẩu.
+D. Tàu chở hàng đã cập cảng dỡ hàng an toàn.
+Đáp án: B
+Câu 104: Vận đơn đường biển (Ocean Bill of Lading) dạng "Hoàn hảo" (Clean Bill of Lading) là loại vận đơn có đặc điểm:
+A. Không có ghi chú xấu ghi ép về tình trạng bên ngoài hư hỏng của hàng hóa hoặc bao bì.
+B. Đã được cơ quan Hải quan xác nhận thông quan hàng hóa.
+C. Có chữ ký xác nhận của cả Bên bán và Bên mua trên mặt trước vận đơn.
+D. Được phát hành trực tiếp bởi Ngân hàng phát hành L/C.
+Đáp án: A
+Câu 105: Phương thức thanh toán quốc tế nào sau đây chứa đựng rủi ro cao nhất cho Người xuất khẩu (Bên bán):
+A. Tín dụng thư không hủy bỏ (Irrevocable L/C).
+B. Nhờ thu kèm chứng từ trả ngay (D/P).
+C. Chuyển tiền trả sau (Open Account / T/T after shipment).
+D. Tín dụng thư có xác nhận (Confirmed L/C).
+Đáp án: C
+Câu 106: Công nghệ định danh khách hàng điện tử (eKYC) áp dụng trong mở tài khoản ngân hàng trực tuyến bắt buộc phải có giải pháp kiểm soát an toàn nào để phòng chống giả mạo khuôn mặt:
+A. Công nghệ quét mã QR trên CCCD gắn chip.
+B. Công nghệ phát hiện sự sống / thể sống (Liveness Detection).
+C. Tích hợp gửi mã OTP qua Email cá nhân.
+D. Yêu cầu khách hàng nhập số thẻ căn cước hai lần.
+Đáp án: B
+Câu 107: Theo quy định hiện hành về giao dịch trực tuyến, đối với giao dịch chuyển tiền cá nhân qua ứng dụng Agribank Plus có giá trị trên 10 triệu đồng/lần hoặc tổng giá trị trên 20 triệu đồng/ngày, yếu tố xác thực bắt buộc phải áp dụng là:
+A. Mã PIN thông thường của ứng dụng.
+B. Tự động gửi SMS OTP về số điện thoại đăng ký.
+C. Khớp đúng dữ liệu sinh trắc học (khuôn mặt) trùng khớp với dữ liệu trên CCCD gắn chip / Bộ Công an.
+D. Mật khẩu đăng nhập ứng dụng do khách hàng tự đặt.
+Đáp án: C
+Câu 108: Chuẩn mã hóa bảo mật thông tin thẻ giao dịch trên Internet (3D-Secure) hoạt động nhằm mục đích chính nào:
+A. Tăng tốc độ xử lý giao dịch tại các điểm máy POS.
+B. Yêu cầu thêm bước xác thực sinh trắc học hoặc OTP từ Ngân hàng phát hành thẻ trước khi hoàn tất thanh toán online.
+C. Miễn toàn bộ phí giao dịch ngoại tệ cho chủ thẻ.
+D. Tự động quy đổi mệnh giá ngoại tệ sang VND theo tỷ giá ưu đãi.
+Đáp án: B
+Câu 109: Khi phát triển ứng dụng Ngân hàng số trên thiết bị di động, việc phát hiện thiết bị của khách hàng bị "Root" (Android) hoặc "Jailbreak" (iOS) đòi hỏi hệ thống phải:
+A. Cho phép tiếp tục sử dụng nhưng giới hạn hạn mức giao dịch dưới 1 triệu đồng.
+B. Cảnh báo rủi ro an toàn và từ chối/chặn thực hiện các giao dịch thanh toán trên thiết bị đó.
+C. Tự động gửi cảnh báo qua Email và cấp lại mật khẩu mới cho khách hàng.
+D. Yêu cầu khách hàng đến quầy làm thủ tục cam kết tự chịu trách nhiệm.
+Đáp án: B
+Câu 110: Mã giao dịch QR theo tiêu chuẩn VIETQR do Napas triển khai cho phép người dùng:
+A. Thanh toán và chuyển tiền liên ngân hàng nhanh chóng bằng cách quét mã chứa thông tin tài khoản/ngân hàng/số tiền.
+B. Rút tiền mặt tại ATM mà không cần có số dư trong tài khoản thanh toán.
+C. Tự động gia hạn các khoản vay tín dụng đến hạn.
+D. Chuyển tiền quốc tế trực tiếp sang các ngân hàng tại Châu Âu.
+Đáp án: A
+Câu 111: Khi nhận tài sản bảo đảm là Xe ô tô đang lưu thông để thế chấp cho khoản vay, ngân hàng cần giữ bản gốc giấy tờ nào sau đây:
+A. Giấy chứng nhận kiểm định an toàn kỹ thuật và bảo vệ môi trường (Đăng kiểm).
+B. Giấy chứng nhận đăng ký xe ô tô (Bản gốc) và cấp Giấy biên nhận thế chấp còn hiệu lực cho bên vay.
+C. Giấy chứng nhận bảo hiểm trách nhiệm dân sự bắt buộc của chủ xe.
+D. Bằng lái xe của người điều khiển phương tiện.
+Đáp án: B
+Câu 112: Hợp đồng thế chấp tài sản có hiệu lực pháp lý tính từ thời điểm nào (trừ trường hợp pháp luật có quy định khác hoặc các bên có thỏa thuận khác):
+A. Thời điểm Lãnh đạo Ngân hàng ký phê duyệt giải ngân khoản vay.
+B. Thời điểm Hợp đồng thế chấp được giao dịch viên nhập liệu vào phần mềm kế toán.
+C. Thời điểm Hợp đồng thế chấp được giao kết (hoặc được công chứng/chứng thực theo quy định).
+D. Thời điểm khoản vay chuyển sang Nợ quá hạn.
+Đáp án: C
+Câu 113: Tài sản bảo đảm là Hàng hóa luân chuyển trong quá trình sản xuất kinh doanh khi nhận thế chấp đòi hỏi Ngân hàng phải quản lý bằng biện pháp đặc thù nào:
+A. Yêu cầu Bên thế chấp vận chuyển toàn bộ hàng hóa vào kho riêng của Ngân hàng.
+B. Kiểm tra, giám sát định kỳ/đột xuất số lượng, giá trị tồn kho tối thiểu và quy định điều kiện rút/thay thế hàng hóa.
+C. Cấm Bên thế chấp bán hoặc tiêu thụ hàng hóa trong mọi trường hợp.
+D. Niêm phong toàn bộ nhà xưởng của Bên thế chấp cho đến khi trả xong nợ.
+Đáp án: B
+Câu 114: Trường hợp Bên thế chấp mang Tài sản đang thế chấp tại Ngân hàng đi gán nợ hoặc bán cho Bên thứ ba mà không có sự đồng ý bằng văn bản của Ngân hàng thì hành vi này:
+A. Được chấp nhận nếu Bên thứ ba cam kết trả nợ thay cho Bên thế chấp.
+B. Là hành vi vi phạm nghĩa vụ hợp đồng thế chấp và quy định pháp luật; Ngân hàng có quyền yêu cầu xử lý tài sản bảo đảm hoặc thu hồi nợ trước hạn.
+C. Nghiễm nhiên làm hủy bỏ Hợp đồng thế chấp đã ký với Ngân hàng.
+D. Chỉ bị xử lý khi khoản vay chuyển thành Nợ nhóm 5.
+Đáp án: B
+Câu 115: Giới hạn cấp tín dụng không nợ bảo đảm (Cho vay không có tài sản bảo đảm) của TCTD phải tuân thủ quy định nội bộ và quy định Ngân hàng Nhà nước nhằm hạn chế rủi ro loại nào:
+A. Rủi ro thanh khoản cuối ngày.
+B. Rủi ro danh tiếng của thương hiệu.
+C. Rủi ro tín dụng do không có nguồn thu hồi nợ thứ cấp từ tài sản.
+D. Rủi ro tỷ giá hối đoái.
+Đáp án: C
+Câu 116: Trong quản trị nguồn vốn ngân hàng, chỉ số CASA (Current Account Savings Account) phản ánh tỷ lệ nào:
+A. Tỷ lệ Tiền gửi tiết kiệm có kỳ hạn dài trên tổng nguồn vốn huy động.
+B. Tỷ lệ Tiền gửi không kỳ hạn và tiền gửi thanh toán trên tổng nguồn vốn huy động.
+C. Tỷ lệ dư nợ cho vay trung dài hạn trên tổng dư nợ cấp tín dụng.
+D. Tỷ lệ nợ xấu trên tổng dư nợ cho vay.
+Đáp án: B
+Câu 117: Lợi ích lớn nhất của việc gia tăng tỷ lệ tiền gửi CASA đối với hiệu quả kinh doanh của Ngân hàng thương mại là:
+A. Giúp ngân hàng giảm chi phí trả lãi nguồn vốn (giảm COF), từ đó nâng cao biên lãi thuần (NIM).
+B. Tự động giảm trích lập dự phòng rủi ro tín dụng chung.
+C. Tăng tỷ lệ an toàn vốn tối thiểu (CAR) thêm 5%.
+D. Giúp chi nhánh đạt chỉ tiêu phát hành thẻ tín dụng nhanh hơn.
+Đáp án: A
+Câu 118: Chỉ số Margin Lãi thuần (NIM - Net Interest Margin) của ngân hàng được tính bằng công thức cơ bản nào:
+A. (Doanh thu phí dịch vụ - Chi phí quản lý) / Tổng tài sản.
+B. (Thu nhập lãi thuần / Tổng tài sản sinh lời bình quân) x 100%.
+C. (Tổng dư nợ cho vay / Tổng tiền gửi khách hàng) x 100%.
+D. (Lợi nhuận sau thuế / Vốn chủ sở hữu) x 100%.
+Đáp án: B
+Câu 119: Tỷ lệ tối đa của nguồn vốn ngắn hạn được sử dụng để cho vay trung và dài hạn theo quy định an toàn của Ngân hàng Nhà nước nhằm mục đích:
+A. Kiểm soát rủi ro mất cân đối kỳ hạn (Maturity Mismatch) và rủi ro thanh khoản của ngân hàng.
+B. Khuyến khích ngân hàng ngừng hoàn toàn cho vay ngắn hạn.
+C. Ép buộc khách hàng phải gửi tiền kỳ hạn từ 5 năm trở lên.
+D. Tăng thu phí phạt trả nợ trước hạn của khách hàng.
+Đáp án: A
+Câu 120: Tỷ lệ an toàn vốn tối thiểu (CAR - Capital Adequacy Ratio) theo chuẩn mực Basel II / Thông tư của NHNN yêu cầu TCTD phải duy trì tối thiểu là:
+A. 6.0%.
+B. 8.0%.
+C. 10.0%.
+D. 12.0%.
+Đáp án: B
+Câu 121: Trong nghiệp vụ tài trợ thương mại, Thư tín dụng dự phòng (Standby L/C) hoạt động với chức năng tương tự như sản phẩm nào:
+A. Hợp đồng cho vay thấu chi tài khoản.
+B. Bảo lãnh ngân hàng (Bank Guarantee).
+C. Thẻ tín dụng quốc tế.
+D. Sổ tiết kiệm có kỳ hạn.
+Đáp án: B
+Câu 122: Khi kiểm tra chứng từ theo L/C, nếu phát hiện thông tin về tên hàng hóa trên Hóa đơn thương mại không khớp đúng hoàn toàn với mô tả hàng hóa trong L/C, Ngân hàng sẽ xử lý:
+A. Bỏ qua nếu giá trị hóa đơn không thay đổi.
+B. Tự động chỉnh sửa hóa đơn cho khớp với L/C.
+C. Báo lỗi bất hợp lệ (Discrepancy) và từ chối thanh toán cho đến khi lỗi được khắc phục hoặc Bên mở L/C chấp nhận bỏ qua lỗi.
+D. Hủy bỏ L/C ngay lập tức và phạt Bên xuất khẩu.
+Đáp án: C
+Câu 123: Điểm khác biệt căn bản giữa Chuyển tiền bằng Điện (T/T in advance - Trả trước) và Tín dụng thư (L/C) là:
+A. T/T trả trước phụ thuộc hoàn toàn vào sự uy tín của Bên bán, còn L/C có sự cam kết thanh toán độc lập của Ngân hàng.
+B. T/T trả trước yêu cầu Ngân hàng phải kiểm tra bộ chứng từ giao hàng tỉ mỉ hơn L/C.
+C. T/T trả trước chỉ áp dụng cho giao dịch đồng Việt Nam.
+D. L/C không bắt buộc phải có hợp đồng ngoại thương đi kèm.
+Đáp án: A
+Câu 124: Hệ thống thanh toán SWIFT (Society for Worldwide Interbank Financial Telecommunication) đóng vai trò gì trong thanh toán quốc tế:
+A. Là quỹ tiền tệ đứng ra thanh toán bù trừ trực tiếp tiền mặt giữa các quốc gia.
+B. Là mạng lưới viễn thông tài chính an toàn truyền nhận các thông điệp chuẩn hóa giữa các ngân hàng thành viên toàn cầu.
+C. Là cơ quan đứng ra hòa giải tranh chấp hợp đồng thương mại quốc tế.
+D. Là đơn vị ấn định tỷ giá hối đoái cố định hàng ngày cho các Ngân hàng Thương mại.
+Đáp án: B
+Câu 125: Nhóm điều kiện giao hàng Incoterms 2020 quy định về "CIF" (Cost, Insurance and Freight) nghĩa là Bên bán có nghĩa vụ:
+A. Giao hàng tại xưởng của Bên bán và không chịu chi phí vận chuyển.
+B. Trả cước phí vận tải và mua bảo hiểm đường biển cho lô hàng đến cảng quy định.
+C. Chịu toàn bộ rủi ro cho đến khi hàng được giao đến tận kho của Bên mua.
+D. Chỉ chịu trách nhiệm làm thủ tục nhập khẩu tại nước Bên mua.
+Đáp án: B
+Câu 126: Giao dịch Open Banking (Ngân hàng mở) thông qua kết nối Open API cho phép:
+A. Các công ty Fintech / Bên thứ ba được tích hợp và truy cập (khi có sự đồng ý của khách hàng) để cung cấp dịch vụ tài chính liên kết.
+B. Cho phép công chúng truy cập tự do vào tài khoản cá nhân của Lãnh đạo ngân hàng.
+C. Xóa bỏ hoàn toàn quy trình xác thực mật khẩu khi giao dịch.
+D. Tự động trích tiền từ tài khoản khách hàng để đầu tư chứng khoán.
+Đáp án: A
+Câu 127: Rủi ro an ninh mạng dạng "Phishing" (Lừa đảo giả mạo) thường thực hiện qua hình thức nào để chiếm đoạt tài khoản Ngân hàng số:
+A. Gửi email/tin nhắn chứa đường link giả mạo giao diện ngân hàng để dụ người dùng nhập User, Mật khẩu và OTP.
+B. Tấn công trực tiếp làm ngắt kết nối đường truyền cáp quang biển.
+C. Đột nhập vật lý vào phòng máy chủ (Server) của ngân hàng.
+D. Sử dụng máy tính cấu hình cao để dò tìm số thẻ ATM.
+Đáp án: A
+Câu 128: Khái niệm "Chuyển đổi số" trong hoạt động Ngân hàng thương mại không chỉ là số hóa chứng từ mà cốt lõi là:
+A. Mua sắm thêm nhiều máy tính đắt tiền cho nhân viên.
+B. Thay đổi quy trình nghiệp vụ, mô hình kinh doanh và trải nghiệm khách hàng dựa trên dữ liệu và công nghệ số.
+C. Bỏ hoàn bộ các phòng giao dịch truyền thống trong vòng 1 năm.
+D. Bắt buộc 100% khách hàng phải sử dụng thẻ tín dụng.
+Đáp án: B
+Câu 129: Công nghệ Blockchain được ứng dụng trong thanh toán và tài trợ thương mại có ưu điểm vượt trội nào:
+A. Cho phép chỉnh sửa dữ liệu lịch sử giao dịch một cách dễ dàng.
+B. Dữ liệu phân tán, minh bạch, bất biến (không thể sửa xóa) và giảm thiểu rủi ro gian lận chứng từ.
+C. Không cần kết nối mạng Internet vẫn giao dịch được.
+D. Miễn trừ hoàn toàn nghĩa vụ phòng chống rửa tiền.
+Đáp án: B
+Câu 130: Hệ thống SoftPOS biến điện thoại thông minh thành máy chấp nhận thanh toán thẻ nhờ ứng dụng công nghệ kết nối không dây tầm ngắn nào:
+A. Bluetooth 5.0.
+B. NFC (Near Field Communication).
+C. Wifi Direct.
+D. Hồng ngoại (Infrared).
+Đáp án: B
+Câu 131: Tài sản bảo đảm là Quyền sử dụng đất thuê trả tiền hàng năm (theo Luật Đất đai) có được dùng để thế chấp vay vốn tại Ngân hàng thương mại hay không:
+A. Được thế chấp bình thường như đất trả tiền một lần.
+B. Không được thế chấp Quyền sử dụng đất, chỉ được thế chấp tài sản gắn liền với đất thuê đó (nếu đủ điều kiện).
+C. Được thế chấp nếu có xác nhận của Tổ trưởng dân phố.
+D. Được thế chấp nếu thời hạn thuê đất còn dưới 1 năm.
+Đáp án: B
+Câu 132: Việc đăng ký biện pháp bảo đảm đối với động sản (trừ tàu bay, tàu biển, chứng khoán đăng ký tập trung) được thực hiện tại cơ quan nào:
+A. Văn phòng đăng ký đất đai thuộc Sở Tài nguyên và Môi trường.
+B. Trung tâm Đăng ký giao dịch, tài sản thuộc Cục Đăng ký quốc gia giao dịch bảo đảm (Bộ Tư pháp).
+C. Phòng Cảnh sát giao thông Công an tỉnh.
+D. UBND cấp huyện nơi bên thế chấp đặt trụ sở.
+Đáp án: B
+Câu 133: Khi xử lý tài sản bảo đảm là Bất động sản để thu hồi nợ, trường hợp Bên thế chấp cố tình không bàn giao tài sản, Ngân hàng xử lý như thế nào theo quy định pháp luật:
+A. Khởi kiện ra Tòa án có thẩm quyền để yêu cầu giải quyết theo quy định của pháp luật tố tụng dân sự.
+B. Bắt buộc cán bộ tín dụng phải tự tháo dỡ khóa cửa để vào tiếp quản.
+C. Tự động chuyển quyền sở hữu bất động sản sang tên cán bộ thụ lý hồ sơ.
+D. Hủy bỏ toàn bộ khoản nợ xấu trên sổ sách kế toán.
+Đáp án: A
+Câu 134: Thứ tự ưu tiên thanh toán khi xử lý tài sản bảo đảm phục vụ thu hồi nợ (khi tài sản dùng để bảo đảm cho nhiều nghĩa vụ) được xác định theo nguyên tắc nào:
+A. Ưu tiên khoản vay có số dư lớn hơn.
+B. Ưu tiên theo thứ tự hiệu lực đối kháng với bên thứ ba (thời điểm đăng ký biện pháp bảo đảm).
+C. Ưu tiên khoản vay của khách hàng cá nhân trước khách hàng doanh nghiệp.
+D. Ưu tiên khoản vay có lãi suất cao hơn.
+Đáp án: B
+Câu 135: Khi nhận thế chấp Tài sản bảo đảm là Cổ phiếu của công ty chưa niêm yết (công ty đại chúng chưa niêm yết hoặc công ty TNHH), rủi ro lớn nhất đối với Ngân hàng là:
+A. Tính thanh khoản kém và khó xác định chính xác giá trị thực tế khi cần xử lý thu hồi nợ.
+B. Cổ phiếu bị thay đổi màu sắc in trên phôi.
+C. Ủy ban Chứng khoán Nhà nước từ chối cấp mã cổ phiếu.
+D. Chủ sở hữu cổ phiếu không được chia cổ tức.
+Đáp án: A
+Câu 136: Tỷ lệ chi trả bồi thường tối đa của Bảo hiểm tiền gửi Việt Nam đối với một cá nhân gửi tiền tại một TCTD bị phá sản (theo quy định hiện hành) là:
+A. 75 triệu đồng.
+B. 125 triệu đồng.
+C. 200 triệu đồng.
+D. 500 triệu đồng.
+Đáp án: B
+Câu 137: Vốn tự có của Ngân hàng thương mại bao gồm hai thành phần chính cấu thành là:
+A. Vốn Cấp 1 (Vốn cơ bản) và Vốn Cấp 2 (Vốn bổ sung).
+B. Tiền gửi tiết kiệm và Tiền gửi thanh toán.
+C. Dư nợ ngắn hạn và Dư nợ trung dài hạn.
+D. Vốn vay Ngân hàng Nhà nước và Vốn vay các TCTD khác.
+Đáp án: A
+Câu 138: Khi chỉ số LDR (Loan to Deposit Ratio - Tỷ lệ dư nợ cho vay trên tổng tiền gửi) của ngân hàng quá cao (vượt ngưỡng an toàn), rủi ro nào sẽ gia tăng mạnh nhất:
+A. Rủi ro thanh khoản (Liquidity Risk).
+B. Rủi ro gian lận công nghệ thông tin.
+C. Rủi ro vi phạm bản quyền phần mềm.
+D. Rủi ro sai lệch tỷ giá hối đoái.
+Đáp án: A
+Câu 139: Rủi ro hoạt động (Operational Risk) trong ngân hàng bao gồm rủi ro do yếu tố nào gây ra:
+A. Con người (gian lận/sai sót), quy trình nội bộ không hoàn thiện, hệ thống công nghệ sự cố hoặc do sự kiện bên ngoài.
+B. Sự biến động của lãi suất thị trường thế giới.
+C. Sự suy giảm giá trị của tài sản thế chấp do thiên tai.
+D. Khách hàng doanh nghiệp bị phá sản do kinh doanh thua lỗ.
+Đáp án: A
+Câu 140: Việc thực hiện Trích lập dự phòng rủi ro tín dụng đầy đủ theo quy định của Ngân hàng Nhà nước có tác động trực tiếp như thế nào đến Báo cáo kết quả kinh doanh của Ngân hàng:
+A. Làm tăng chi phí hoạt động, từ đó làm giảm lợi nhuận trước thuế trong kỳ của ngân hàng.
+B. Làm tăng trực tiếp thu nhập từ hoạt động dịch vụ.
+C. Không ảnh hưởng gì đến lợi nhuận vì đây chỉ là khoản ghi chép ngoại bảng.
+D. Làm tăng vốn điều lệ của ngân hàng ngay lập tức.
+Đáp án: A
+Câu 141: Trong quy trình tín dụng, giai đoạn "Giải ngân khoản vay" bắt buộc phải được thực hiện sau khi:
+A. Đã hoàn thành phê duyệt cấp tín dụng và hoàn tất ký kết Hợp đồng tín dụng, Hợp đồng bảo đảm, đăng ký giao dịch bảo đảm (nếu có) đúng quy định.
+B. Khách hàng đã sử dụng hết toàn bộ vốn tự có vào dự án.
+C. Khách hàng nộp đủ tiền lãi của kỳ đầu tiên.
+D. Cán bộ tín dụng thực hiện xong kiểm tra sau giải ngân.
+Đáp án: A
+Câu 142: Trường hợp khách hàng đề nghị Chuyển nợ quá hạn đối với khoản vay đến hạn không trả được nợ gốc, ngày chuyển nợ quá hạn được tính là:
+A. Ngày làm việc tiếp theo ngay sau ngày đến hạn trả nợ mà khách hàng không trả được (và không được gia hạn).
+B. Sau 30 ngày kể từ ngày đến hạn trả nợ.
+C. Sau 90 ngày kể từ ngày đến hạn trả nợ.
+D. Do Cán bộ tín dụng tự lựa chọn ngày phù hợp trên phần mềm.
+Đáp án: A
+Câu 143: Trong bảo lãnh ngân hàng, "Bảo lãnh thực hiện hợp đồng" nhằm mục đích bảo đảm cho nghĩa vụ nào của Bên được bảo lãnh:
+A. Nghĩa vụ hoàn trả tiền ứng trước cho Bên nhận bảo lãnh.
+B. Nghĩa vụ thực hiện đúng, đầy đủ các điều khoản đã cam kết trong hợp đồng ký kết với Bên nhận bảo lãnh.
+C. Nghĩa vụ bảo hành sản phẩm sau khi nghiệm thu bàn giao.
+D. Nghĩa vụ tham gia dự thầu đúng quy chế.
+Đáp án: B
+Câu 144: Thời hạn hiệu lực của một Cam kết bảo lãnh ngân hàng được xác định từ:
+A. Ngày phát hành cam kết bảo lãnh (hoặc ngày ghi trong thư bảo lãnh) cho đến thời điểm hết hiệu lực quy định trong cam kết.
+B. Ngày khách hàng hoàn tất trả hết nợ vay tại ngân hàng.
+C. Mặc định là 01 năm kể từ ngày phát hành.
+D. Vĩnh viễn cho đến khi các bên có văn bản hủy bỏ.
+Đáp án: A
+Câu 145: Yếu tố nào sau đây không thuộc nhóm thông tin định danh cá nhân (PII) cần bảo mật tuyệt đối theo quy định an toàn thông tin ngân hàng:
+A. Số định danh cá nhân / Số CCCD.
+B. Dữ liệu sinh trắc học (vân tay, khuôn mặt).
+C. Biểu phí dịch vụ chuyển tiền niêm yết công khai trên Website ngân hàng.
+D. Mật khẩu đăng nhập ứng dụng Ngân hàng số và mã PIN thẻ.
+Đáp án: C
+Câu 146: Khái niệm "Kiểm toán độc lập" đối với Báo cáo tài chính hàng năm của Ngân hàng thương mại nhằm mục đích:
+A. Cung cấp ý kiến độc lập về tính trung thực và hợp lý của Báo cáo tài chính theo chuẩn mực kế toán.
+B. Thay thế vai trò của Ngân hàng Nhà nước trong việc quản lý ngân hàng.
+C. Định giá lại toàn bộ cổ phiếu của ngân hàng trên thị trường chứng khoán.
+D. Trực tiếp thu hồi các khoản nợ quá hạn khó đòi.
+Đáp án: A
+Câu 147: Khi khách hàng phát sinh hành vi gian lận cố ý sử dụng giấy tờ giả để vay vốn ngân hàng, ngân hàng phải xử lý thế nào:
+A. Dừng ngay việc cấp tín dụng, chuyển hồ sơ sang cơ quan công an/cơ quan điều tra xử lý theo quy định pháp luật hình sự.
+B. Yêu cầu khách hàng nộp một khoản tiền phạt hành chính trực tiếp cho cán bộ tín dụng.
+C. Linh động cho khách hàng bổ sung giấy tờ thật trong vòng 6 tháng.
+D. Tự động chuyển khoản vay thành khoản bảo lãnh.
+Đáp án: A
+Câu 148: Việc quản lý tài khoản tiền gửi thanh toán của Học sinh/Người dưới 15 tuổi theo quy định pháp luật phải có điều kiện gì:
+A. Phải được người đại diện theo pháp luật đồng ý hoặc trực tiếp thực hiện giao dịch theo quy định.
+B. Không được phép mở tài khoản dưới mọi hình thức.
+C. Được phép tự do vay thấu chi tài khoản không giới hạn.
+D. Chỉ được mở tài khoản bằng ngoại tệ.
+Đáp án: A
+Câu 149: Một khoản cho vay có thời hạn 5 năm, định kỳ trả nợ gốc hàng tháng. Khi khách hàng chậm trả nợ gốc của 01 kỳ quá 91 ngày, toàn bộ dư nợ còn lại của khoản vay sẽ bị phân loại vào:
+A. Nợ nhóm 1 (vì các kỳ trước trả đúng hạn).
+B. Nợ nhóm 2.
+C. Nợ nhóm 3 (Nợ dưới tiêu chuẩn) theo nguyên tắc phân loại toàn bộ dư nợ theo nhóm rủi ro cao nhất.
+D. Chỉ phân loại riêng số tiền gốc quá hạn vào nhóm 3, số còn lại giữ nhóm 1.
+Đáp án: C
+Câu 150: Mục tiêu cốt lõi của việc áp dụng Chuẩn mực Quản trị rủi ro Basel II/Basel III trong hoạt động của Ngân hàng Thương mại là:
+A. Nâng cao năng lực tài chính, quản trị rủi ro toàn diện và đảm bảo mức độ đệm vốn an toàn trước các biến động thị trường.
+B. Giảm bớt số lượng báo cáo phải nộp cho Ngân hàng Nhà nước.
+C. Tăng tốc độ giải ngân khoản vay lên gấp 2 lần.
+D. Loại bỏ hoàn toàn vai trò của Kiểm soát nội bộ.
+Đáp án: A
+Câu 151: Khi khách hàng rút tiền tại cây ATM khác hệ thống (Off-us) bị trừ tiền trên tài khoản nhưng máy không nhả tiền, quy trình xử lý tra soát liên ngân hàng được thực hiện qua đơn vị trung gian nào:
+A. Trung tâm Điện toán Ngân hàng Nhà nước.
+B. Công ty Cổ phần Thanh toán Quốc gia Việt Nam (Napas).
+C. Hiệp hội Ngân hàng Việt Nam (VNBA).
+D. Cục Công nghệ thông tin - Ngân hàng Nhà nước.
+Đáp án: B
+Câu 152: Trong giao dịch thanh toán thẻ qua máy POS, sự cố "Timeout" (Hết thời gian chờ) xảy ra khi:
+A. Thẻ của khách hàng bị khóa do nhập sai PIN 3 lần tại ATM.
+B. Hệ thống POS không nhận được phản hồi cấp phép từ Ngân hàng phát hành trong khoảng thời gian quy định.
+C. Tài khoản của chủ thẻ không đủ số dư khả dụng để thực hiện giao dịch.
+D. Máy POS hết giấy in hóa đơn thanh toán.
+Đáp án: B
+Câu 153: Tính năng "Thấu chi tài khoản thanh toán" (Overdraft) cấp cho khách hàng cá nhân cho phép chủ tài khoản:
+A. Tự động quy đổi ngoại tệ không hạn mức trên ứng dụng Ngân hàng số.
+B. Rút tiền hoặc chuyển khoản vượt quá số dư Có trên tài khoản trong hạn mức được cấp.
+C. Được miễn hoàn toàn các loại phí giao dịch chuyển tiền liên ngân hàng.
+D. Rút tiền mặt tại tất cả cây ATM trên toàn cầu không tốn phí.
+Đáp án: B
+Câu 154: Tiêu chuẩn an toàn bảo mật dữ liệu thẻ quốc tế (PCI-DSS) quy định ngân hàng và đơn vị chấp nhận thẻ không được phép lưu trữ thông tin nào sau khi giao dịch đã hoàn tất xác thực:
+A. Mã bảo mật CVV2/CVC2 và dữ liệu mã PIN của chủ thẻ.
+B. Họ và tên hiển thị của chủ thẻ trên mặt trước.
+C. Mã ngân hàng phát hành thẻ (BIN).
+D. Ngày hết hạn của thẻ.
+Đáp án: A
+Câu 155: Trong nghiệp vụ chuyển tiền điện tử, rủi ro "Thanh toán trùng" (Duplicate Payment) thường phát sinh chủ yếu do nguyên nhân nào từ phía vận hành:
+A. Đường truyền mạng internet của chi nhánh bị gián đoạn giữa chừng.
+B. Giao dịch viên thực hiện duyệt lại lệnh bị ngắt kết nối/timeout mà chưa xác minh trạng thái thực tế trên hệ thống đối soát.
+C. Khách hàng thực hiện lệnh chuyển tiền vào ngày nghỉ, lễ.
+D. Hệ thống Core Banking tự động nhân đôi giá trị giao dịch.
+Đáp án: B
+Câu 156: Phân tích chỉ số "Hệ số thanh toán hiện hành" (Current Ratio = Tài sản ngắn hạn / Nợ ngắn hạn) trên Báo cáo tài chính doanh nghiệp giúp ngân hàng đánh giá:
+A. Hiệu quả khai thác và vòng quay tài sản cố định của doanh nghiệp.
+B. Khả năng trang trải các khoản nợ ngắn hạn bằng các tài sản ngắn hạn hiện có.
+C. Tỷ lệ lợi nhuận thuần giữ lại để bổ sung vốn điều lệ.
+D. Mức độ độc lập về tài chính của doanh nghiệp đối với vốn chủ sở hữu.
+Đáp án: B
+Câu 157: Chỉ số "Tỷ lệ nợ trên vốn chủ sở hữu" (D/E - Debt to Equity) của doanh nghiệp vay vốn tăng quá cao phản ánh rủi ro nào đối với ngân hàng:
+A. Doanh nghiệp đang quản lý dòng tiền rất hiệu quả và tối ưu hóa chi phí.
+B. Doanh nghiệp phụ thuộc lớn vào vốn vay, khả năng chịu đựng rủi ro tài chính kém khi gặp biến động thị trường.
+C. Doanh nghiệp có năng lực tự chủ tài chính tuyệt đối.
+D. Doanh nghiệp có biên lợi nhuận ròng đạt mức tối đa trong ngành.
+Đáp án: B
+Câu 158: Khoản "Phải thu khách hàng" (Accounts Receivable) thể hiện trên Bảng cân đối kế toán của Doanh nghiệp vay vốn đại diện cho:
+A. Số tiền doanh nghiệp đang nợ các nhà cung cấp nguyên vật liệu chưa thanh toán.
+B. Số tiền khách hàng đang nợ doanh nghiệp do mua hàng hóa/dịch vụ theo hình thức trả chậm.
+C. Tiền gửi tiết kiệm có kỳ hạn của doanh nghiệp gửi tại các ngân hàng thương mại.
+D. Giá trị nguyên vật liệu và thành phẩm đang tồn trữ trong kho.
+Đáp án: B
+Câu 159: Sự khác biệt cơ bản giữa "Lợi nhuận kế toán" và "Dòng tiền thực tế" của doanh nghiệp xuất phát từ nguyên tắc kế toán nào:
+A. Nguyên tắc dồn tích (Accrual basis) ghi nhận doanh thu và chi phí tại thời điểm phát sinh chứ không phụ thuộc vào thời điểm thu/chi tiền mặt.
+B. Nguyên tắc giá gốc trong đánh giá tài sản cố định.
+C. Nguyên tắc thận trọng khi lập dự phòng giảm giá hàng tồn kho.
+D. Nguyên tắc trọng yếu trong trình bày báo cáo tài chính.
+Đáp án: A
+Câu 160: Dòng tiền từ hoạt động kinh doanh (Cash Flow from Operating Activities) trên Báo cáo lưu chuyển tiền tệ của doanh nghiệp bị âm liên tục trong nhiều kỳ phản ánh:
+A. Doanh nghiệp đang đầu tư mở rộng thêm nhiều nhà xưởng mới.
+B. Hoạt động kinh doanh cốt lõi không tự tạo đủ tiền mặt để duy trì vận hành, buộc phải phụ thuộc vào vay nợ hoặc bán tài sản.
+C. Doanh nghiệp vừa trả hết các khoản nợ vay trung dài hạn.
+D. Doanh nghiệp thực hiện chi trả cổ tức bằng tiền mặt cho cổ đông.
+Đáp án: B
+Câu 161: Căn cứ quy định của Bộ luật Dân sự, tư cách "Người đại diện theo pháp luật" của doanh nghiệp được xác định dựa trên văn bản nào:
+A. Hợp đồng lao động ký giữa Doanh nghiệp và Tổng giám đốc.
+B. Điều lệ của doanh nghiệp hoặc Quyết định của cơ quan nhà nước có thẩm quyền.
+C. Biên bản họp giao ban hàng tháng của Ban điều hành.
+D. Giấy ủy quyền của Chủ tịch Hội đồng quản trị.
+Đáp án: B
+Câu 162: Thời hiệu khởi kiện yêu cầu Tòa án giải quyết tranh chấp hợp đồng thương mại/tín dụng theo quy định chung của Bộ luật Dân sự là:
+A. 01 năm kể từ ngày bên có quyền biết hoặc phải biết quyền và lợi ích hợp pháp của mình bị xâm phạm.
+B. 02 năm kể từ ngày bên có quyền biết hoặc phải biết quyền và lợi ích hợp pháp của mình bị xâm phạm.
+C. 03 năm kể từ ngày bên có quyền biết hoặc phải biết quyền và lợi ích hợp pháp của mình bị xâm phạm.
+D. Không bị giới hạn về thời gian khởi kiện.
+Đáp án: C
+Câu 163: Hậu quả pháp lý về mặt tài sản khi Hợp đồng tín dụng bị Tòa án tuyên vô hiệu là:
+A. Các bên khôi phục lại trạng thái ban đầu, hoàn trả cho nhau những gì đã nhận (Bên vay trả lại nợ gốc cho Ngân hàng).
+B. Bên vay được miễn hoàn toàn nghĩa vụ trả nợ gốc và nợ lãi.
+C. Toàn bộ dư nợ gốc bị thu hồi và tịch thu nộp vào ngân sách nhà nước.
+D. Ngân hàng phải bồi thường toàn bộ thiệt hại kinh doanh cho Bên vay.
+Đáp án: A
+Câu 164: Khái niệm "Nghĩa vụ bảo mật thông tin khách hàng" của Ngân hàng thương mại theo Luật Các TCTD được phép miễn trừ trong trường hợp nào sau đây:
+A. Khi có yêu cầu bằng văn bản của cơ quan nhà nước có thẩm quyền theo quy định của pháp luật hoặc được sự đồng ý của khách hàng.
+B. Khi người thân (vợ/chồng, con) của khách hàng mang giấy tờ nhân thân đến truy vấn.
+C. Khi đối tác kinh doanh gửi văn bản đề nghị xác minh năng lực tài chính của khách hàng.
+D. Khi đại diện cơ quan báo chí đến phỏng vấn thu thập thông tin.
+Đáp án: A
+Câu 165: Sự khác nhau căn bản giữa biện pháp "Cầm cố tài sản" và "Thế chấp tài sản" trong giao dịch bảo đảm là:
+A. Cầm cố bắt buộc tài sản bảo đảm phải là động sản, còn thế chấp chỉ áp dụng cho bất động sản.
+B. Cầm cố yêu cầu chuyển giao tài sản cho bên nhận cầm cố nắm giữ, còn Thế chấp do bên thế chấp tiếp tục nắm giữ (trừ trường hợp có thỏa thuận khác).
+C. Hợp đồng thế chấp phải công chứng, còn hợp đồng cầm cố không cần lập thành văn bản.
+D. Thế chấp yêu cầu phải có Bên thứ ba tham gia bảo lãnh.
+Đáp án: B
+Câu 166: Khi tài sản bảo đảm là Quyền sử dụng đất bị xử lý để thu hồi nợ thông qua hình thức đấu giá, cơ quan/tổ chức nào có thẩm quyền đứng ra tổ chức phiên đấu giá:
+A. Văn phòng Đăng ký đất đai thuộc Sở Tài nguyên và Môi trường.
+B. Tổ chức đấu giá tài sản hợp pháp hoặc Ngân hàng tự bán đấu giá theo thỏa thuận/quy định.
+C. Ủy ban nhân dân cấp xã nơi có đất.
+D. Tòa án nhân dân cấp huyện nơi phát sinh tranh chấp.
+Đáp án: B
+Câu 167: Khi lập Hợp đồng thế chấp tài sản, nếu các bên không thỏa thuận cụ thể về phạm vi nghĩa vụ được bảo đảm thì nghĩa vụ bảo đảm mặc định được xác định bao gồm:
+A. Chỉ bao gồm tiền nợ gốc của khoản vay.
+B. Toàn bộ nghĩa vụ, bao gồm nợ gốc, tiền lãi, tiền phạt vi phạm và tiền bồi thường thiệt hại (nếu có).
+C. Chỉ bao gồm tiền nợ gốc và tiền lãi trong hạn.
+D. Do Tòa án ấn định tỷ lệ bảo đảm sau khi phát mại tài sản.
+Đáp án: B
+Câu 168: Mức trần tối đa của "Lãi chậm trả" đối với phần nợ lãi quá hạn theo thỏa thuận trong hợp đồng tín dụng (theo quy định của pháp luật dân sự hiện hành) là:
+A. Không vượt quá 10%/năm trên số tiền lãi chậm trả.
+B. Không vượt quá 20%/năm trên số tiền lãi chậm trả.
+C. Không vượt quá 150% lãi suất cho vay trong hạn.
+D. Ngân hàng được tự do ấn định không giới hạn.
+Đáp án: A
+Câu 169: Việc đăng ký biện pháp bảo đảm đối với tài sản là Xe ô tô, Máy móc thiết bị (Động sản) được thực hiện tại cơ quan chuyên trách nào:
+A. Văn phòng đăng ký đất đai thuộc Sở Tài nguyên và Môi trường.
+B. Trung tâm Đăng ký giao dịch, tài sản thuộc Cục Đăng ký quốc gia giao dịch bảo đảm (Bộ Tư pháp).
+C. Phòng Cảnh sát giao thông Công cấp tỉnh.
+D. Phòng Đăng ký kinh doanh thuộc Sở Kế hoạch và Đầu tư.
+Đáp án: B
+Câu 170: Hành vi người vay dùng tài sản thuộc sở hữu của Bên thứ ba để thế chấp bảo đảm cho khoản vay của mình tại Ngân hàng được gọi là:
+A. Thế chấp tài sản của Bên thứ ba (Thế chấp bảo lãnh).
+B. Ủy quyền trả nợ thay.
+C. Cầm cố tài sản hình thành trong tương lai.
+D. Chuyển giao nghĩa vụ trả nợ.
+Đáp án: A
+Câu 171: Đối tượng nào sau đây thuộc nhóm "Đối tượng có nghĩa vụ báo cáo" theo quy định của Luật Phòng, chống rửa tiền:
+A. Tổ chức tài chính (Ngân hàng, Công ty chứng khoán, Bảo hiểm) và Tổ chức, cá nhân kinh doanh ngành nghề phi tài chính có liên quan.
+B. Mọi công dân Việt Nam đủ 18 tuổi trở lên có tài khoản ngân hàng.
+C. Các cơ quan quản lý hành chính nhà nước ở trung ương và địa phương.
+D. Các doanh nghiệp sản xuất hàng tiêu dùng nội địa.
+Đáp án: A
+Câu 172: Trong kỹ thuật rửa tiền, hành vi "Băm nhỏ giao dịch" (Structuring / Smurfing) được hiểu là việc khách hàng cố ý:
+A. Chia một giao dịch số lượng tiền mặt lớn thành nhiều giao dịch nhỏ dưới mức giá trị phải báo cáo nhằm tránh sự kiểm soát của ngân hàng.
+B. Thực hiện chuyển tiền liên tục qua nhiều tài khoản của các ngân hàng khác nhau trong cùng một ngày.
+C. Nộp tiền mặt vào tài khoản rồi lập tức rút ra ngay tại cây ATM.
+D. Sử dụng nhiều giấy tờ tùy thân khác nhau để mở tài khoản thanh toán.
+Đáp án: A
+Câu 173: Khi phát hiện giao dịch của khách hàng nằm trong "Danh sách đen" (Blacklist) liên quan đến tài trợ khủng bố, Ngân hàng phải thực hiện ngay hành động khẩn cấp nào:
+A. Trì hoãn giao dịch / phong tỏa tài khoản và báo cáo ngay cho cơ quan nhà nước có thẩm quyền.
+B. Gọi điện thông báo cho khách hàng biết để đến quầy đính chính thông tin.
+C. Cho phép giao dịch hoàn tất bình thường rồi gửi báo cáo sau 30 ngày.
+D. Tự động tịch thu toàn bộ số tiền trên tài khoản chuyển vào thu nhập ngân hàng.
+Đáp án: A
+Câu 174: Thuật ngữ "Chủ sở hữu hưởng lợi" (Beneficial Owner) trong quy trình kiểm soát KYC/AML được định nghĩa là:
+A. Cá nhân thực tế sở hữu hoặc nắm quyền kiểm soát cuối cùng đối với khách hàng tổ chức.
+B. Kế toán trưởng hoặc Trưởng phòng Tài chính của doanh nghiệp.
+C. Người đứng tên trên Giấy chứng nhận đăng ký doanh nghiệp.
+D. Cổ đông sở hữu dưới 1% tổng số cổ phần phổ thông của công ty.
+Đáp án: A
+Câu 175: Nguyên tắc "Biết khách hàng của bạn" (KYC - Know Your Customer) yêu cầu cán bộ ngân hàng bắt buộc phải thực hiện thu thập thông tin nào:
+A. Định danh cá nhân/tổ chức, xác minh thông tin, mục đích thiết lập mối quan hệ và bản chất của các giao dịch.
+B. Lịch sử quá trình học tập và công tác từ nhỏ của khách hàng.
+C. Quan điểm chính trị và tôn giáo của khách hàng.
+D. Thói quen tiêu dùng cá nhân và lịch trình di chuyển hàng ngày.
+Đáp án: A
+Câu 176: Thuật ngữ "PEP" (Politically Exposed Persons) trong công tác phòng chống rửa tiền dùng để chỉ nhóm đối tượng nào:
+A. Cá nhân giữ chức vụ cấp cao trong các cơ quan, tổ chức nhà nước hoặc tổ chức quốc tế (và người có liên quan).
+B. Tất cả cán bộ, công chức làm việc tại các cơ quan quản lý nhà nước.
+C. Các doanh nhân thành đạt nắm giữ chức vụ Chủ tịch HĐQT doanh nghiệp tư nhân.
+D. Cán bộ quản lý cấp trung làm việc trong hệ thống ngân hàng.
+Đáp án: A
+Câu 177: Trong quy định về quy tắc đạo đức nghề nghiệp, hành vi "Tiết lộ thông tin báo cáo giao dịch đáng ngờ" (Tipping-off) cho đối tượng bị báo cáo biết bị xử lý như thế nào:
+A. Là hành vi bị nghiêm cấm tuyệt đối theo quy định của Luật Phòng, chống rửa tiền.
+B. Được phép nếu khách hàng là người thân thiết của cán bộ ngân hàng.
+C. Chỉ bị nhắc nhở nội bộ nếu giao dịch chưa thực hiện thành công.
+D. Được khuyến khích để khách hàng giải trình kịp thời.
+Đáp án: A
+Câu 178: Nhằm phòng tránh xung đột lợi ích, cán bộ tín dụng không được trực tiếp thẩm định hoặc tham gia phê duyệt hồ sơ vay vốn của đối tượng nào:
+A. Bố, mẹ, vợ, chồng, con, anh, chị, em ruột của chính cán bộ đó.
+B. Khách hàng doanh nghiệp lần đầu tiên thiết lập quan hệ giao dịch với ngân hàng.
+C. Khách hàng là Doanh nghiệp Nhà nước hạng đặc biệt.
+D. Khách hàng cá nhân có số dư tiền gửi tiết kiệm lớn tại chi nhánh.
+Đáp án: A
+Câu 179: Tỷ lệ chi trả tiền bảo hiểm tối đa của Bảo hiểm tiền gửi Việt Nam cho một cá nhân tại một TCTD bị phá sản (theo quy định hiện hành) là:
+A. 75 triệu đồng.
+B. 125 triệu đồng.
+C. 200 triệu đồng.
+D. 500 triệu đồng.
+Đáp án: B
+Câu 180: Khái niệm "Rủi ro hoạt động" (Operational Risk) trong ngân hàng bao gồm các tổn thất phát sinh từ nguyên nhân nào:
+A. Do quy trình nội bộ không hoàn thiện/thất bại, do yếu tố con người (gian lận/sai sót), hệ thống công nghệ hoặc do sự kiện bên ngoài.
+B. Do sự biến động trái chiều của lãi suất thị trường tự do.
+C. Do sự sụt giá của tài sản bảo đảm trên thị trường bất động sản.
+D. Do khách hàng doanh nghiệp bị giải thể do thua lỗ kéo dài.
+Đáp án: A
+Câu 181: Bảng Cân đối kế toán của ngân hàng thương mại được lập dựa trên phương trình kế toán cơ bản nào:
+A. Tổng Tài sản = Tổng Nợ phải trả + Vốn chủ sở hữu.
+B. Tổng Tài sản = Tổng Doanh thu - Tổng Chi phí.
+C. Vốn chủ sở hữu = Tổng Tài sản + Tổng Nợ phải trả.
+D. Tổng Nợ phải trả = Vốn chủ sở hữu - Tổng Tài sản.
+Đáp án: A
+Câu 182: Khoản mục "Tiền gửi của khách hàng" hạch toán trên Báo cáo tài chính của Ngân hàng thương mại thuộc nhóm tài khoản nào:
+A. Tài sản (Asset).
+B. Nợ phải trả (Liability).
+C. Vốn chủ sở hữu (Equity).
+D. Thu nhập hoạt động dịch vụ.
+Đáp án: B
+Câu 183: Doanh thu từ hoạt động cho vay của Ngân hàng thương mại được ghi nhận vào khoản mục nào trên Báo cáo kết quả hoạt động kinh doanh (P&L):
+A. Thu nhập lãi và các khoản thu nhập tương tự.
+B. Thu nhập từ hoạt động dịch vụ thanh toán.
+C. Thu nhập từ kinh doanh ngoại hối và vàng.
+D. Thu hồi các khoản nợ xử lý rủi ro.
+Đáp án: A
+Câu 184: Kế toán ngân hàng thực hiện "Trích trước chi phí trả lãi tiền gửi" (Dự chi lãi) định kỳ hàng tháng nhằm tuân thủ nguyên tắc kế toán nào:
+A. Nguyên tắc Phù hợp và Dồn tích (Accrual basis).
+B. Nguyên tắc Giá gốc.
+C. Nguyên tắc Trọng yếu.
+D. Nguyên tắc Nhất quán.
+Đáp án: A
+Câu 185: Nhóm Tài khoản ngoại bảng (Đầu 9) trong hệ thống tài khoản kế toán ngân hàng có phương pháp ghi sổ đặc thù là:
+A. Hạch toán ghi đơn (Chỉ ghi Nhập hoặc Xuất, không đối ứng Nợ - Có).
+B. Hạch toán ghi sổ kép đối ứng Nợ - Có như tài khoản nội bảng.
+C. Bắt buộc phải có tài khoản nội bảng đối ứng song song.
+D. Luôn luôn không có số dư tại thời điểm cuối kỳ.
+Đáp án: A
+Câu 186: Báo cáo kết quả hoạt động kinh doanh (P&L) của ngân hàng phản ánh:
+A. Tình hình doanh thu, chi phí và lợi nhuận thuần trong một khoảng thời gian (kỳ kế toán).
+B. Thực trạng tổng tài sản và nguồn vốn tại một thời điểm cố định.
+C. Danh mục chi tiết toàn bộ tài sản thế chấp đang quản lý.
+D. Tình hình phân loại nợ xấu của từng cán bộ tín dụng.
+Đáp án: A
+Câu 187: Chứng từ kế toán ngân hàng được lưu trữ dưới dạng điện tử có giá trị pháp lý khi đáp ứng điều kiện nào:
+A. Bảo đảm tính an toàn, bảo mật, toàn vẹn dữ liệu và có khả năng truy xuất, in ra bản giấy khi có yêu cầu.
+B. Bắt buộc phải được in ra bản giấy và đóng sổ niêm phong cuối ngày.
+C. Phải truyền dữ liệu trực tiếp về Ngân hàng Nhà nước trong vòng 24 giờ.
+D. Chỉ có giá trị sử dụng trong thời hạn tối đa 01 năm.
+Đáp án: A
+Câu 188: Khoản mục "Tiền gửi tại Ngân hàng Nhà nước" nằm ở bên nào trên Bảng cân đối kế toán của Ngân hàng thương mại:
+A. Bên Tài sản (Asset).
+B. Bên Nợ phải trả (Liability).
+C. Bên Vốn chủ sở hữu (Equity).
+D. Tài khoản theo dõi ngoại bảng.
+Đáp án: A
+Câu 189: Việc thực hiện Trích lập dự phòng rủi ro tín dụng đầy đủ theo quy định của NHNN có ảnh hưởng trực tiếp thế nào đến kết quả tài chính của ngân hàng:
+A. Làm tăng chi phí hoạt động, từ đó làm giảm lợi nhuận trước thuế trong kỳ của ngân hàng.
+B. Làm tăng trực tiếp thu nhập từ hoạt động dịch vụ.
+C. Không ảnh hưởng đến lợi nhuận vì chỉ hạch toán ngoại bảng.
+D. Làm tăng vốn điều lệ của ngân hàng ngay lập tức.
+Đáp án: A
+Câu 190: Khi phát sinh chênh lệch thiếu tiền mặt quỹ cuối ngày chưa rõ nguyên nhân, Giao dịch viên/Thủ quỹ phải hạch toán vào tài khoản nào:
+A. Tài khoản "Thiếu chờ xử lý" (Bên Nợ).
+B. Tài khoản "Thu nhập khác".
+C. Tài khoản "Chi phí quản lý doanh nghiệp".
+D. Trực tiếp ghi giảm Vốn điều lệ của Chi nhánh.
+Đáp án: A
+Câu 191: Khái niệm "DRS" (Disaster Recovery Site - Trung tâm dự phòng thảm họa) trong hệ thống CNTT ngân hàng đóng vai trò:
+A. Sẵn sàng duy trì và khôi phục hoạt động của hệ thống ngân hàng khi Trung tâm dữ liệu chính (Main DC) gặp sự cố thảm họa.
+B. Lưu trữ kho hồ sơ chứng từ giấy của các khoản nợ đã xử lý rủi ro.
+C. Làm văn phòng làm việc tạm thời cho cán bộ vi phạm kỷ luật.
+D. Tổ chức tập huấn công tác phòng cháy chữa cháy định kỳ.
+Đáp án: A
+Câu 192: Yếu tố nào làm cho Mã xác thực OTP (One-Time Password) có tính an toàn cao hơn mật khẩu cố định:
+A. Mật khẩu chỉ có giá trị sử dụng một lần và tự động hết hạn trong khoảng thời gian rất ngắn (thường 30 - 120 giây).
+B. Người dùng có thể chia sẻ cho nhiều người cùng thao tác.
+C. Do khách hàng tự cài đặt cố định từ trước trên ứng dụng.
+D. Không bị thay đổi khi thực hiện các giao dịch khác nhau.
+Đáp án: A
+Câu 193: Cuộc tấn công từ chối dịch vụ (DDoS) nhắm vào hệ thống Ngân hàng số gây ra hậu quả trực tiếp nào:
+A. Gián đoạn, ngưng trệ dịch vụ khiến khách hàng hợp pháp không thể truy cập thực hiện giao dịch.
+B. Chiếm đoạt toàn bộ tiền mặt trong két quỹ chi nhánh.
+C. Tự động chuyển toàn bộ nợ xấu thành nợ đủ tiêu chuẩn.
+D. Xóa sạch dữ liệu sổ cái kế toán trên Core Banking.
+Đáp án: A
+Câu 194: Việc phong tỏa Sổ tiết kiệm trên hệ thống phần mềm kế toán khi nhận cầm cố nhằm mục đích rủi ro chính là:
+A. Ngăn chặn khách hàng rút tiền, báo mất sổ để xin cấp lại hoặc thực hiện các giao dịch khác với sổ tiết kiệm đó.
+B. Tự động chuyển toàn bộ tiền tiết kiệm sang tài khoản thu nhập ngân hàng.
+C. Ép buộc khách hàng phải mua thêm bảo hiểm nhân thọ.
+D. Thay đổi chủ sở hữu sổ tiết kiệm sang tên Cán bộ tín dụng.
+Đáp án: A
+Câu 195: Hợp đồng thế chấp tài sản do Người được ủy quyền ký kết chỉ có hiệu lực pháp lý khi:
+A. Văn bản ủy quyền hợp pháp, còn hiệu lực và phạm vi ủy quyền bao gồm việc thế chấp tài sản đó.
+B. Người được ủy quyền có quan hệ huyết thống với bên vay.
+C. Giá trị tài sản thế chấp dưới 500 triệu đồng.
+D. Có sự xác nhận của Trưởng thôn/Tổ trưởng dân phố.
+Đáp án: A
+Câu 196: Trong quản trị ngân hàng, Mô hình 3 tuyến bảo vệ (3 Lines of Defense) được phân định theo thứ tự là:
+A. Tuyến 1 (Kinh doanh/Vận hành quản lý rủi ro hàng ngày) -> Tuyến 2 (Quản lý rủi ro & Tuân thủ giám sát) -> Tuyến 3 (Kiểm toán nội bộ đánh giá độc lập).
+B. Tuyến 1 (Kiểm toán nội bộ) -> Tuyến 2 (Ban Điều hành) -> Tuyến 3 (Khách hàng).
+C. Tuyến 1 (Bảo vệ) -> Tuyến 2 (Thủ quỹ) -> Tuyến 3 (Kế toán).
+D. Tuyến 1 (NHNN) -> Tuyến 2 (NHTM) -> Tuyến 3 (Bộ Tài chính).
+Đáp án: A
+Câu 197: Khoản cho vay thời hạn 3 năm, trả gốc định kỳ hàng tháng. Nếu khách hàng chậm trả nợ gốc của 01 kỳ quá 91 ngày, quy tắc phân loại nợ yêu cầu ngân hàng phải:
+A. Chuyển toàn bộ dư nợ còn lại của khoản vay sang Nợ nhóm 3 (Nợ dưới tiêu chuẩn).
+B. Chỉ chuyển riêng số tiền gốc quá hạn sang Nợ nhóm 3, phần còn lại giữ Nợ nhóm 1.
+C. Giữ nguyên Nợ nhóm 1 nếu khách hàng cam kết kỳ sau trả đủ.
+D. Chuyển toàn bộ khoản vay sang Nợ nhóm 5 (Nợ có khả năng mất vốn).
+Đáp án: A
+Câu 198: Trong bảo lãnh ngân hàng, "Bảo lãnh thực hiện hợp đồng" phát sinh nghĩa vụ trả tiền của Ngân hàng bảo lãnh khi nào:
+A. Bên được bảo lãnh vi phạm nghĩa vụ hợp đồng đã ký kết với Bên nhận bảo lãnh.
+B. Bên nhận bảo lãnh bị phá sản hoặc giải thể.
+C. Bên được bảo lãnh hoàn thành xuất sắc hợp đồng trước thời hạn.
+D. Khi hợp đồng giữa hai bên hết thời hạn hiệu lực.
+Đáp án: A
+Câu 199: Khi phát hiện khách hàng cố ý sử dụng giấy tờ giả mạo để làm hồ sơ vay vốn, ngân hàng xử lý theo quy định:
+A. Dừng ngay việc cấp tín dụng, lập biên bản và chuyển hồ sơ sang cơ quan công an xử lý theo quy định pháp luật.
+B. Yêu cầu khách hàng nộp tiền phạt hành chính trực tiếp tại quầy.
+C. Cho phép khách hàng bổ sung giấy tờ thật trong thời hạn 30 ngày.
+D. Chuyển khoản vay thành hình thức thấu chi tài khoản.
+Đáp án: A
+Câu 200: Mục tiêu cốt lõi của việc áp dụng Chuẩn mực Quản trị rủi ro Basel II/Basel III trong ngân hàng thương mại là:
+A. Nâng cao năng lực tài chính, quản trị rủi ro toàn diện và bảo đảm mức đệm vốn an toàn trước biến động thị trường.
+B. Giảm bớt số lượng báo cáo định kỳ phải nộp cho Ngân hàng Nhà nước.
+C. Tự động hóa 100% quy trình phê duyệt tín dụng không cần con người.
+D. Triệt tiêu hoàn toàn rủi ro tín dụng trong hoạt động cho vay.
+Đáp án: A`;
+
+        function parseRawQuestions(text) {
+            const questions = [];
+            // Cắt đoạn văn bản theo cụm "Câu X:"
+            const blocks = text.split(/Câu \d+:/g).filter(b => b.trim().length > 0);
+
+            blocks.forEach((block, index) => {
+                const lines = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                let content = "";
+                let options = ["", "", "", ""];
+                let correctIndex = 0;
+                let currentOption = -1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (line.startsWith('A.')) { options[0] = line.substring(2).trim(); currentOption = 0; }
+                    else if (line.startsWith('B.')) { options[1] = line.substring(2).trim(); currentOption = 1; }
+                    else if (line.startsWith('C.')) { options[2] = line.substring(2).trim(); currentOption = 2; }
+                    else if (line.startsWith('D.')) { options[3] = line.substring(2).trim(); currentOption = 3; }
+                    else if (line.startsWith('Đáp án:')) {
+                        const ans = line.replace('Đáp án:', '').trim().charAt(0).toUpperCase();
+                        if (ans === 'A') correctIndex = 0;
+                        else if (ans === 'B') correctIndex = 1;
+                        else if (ans === 'C') correctIndex = 2;
+                        else if (ans === 'D') correctIndex = 3;
+                    } else {
+                        // Nếu chưa chạm tới các đáp án A B C D thì nó thuộc về nội dung câu hỏi
+                        if (currentOption === -1) {
+                            content += (content.length > 0 ? " " : "") + line;
+                        }
+                    }
+                }
+
+                questions.push({
+                    content: content,
+                    options: options,
+                    correctAnswerIndex: correctIndex
+                });
+            });
+            return questions;
+        }
+
+        // Tự động giải mã văn bản 200 câu thành bộ đề thi!
+        const MY_REAL_QUESTIONS = parseRawQuestions(RAW_TEXT);
         // ==========================================================
 
+        // --- CẤU HÌNH FIREBASE ---
         let db = null, auth = null;
         let appId = 'trac-nghiem-app-v1';
         
